@@ -1,0 +1,22 @@
+# Generated files
+codegentemp/
+CortexM0/
+Export/
+Generated_Source/
+TopDesign/
+
+# Project settings
+*.cywrk.*
+*.cyprj.*
+*_datasheet.pdf
+*.cywrk
+*.cyprj
+*.cycdx
+*.cydwr
+*.cyfit
+*.rpt
+*.svd
+
+# Project logs and build
+*.log
+*_timing.html
