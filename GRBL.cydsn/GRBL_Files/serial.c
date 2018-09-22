@@ -29,9 +29,9 @@ uint8_t serial_rx_buffer[RX_RING_BUFFER];
 uint8_t serial_rx_buffer_head = 0;
 volatile uint8_t serial_rx_buffer_tail = 0;
 
-uint8_t serial_tx_buffer[TX_RING_BUFFER];
-uint8_t serial_tx_buffer_head = 0;
-volatile uint8_t serial_tx_buffer_tail = 0;
+//uint8_t serial_tx_buffer[TX_RING_BUFFER];
+//uint8_t serial_tx_buffer_head = 0;
+//volatile uint8_t serial_tx_buffer_tail = 0;
 
 
 // Returns the number of bytes available in the RX serial buffer.
@@ -55,12 +55,12 @@ uint8_t serial_get_rx_buffer_count()
 
 // Returns the number of bytes used in the TX serial buffer.
 // NOTE: Not used except for debugging and ensuring no TX bottlenecks.
-uint8_t serial_get_tx_buffer_count()
-{
-  uint8_t ttail = serial_tx_buffer_tail; // Copy to limit multiple calls to volatile
-  if (serial_tx_buffer_head >= ttail) { return(serial_tx_buffer_head-ttail); }
-  return (TX_RING_BUFFER - (ttail-serial_tx_buffer_head));
-}
+//uint8_t serial_get_tx_buffer_count()
+//{
+//  uint8_t ttail = serial_tx_buffer_tail; // Copy to limit multiple calls to volatile
+//  if (serial_tx_buffer_head >= ttail) { return(serial_tx_buffer_head-ttail); }
+//  return (TX_RING_BUFFER - (ttail-serial_tx_buffer_head));
+//}
 
 
 void serial_init()
@@ -93,49 +93,50 @@ void serial_init()
 // Writes one byte to the TX serial buffer. Called by main program.
 void serial_write(uint8_t data) {
       
+    UART_PutChar(data);
     // Calculate next head
-  uint8_t next_head = serial_tx_buffer_head + 1;
-  if (next_head == TX_RING_BUFFER) { next_head = 0; }
-
-  // Wait until there is space in the buffer
-  while (next_head == serial_tx_buffer_tail) {
-    // TODO: Restructure st_prep_buffer() calls to be executed here during a long print.
-    if (sys_rt_exec_state & EXEC_RESET) { return; } // Only check for abort to avoid an endless loop.
-  }
-
-  // Store data and advance head
-  serial_tx_buffer[serial_tx_buffer_head] = data;
-  serial_tx_buffer_head = next_head;
+//  uint8_t next_head = serial_tx_buffer_head + 1;
+//  if (next_head == TX_RING_BUFFER) { next_head = 0; }
+//
+//  // Wait until there is space in the buffer
+//  while (next_head == serial_tx_buffer_tail) {
+//    // TODO: Restructure st_prep_buffer() calls to be executed here during a long print.
+//    if (sys_rt_exec_state & EXEC_RESET) { return; } // Only check for abort to avoid an endless loop.
+//  }
+//
+//  // Store data and advance head
+//  serial_tx_buffer[serial_tx_buffer_head] = data;
+//  serial_tx_buffer_head = next_head;
 
   // Enable Data Register Empty Interrupt to make sure tx-streaming is running
-  Tx_Int_Enable(); //                                                                    <--NEW_LINE
+  Tx_Int_Disable(); //                                                                    <--NEW_LINE
   //UCSR0B |=  (1 << UDRIE0);
 }
 
 
 // Data Register Empty Interrupt handler
-CY_ISR( Tx_Int_Handler )
-//ISR(SERIAL_UDRE)
-{
-  uint8_t tail = serial_tx_buffer_tail; // Temporary serial_tx_buffer_tail (to optimize for volatile)
-
-  // Send a byte from the buffer
-  //UDR0 = serial_tx_buffer[tail];
-  UART_PutChar( serial_tx_buffer[tail] ); //                                             <--NEW_LINE
-
-  // Update tail position
-  tail++;
-  if (tail == TX_RING_BUFFER) { tail = 0; }
-
-  serial_tx_buffer_tail = tail;
-
-  // Turn off Data Register Empty Interrupt to stop tx-streaming if this concludes the transfer
-  if (tail == serial_tx_buffer_head) 
-  { 
-    Tx_Int_Disable(); //                                                                 <--NEW_LINE
-    //UCSR0B &= ~(1 << UDRIE0);
-  }
-}
+//CY_ISR( Tx_Int_Handler )
+////ISR(SERIAL_UDRE)
+//{
+//  uint8_t tail = serial_tx_buffer_tail; // Temporary serial_tx_buffer_tail (to optimize for volatile)
+//
+//  // Send a byte from the buffer
+//  //UDR0 = serial_tx_buffer[tail];
+//  UART_PutChar( serial_tx_buffer[tail] ); //                                             <--NEW_LINE
+//
+//  // Update tail position
+//  tail++;
+//  if (tail == TX_RING_BUFFER) { tail = 0; }
+//
+//  serial_tx_buffer_tail = tail;
+//
+//  // Turn off Data Register Empty Interrupt to stop tx-streaming if this concludes the transfer
+//  if (tail == serial_tx_buffer_head) 
+//  { 
+//    Tx_Int_Disable(); //                                                                 <--NEW_LINE
+//    //UCSR0B &= ~(1 << UDRIE0);
+//  }
+//}
 
 
 // Fetches the first byte in the serial read buffer. Called by main program.

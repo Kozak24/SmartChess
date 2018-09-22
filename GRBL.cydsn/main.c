@@ -52,7 +52,7 @@ int main(void)
   
   /********************Cypress Interrupts********************/
   Rx_Int_StartEx( Rx_Int_Handler ); 
-  Tx_Int_StartEx( Tx_Int_Handler );
+  //Tx_Int_StartEx( Tx_Int_Handler );
   
   #ifdef STEP_PULSE_DELAY
     Timer0_Comp_Int_StartEx( Timer0_Comp_Int_Handler );
