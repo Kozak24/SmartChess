@@ -51,14 +51,7 @@ int main(void)
   CyGlobalIntEnable; // Enable Global interrupts
   
   /********************Cypress Interrupts********************/
-  Rx_Int_StartEx( Rx_Int_Handler ); 
-  //Tx_Int_StartEx( Tx_Int_Handler );
   
-  #ifdef STEP_PULSE_DELAY
-    Timer0_Comp_Int_StartEx( Timer0_Comp_Int_Handler );
-  #endif
-  Timer0_Ovf_Int_StartEx( Timer0_Ovf_Int_Handler );
-  Timer1_Comp_Int_StartEx( Timer1_Comp_Int_Handler );
   
   #ifdef ENABLE_SOFTWARE_DEBOUNCE
       WDT_Int_StartEx( WDT_Int_Handler );
@@ -70,9 +63,6 @@ int main(void)
 
   /* Cypress components */
   Em_EEPROM_Init((uint32_t)Em_EEPROM_em_EepromStorage);
-  UART_Start();
-  //Timer0_Start(); //Starts in the stepper.c CY_ISR(Timer1_Comp_Int_Handler);
-  Timer1_Start();
   /**********************/
     
   //sei(); // Enable interrupts

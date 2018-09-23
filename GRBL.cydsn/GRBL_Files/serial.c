@@ -65,6 +65,9 @@ uint8_t serial_get_rx_buffer_count()
 
 void serial_init()
 {
+  UART_Start(); //                                                             <--NEW_LINE
+  Rx_Int_StartEx( Rx_Int_Handler ); //                                         <--NEW_LINE
+  //Tx_Int_StartEx( Tx_Int_Handler ); //                                       <--NEW_LINE
   /***************************************************************************************
   // Configured on top design                                                  <--NEW_LINE
   ***************************************************************************************/

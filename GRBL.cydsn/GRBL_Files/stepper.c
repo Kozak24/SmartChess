@@ -241,7 +241,8 @@ void st_wake_up()
 
   // Enable Stepper Driver Interrupt
   //TIMSK1 |= (1<<OCIE1A);
-  Timer1_Comp_Int_Enable(); //                                             <--NEW_LINE
+  //Timer1_Comp_Int_Enable(); //                                             <--NEW_LINE
+  Timer1_Start(); //                                                         <--NEW_LINE
 }
 
 
@@ -250,7 +251,8 @@ void st_go_idle()
 {
   // Disable Stepper Driver Interrupt. Allow Stepper Port Reset Interrupt to finish, if active.
   //TIMSK1 &= ~(1<<OCIE1A); // Disable Timer1 interrupt
-  Timer1_Comp_Int_Disable(); //                                                                 <--NEW_LINE
+  //Timer1_Comp_Int_Disable(); //                                                                 <--NEW_LINE
+  Timer1_Stop();               //                                                                 <--NEW_LINE
   //TCCR1B = (TCCR1B & ~((1<<CS12) | (1<<CS11))) | (1<<CS10); // Reset clock to no prescaling.
   //No prescaling enabled in the Timer1 component
   busy = false;
@@ -587,10 +589,18 @@ void stepper_init()
   TCCR0B = 0; // Disable Timer0 until needed
   TIMSK0 |= (1<<TOIE0); // Enable Timer0 overflow interrupt
   *************************************************************/
-  Timer0_Stop(); // Disable Timer0 until needed                                      <--NEW_LINE
+    
+  /*************************************NEW_LINES*******************************/
+  #ifdef STEP_PULSE_DELAY
+    Timer0_Comp_Int_StartEx( Timer0_Comp_Int_Handler );
+  #endif
+  Timer0_Ovf_Int_StartEx( Timer0_Ovf_Int_Handler );
+  Timer1_Comp_Int_StartEx( Timer1_Comp_Int_Handler );  
+    
+  Timer0_Stop(); 
   
-  Timer0_Ovf_Int_Enable(); // This starts with StartEx() in main                     <--NEW_LINE
-  
+  Timer0_Ovf_Int_Enable(); 
+  /*****************************************************************************/
     
   #ifdef STEP_PULSE_DELAY
     //TIMSK0 |= (1<<OCIE0A); // Enable Timer0 Compare Match A interrupt
