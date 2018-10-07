@@ -26,7 +26,7 @@
 #ifndef cpu_map_h
 #define cpu_map_h
 
-
+//#define CPU_MAP_ATMEGA328P
 #ifdef CPU_MAP_ATMEGA328P // (Arduino Uno) Officially supported by Grbl.
 
   // Define serial port pins and interrupt vectors.

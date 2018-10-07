@@ -328,11 +328,14 @@ void st_go_idle()
 // TODO: Replace direct updating of the int32 position counters in the ISR somehow. Perhaps use smaller
 // int8 variables and update position counters only when a segment completes. This can get complicated
 // with probing and homing cycles that require true real-time positions.
+//char counter = 0;
+
 CY_ISR( Timer1_Comp_Int_Handler ) //                                                    <--NEW_LINE
 //ISR(TIMER1_COMPA_vect)
 {
   //In original lines configured on the stepper_init()
-  Timer1_WriteCounter( 0 ); //                                                          <--NEW_LINE
+  //Timer1_WriteCounter( 0 ); //                                                          <--NEW_LINE
+
   if (busy) { return; } // The busy-flag is used to avoid reentering this interrupt
 
   // Set the direction pins a couple of nanoseconds before we step the steppers
@@ -1019,7 +1022,7 @@ void st_prep_buffer()
     float inv_rate = dt/(last_n_steps_remaining - step_dist_remaining); // Compute adjusted step rate inverse
 
     // Compute CPU cycles per step for the prepped segment.
-    uint32_t cycles = ceil( (TICKS_PER_MICROSECOND*1000000*60)*inv_rate ); // (cycles/step)
+    uint64_t cycles = ceil( (TICKS_PER_MICROSECOND*1000000*60)*inv_rate ); // (cycles/step)
 
     #ifdef ADAPTIVE_MULTI_AXIS_STEP_SMOOTHING
       // Compute step timing and multi-axis smoothing level.

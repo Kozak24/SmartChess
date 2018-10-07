@@ -44,7 +44,7 @@
 #endif
 
 // Conversions
-#define F_CPU (16000000)
+#define F_CPU (48000000)
 #define MM_PER_INCH (25.40)
 #define INCH_PER_MM (0.0393701)
 #define TICKS_PER_MICROSECOND ( (F_CPU)/(1000000) )

@@ -99,7 +99,7 @@ int main(void)
   // Grbl initialization loop upon power-up or a system abort. For the latter, all processes
   // will return to this loop to be cleanly re-initialized.
   for(;;) {
-
+    
     // Reset system variables.
     uint8_t prior_state = sys.state;
     memset(&sys, 0, sizeof(system_t)); // Clear system struct variable.
@@ -133,7 +133,6 @@ int main(void)
     
     // Start Grbl main loop. Processes program inputs and executes them.
     protocol_main_loop();
-
   }
   return 0;   /* Never reached */
 }
