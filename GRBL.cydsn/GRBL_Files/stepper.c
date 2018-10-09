@@ -355,13 +355,13 @@ CY_ISR( Timer1_Comp_Int_Handler ) //                                            
   // exactly settings.pulse_microseconds microseconds, independent of the main Timer1 prescaler.
   
   //TCNT0 = st.step_pulse_time; // Reload Timer0 counter
-  Timer0_WriteCounter( st.step_pulse_time ); //Reload Timer0 counter                            <--NEW_LINE
+  Timer0_WriteCounter( st.step_pulse_time ); //Reload Timer0 counter                            <--
   
   //TCCR0B = (1<<CS01); // Begin Timer0. Full speed, 1/8 prescaler
   Timer0_Start(); // prescaler configured on the TopDesign                                      <--NEW_LINE
 
   busy = true;
-  __enable_irq(); //                                                                        <--NEW_LINE
+  //__enable_irq(); //                                                                        <--NEW_LINE
   //sei(); // Re-enable interrupts to allow Stepper Port Reset Interrupt to fire on-time.
          // NOTE: The remaining code in this ISR will finish before returning to main program.
 
@@ -381,7 +381,7 @@ CY_ISR( Timer1_Comp_Int_Handler ) //                                            
       // Initialize step segment timing per step and load number of steps to execute.
       
       //OCR1A = st.exec_segment->cycles_per_tick;
-      Timer1_WriteCompare(st.exec_segment->cycles_per_tick); //                           <--NEW_LINE
+      Timer1_WritePeriod(st.exec_segment->cycles_per_tick); //                           <--NEW_LINE
     
       st.step_count = st.exec_segment->n_step; // NOTE: Can sometimes be zero when moving slow.
       // If the new segment starts a new planner block, initialize stepper variables and counters.
@@ -592,16 +592,17 @@ void stepper_init()
   TCCR0B = 0; // Disable Timer0 until needed
   TIMSK0 |= (1<<TOIE0); // Enable Timer0 overflow interrupt
   *************************************************************/
-    
+  
   /*************************************NEW_LINES*******************************/
+  Timer0_Init();
+  Timer1_Init();  
+  
   #ifdef STEP_PULSE_DELAY
     Timer0_Comp_Int_StartEx( Timer0_Comp_Int_Handler );
   #endif
   Timer0_Ovf_Int_StartEx( Timer0_Ovf_Int_Handler );
   Timer1_Comp_Int_StartEx( Timer1_Comp_Int_Handler );  
     
-  Timer0_Stop(); 
-  
   Timer0_Ovf_Int_Enable(); 
   /*****************************************************************************/
     
@@ -1022,7 +1023,7 @@ void st_prep_buffer()
     float inv_rate = dt/(last_n_steps_remaining - step_dist_remaining); // Compute adjusted step rate inverse
 
     // Compute CPU cycles per step for the prepped segment.
-    uint64_t cycles = ceil( (TICKS_PER_MICROSECOND*1000000*60)*inv_rate ); // (cycles/step)
+    uint32_t cycles = ceil( (TICKS_PER_MICROSECOND*1000000*60)*inv_rate ); // (cycles/step)
 
     #ifdef ADAPTIVE_MULTI_AXIS_STEP_SMOOTHING
       // Compute step timing and multi-axis smoothing level.
