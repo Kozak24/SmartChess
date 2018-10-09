@@ -1,22 +1,16 @@
-# Generated files
-codegentemp/
-CortexM0/
-Export/
-Generated_Source/
-TopDesign/
-
-# Project settings
+# Project Settings
 *.cywrk.*
 *.cyprj.*
+
+# Generated Assets and Resources
+Debug/
+Release/
+Export/
+*/codegentemp
+*/Generated_Source
 *_datasheet.pdf
-*.cywrk
-*.cyprj
+*_timing.html
 *.cycdx
-*.cydwr
 *.cyfit
 *.rpt
 *.svd
-
-# Project logs and build
-*.log
-*_timing.html
