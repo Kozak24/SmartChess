@@ -1,5 +1,5 @@
 # GRBL
-# 2018-10-09 15:29:22Z
+# 2018-10-25 19:56:06Z
 
 # IO_6@[IOP=(0)][IoId=(6)] is reserved: SWDDebugEnabled
 dont_use_io iocell 0 6
@@ -43,7 +43,6 @@ set_location "\UART:BUART:rx_postpoll\" 1 0 1 1
 set_location "\UART:BUART:rx_status_4\" 0 1 0 0
 set_location "\UART:BUART:rx_status_5\" 0 1 0 1
 set_location "Rx_Int" interrupt -1 -1 1
-set_location "Tx_Int" interrupt -1 -1 5
 set_location "\Timer0:cy_m0s8_tcpwm_1\" m0s8tcpwmcell -1 -1 0
 set_location "Timer1_Comp_Int" interrupt -1 -1 4
 set_location "Timer0_Comp_Int" interrupt -1 -1 17
@@ -51,6 +50,7 @@ set_location "\Timer1:cy_m0s8_tcpwm_1\" m0s8tcpwmcell -1 -1 1
 set_location "Timer0_Ovf_Int" interrupt -1 -1 2
 set_location "Limit_Int" interrupt -1 -1 0
 set_location "Control_Int" interrupt -1 -1 3
+set_location "\UART:TXInternalInterrupt\" interrupt -1 -1 6
 set_location "\UART:BUART:sTX:TxShifter:u0\" 1 0 2
 set_location "\UART:BUART:sTX:sCLOCK:TxBitClkGen\" 0 0 2
 set_location "\UART:BUART:sTX:TxSts\" 1 0 4
@@ -58,6 +58,7 @@ set_location "\UART:BUART:sRX:RxShifter:u0\" 1 1 2
 set_location "\UART:BUART:sRX:RxBitCounter\" 1 1 7
 set_location "\UART:BUART:sRX:RxSts\" 0 1 4
 set_location "WDT_Int" interrupt -1 -1 8
+set_location "Tx_Int" interrupt -1 -1 5
 set_location "\UART:BUART:txn\" 0 0 0 0
 set_location "\UART:BUART:tx_state_1\" 0 0 0 1
 set_location "\UART:BUART:tx_state_0\" 1 0 0 0

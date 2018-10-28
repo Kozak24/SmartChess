@@ -23,7 +23,7 @@
 #include "project.h"
 
 #define RX_RING_BUFFER (RX_BUFFER_SIZE+1)
-#define TX_RING_BUFFER (TX_BUFFER_SIZE+1)
+//#define TX_RING_BUFFER (TX_BUFFER_SIZE+1)
 
 uint8_t serial_rx_buffer[RX_RING_BUFFER];
 uint8_t serial_rx_buffer_head = 0;
@@ -67,7 +67,7 @@ void serial_init()
 {
   UART_Start(); //                                                             <--NEW_LINE
   Rx_Int_StartEx( Rx_Int_Handler ); //                                         <--NEW_LINE
-  //Tx_Int_StartEx( Tx_Int_Handler ); //                                       <--NEW_LINE
+//  Tx_Int_StartEx( Tx_Int_Handler ); //                                       <--NEW_LINE
   /***************************************************************************************
   // Configured on top design                                                  <--NEW_LINE
   ***************************************************************************************/
@@ -110,10 +110,10 @@ void serial_write(uint8_t data) {
 //  // Store data and advance head
 //  serial_tx_buffer[serial_tx_buffer_head] = data;
 //  serial_tx_buffer_head = next_head;
-
-  // Enable Data Register Empty Interrupt to make sure tx-streaming is running
-  Tx_Int_Disable(); //                                                                    <--NEW_LINE
-  //UCSR0B |=  (1 << UDRIE0);
+//
+//  // Enable Data Register Empty Interrupt to make sure tx-streaming is running
+//  Tx_Int_Enable(); //                                                                    <--NEW_LINE
+//  //UCSR0B |=  (1 << UDRIE0);
 }
 
 
@@ -217,7 +217,7 @@ CY_ISR(Rx_Int_Handler)
           serial_rx_buffer_head = next_head;
         }
       }
-  }
+    }
 }
 
 

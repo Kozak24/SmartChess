@@ -135,6 +135,15 @@
 .set UART_IntClock__DIV_ID, 0x00000042
 .set UART_IntClock__DIV_REGISTER, CYREG_PERI_DIV_16_CTL2
 .set UART_IntClock__PA_DIV_ID, 0x000000FF
+.set UART_TXInternalInterrupt__INTC_CLR_EN_REG, CYREG_CM0_ICER
+.set UART_TXInternalInterrupt__INTC_CLR_PD_REG, CYREG_CM0_ICPR
+.set UART_TXInternalInterrupt__INTC_MASK, 0x40
+.set UART_TXInternalInterrupt__INTC_NUMBER, 6
+.set UART_TXInternalInterrupt__INTC_PRIOR_MASK, 0xC00000
+.set UART_TXInternalInterrupt__INTC_PRIOR_NUM, 3
+.set UART_TXInternalInterrupt__INTC_PRIOR_REG, CYREG_CM0_IPR1
+.set UART_TXInternalInterrupt__INTC_SET_EN_REG, CYREG_CM0_ISER
+.set UART_TXInternalInterrupt__INTC_SET_PD_REG, CYREG_CM0_ISPR
 
 /* Clock0 */
 .set Clock0__CTRL_REGISTER, CYREG_PERI_PCLK_CTL7
@@ -906,7 +915,7 @@
 .set Stepper_Pins__5__MASK, 0x20
 .set Stepper_Pins__5__OUT_SEL, CYREG_UDB_PA1_CFG11
 .set Stepper_Pins__5__OUT_SEL_SHIFT, 10
-.set Stepper_Pins__5__OUT_SEL_VAL, 0
+.set Stepper_Pins__5__OUT_SEL_VAL, 3
 .set Stepper_Pins__5__PA__CFG0, CYREG_UDB_PA1_CFG0
 .set Stepper_Pins__5__PA__CFG1, CYREG_UDB_PA1_CFG1
 .set Stepper_Pins__5__PA__CFG10, CYREG_UDB_PA1_CFG10

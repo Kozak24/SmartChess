@@ -32,7 +32,7 @@
 #define UART_TX_ENABLED                     (1u)
 #define UART_HD_ENABLED                     (0u)
 #define UART_RX_INTERRUPT_ENABLED           (0u)
-#define UART_TX_INTERRUPT_ENABLED           (0u)
+#define UART_TX_INTERRUPT_ENABLED           (1u)
 #define UART_INTERNAL_CLOCK_USED            (1u)
 #define UART_RXHW_ADDRESS_ENABLED           (0u)
 #define UART_OVER_SAMPLE_COUNT              (8u)
@@ -45,7 +45,7 @@
 #define UART_USE23POLLING                   (1u)
 #define UART_FLOW_CONTROL                   (0u)
 #define UART_CLK_FREQ                       (0u)
-#define UART_TX_BUFFER_SIZE                 (4u)
+#define UART_TX_BUFFER_SIZE                 (255u)
 #define UART_RX_BUFFER_SIZE                 (4u)
 
 /* Check to see if required defines such as CY_PSOC5LP are available */

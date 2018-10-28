@@ -25,6 +25,7 @@
 
 void printString(const char *s)
 {
+  //UART_PutString(s); //                                                 <--NEW_LINE
   while (*s)
     serial_write(*s++);
 }
@@ -33,7 +34,9 @@ void printString(const char *s)
 // Print a string stored in PGM-memory
 void printPgmString(const char *s)
 {
-  UART_PutString(s); //                                                 <--NEW_LINE
+//  UART_PutString(s); //                                                 <--NEW_LINE
+  while (*s)
+    serial_write(*s++);  //                                                 <--NEW_LINE
   /*
   char c;
   while ((c = pgm_read_byte_near(s++)))

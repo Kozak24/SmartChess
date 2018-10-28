@@ -2,7 +2,7 @@
 --	Conversion of GRBL.v to vh2:
 --
 --	Cypress Semiconductor - WARP Version 6.3 IR 41
---	Tue Oct 09 18:29:20 2018
+--	Thu Oct 25 22:56:04 2018
 --
 
 USE cypress.cypress.all;
@@ -13,7 +13,6 @@ END top_RTL;
 --------------------------------------------------------
 ARCHITECTURE R_T_L OF top_RTL IS
 SIGNAL Net_338 : bit;
-SIGNAL Net_337 : bit;
 SIGNAL \Timer0:Net_81\ : bit;
 SIGNAL \Timer0:Net_75\ : bit;
 SIGNAL \Timer0:Net_69\ : bit;
@@ -21,13 +20,13 @@ SIGNAL \Timer0:Net_66\ : bit;
 SIGNAL \Timer0:Net_82\ : bit;
 SIGNAL \Timer0:Net_72\ : bit;
 SIGNAL Net_353 : bit;
-SIGNAL Net_352 : bit;
+SIGNAL Net_654 : bit;
 SIGNAL Net_354 : bit;
 SIGNAL Net_355 : bit;
 SIGNAL Net_356 : bit;
-SIGNAL Net_351 : bit;
+SIGNAL Net_656 : bit;
 SIGNAL Net_357 : bit;
-SIGNAL Net_498 : bit;
+SIGNAL Net_683 : bit;
 SIGNAL Net_369 : bit;
 SIGNAL \Timer1:Net_81\ : bit;
 SIGNAL \Timer1:Net_75\ : bit;
@@ -109,6 +108,7 @@ SIGNAL tmpIO_5__Control_Pins_net_1 : bit;
 SIGNAL tmpIO_5__Control_Pins_net_0 : bit;
 TERMINAL tmpSIOVREF__Control_Pins_net_0 : bit;
 SIGNAL Net_409 : bit;
+SIGNAL Net_519 : bit;
 SIGNAL \UART:Net_9\ : bit;
 SIGNAL \UART:Net_61\ : bit;
 SIGNAL \UART:BUART:clock_op\ : bit;
@@ -210,7 +210,7 @@ SIGNAL \UART:BUART:tx_status_0\ : bit;
 SIGNAL \UART:BUART:tx_status_1\ : bit;
 SIGNAL \UART:BUART:tx_status_2\ : bit;
 SIGNAL \UART:BUART:tx_status_3\ : bit;
-SIGNAL Net_414 : bit;
+SIGNAL Net_516 : bit;
 SIGNAL \UART:BUART:tx_bitclk\ : bit;
 SIGNAL \UART:BUART:tx_ctrl_mark_last\ : bit;
 SIGNAL \UART:BUART:tx_mark\ : bit;
@@ -353,7 +353,7 @@ SIGNAL \UART:BUART:rx_status_4\ : bit;
 SIGNAL \UART:BUART:rx_status_5\ : bit;
 SIGNAL \UART:BUART:rx_status_6\ : bit;
 SIGNAL \UART:BUART:rx_addr_match_status\ : bit;
-SIGNAL Net_413 : bit;
+SIGNAL Net_515 : bit;
 SIGNAL \UART:BUART:rx_markspace_pre\ : bit;
 SIGNAL \UART:BUART:rx_parity_error_pre\ : bit;
 SIGNAL \UART:BUART:rx_break_status\ : bit;
@@ -454,7 +454,7 @@ SIGNAL \UART:BUART:txn\\D\ : bit;
 SIGNAL \UART:BUART:tx_state_1\\D\ : bit;
 SIGNAL \UART:BUART:tx_state_0\\D\ : bit;
 SIGNAL \UART:BUART:tx_state_2\\D\ : bit;
-SIGNAL Net_414D : bit;
+SIGNAL Net_516D : bit;
 SIGNAL \UART:BUART:tx_bitclk\\D\ : bit;
 SIGNAL \UART:BUART:tx_ctrl_mark_last\\D\ : bit;
 SIGNAL \UART:BUART:tx_mark\\D\ : bit;
@@ -493,10 +493,6 @@ Net_379 <= (not \UART:BUART:txn\);
 \UART:BUART:tx_status_0\ <= ((not \UART:BUART:tx_state_1\ and not \UART:BUART:tx_state_0\ and \UART:BUART:tx_bitclk_enable_pre\ and \UART:BUART:tx_fifo_empty\ and \UART:BUART:tx_state_2\));
 
 \UART:BUART:tx_status_2\ <= (not \UART:BUART:tx_fifo_notfull\);
-
-Net_414D <= ((not \UART:BUART:reset_reg\ and \UART:BUART:tx_state_2\)
-	OR (not \UART:BUART:reset_reg\ and \UART:BUART:tx_state_0\)
-	OR (not \UART:BUART:reset_reg\ and \UART:BUART:tx_state_1\));
 
 \UART:BUART:tx_bitclk\\D\ <= ((not \UART:BUART:tx_state_2\ and \UART:BUART:tx_bitclk_enable_pre\)
 	OR (\UART:BUART:tx_state_0\ and \UART:BUART:tx_bitclk_enable_pre\)
@@ -596,10 +592,6 @@ Rx_Int:cy_isr_v1_0
 	GENERIC MAP(int_type=>"10",
 		is_nmi=>'0')
 	PORT MAP(int_signal=>Net_338);
-Tx_Int:cy_isr_v1_0
-	GENERIC MAP(int_type=>"10",
-		is_nmi=>'0')
-	PORT MAP(int_signal=>Net_337);
 \Timer0:cy_m0s8_tcpwm_1\:cy_m0s8_tcpwm_v1_0
 	GENERIC MAP(cy_registers=>"")
 	PORT MAP(clock=>Net_357,
@@ -609,21 +601,21 @@ Tx_Int:cy_isr_v1_0
 		stop=>zero,
 		start=>zero,
 		underflow=>Net_353,
-		overflow=>Net_352,
+		overflow=>Net_654,
 		compare_match=>Net_354,
 		line_out=>Net_355,
 		line_out_compl=>Net_356,
-		interrupt=>Net_351);
+		interrupt=>Net_656);
 Timer1_Comp_Int:cy_isr_v1_0
 	GENERIC MAP(int_type=>"10",
 		is_nmi=>'0')
-	PORT MAP(int_signal=>Net_498);
+	PORT MAP(int_signal=>Net_683);
 Clock0:cy_clock_v1_0
 	GENERIC MAP(cy_registers=>"",
 		id=>"48c840e3-7468-448f-a602-83426b70bfe6",
 		source_clock_id=>"",
 		divisor=>0,
-		period=>"41666666.6666667",
+		period=>"62500000",
 		is_direct=>'0',
 		is_digital=>'0')
 	PORT MAP(clock_out=>Net_357,
@@ -633,7 +625,7 @@ Clock1:cy_clock_v1_0
 		id=>"35bfcd5d-62fe-4dfe-bd3b-0e78dfb9a1ec",
 		source_clock_id=>"",
 		divisor=>0,
-		period=>"41666666.6666667",
+		period=>"62500000",
 		is_direct=>'0',
 		is_digital=>'0')
 	PORT MAP(clock_out=>Net_369,
@@ -641,7 +633,7 @@ Clock1:cy_clock_v1_0
 Timer0_Comp_Int:cy_isr_v1_0
 	GENERIC MAP(int_type=>"10",
 		is_nmi=>'0')
-	PORT MAP(int_signal=>Net_351);
+	PORT MAP(int_signal=>Net_656);
 \Timer1:cy_m0s8_tcpwm_1\:cy_m0s8_tcpwm_v1_0
 	GENERIC MAP(cy_registers=>"")
 	PORT MAP(clock=>Net_369,
@@ -651,7 +643,7 @@ Timer0_Comp_Int:cy_isr_v1_0
 		stop=>zero,
 		start=>zero,
 		underflow=>Net_500,
-		overflow=>Net_498,
+		overflow=>Net_683,
 		compare_match=>Net_401,
 		line_out=>Net_405,
 		line_out_compl=>Net_406,
@@ -659,7 +651,7 @@ Timer0_Comp_Int:cy_isr_v1_0
 Timer0_Ovf_Int:cy_isr_v1_0
 	GENERIC MAP(int_type=>"10",
 		is_nmi=>'0')
-	PORT MAP(int_signal=>Net_352);
+	PORT MAP(int_signal=>Net_654);
 Stepper_Pins:cy_psoc3_pins_v1_10
 	GENERIC MAP(id=>"e851a3b9-efb8-48be-bbb8-b303b216c393",
 		drive_mode=>"110110110110001110110110",
@@ -896,9 +888,13 @@ Control_Int:cy_isr_v1_0
 	GENERIC MAP(int_type=>"10",
 		is_nmi=>'0')
 	PORT MAP(int_signal=>Net_409);
+\UART:TXInternalInterrupt\:cy_isr_v1_0
+	GENERIC MAP(int_type=>"10",
+		is_nmi=>'0')
+	PORT MAP(int_signal=>Net_519);
 \UART:IntClock\:cy_clock_v1_0
 	GENERIC MAP(cy_registers=>"",
-		id=>"5086a7ca-c1eb-42fb-a16c-c4e9851cdb55/be0a0e37-ad17-42ca-b5a1-1a654d736358",
+		id=>"b0162966-0060-4af5-82d1-fcb491ad7619/be0a0e37-ad17-42ca-b5a1-1a654d736358",
 		source_clock_id=>"",
 		divisor=>0,
 		period=>"1085069444.44444",
@@ -1092,7 +1088,7 @@ Control_Int:cy_isr_v1_0
 		clock=>\UART:BUART:clock_op\,
 		status=>(zero, zero, zero, \UART:BUART:tx_fifo_notfull\,
 			\UART:BUART:tx_status_2\, \UART:BUART:tx_fifo_empty\, \UART:BUART:tx_status_0\),
-		interrupt=>Net_337);
+		interrupt=>Net_519);
 \UART:BUART:sRX:RxShifter:u0\:cy_psoc3_dp
 	GENERIC MAP(cy_dpconfig=>"0000000000000000000000000000000000000000000000000000001001000000000100000000000000010000001100000001000000000000000100100001000011111111000000001111111111111111101000000110001001000001111100000000000000001100",
 		d0_init=>"00000000",
@@ -1278,6 +1274,10 @@ Debug_Red_Pin:cy_psoc3_pins_v1_10
 		out_clock_en=>tmpOE__Stepper_Pins_net_7,
 		out_reset=>zero,
 		interrupt=>tmpINTERRUPT_0__Debug_Red_Pin_net_0);
+Tx_Int:cy_isr_v1_0
+	GENERIC MAP(int_type=>"10",
+		is_nmi=>'0')
+	PORT MAP(int_signal=>Net_519);
 \UART:BUART:reset_reg\:cy_dff
 	PORT MAP(d=>zero,
 		clk=>\UART:BUART:clock_op\,
@@ -1298,10 +1298,10 @@ Debug_Red_Pin:cy_psoc3_pins_v1_10
 	PORT MAP(d=>\UART:BUART:tx_state_2\\D\,
 		clk=>\UART:BUART:clock_op\,
 		q=>\UART:BUART:tx_state_2\);
-Net_414:cy_dff
-	PORT MAP(d=>Net_414D,
+Net_516:cy_dff
+	PORT MAP(d=>zero,
 		clk=>\UART:BUART:clock_op\,
-		q=>Net_414);
+		q=>Net_516);
 \UART:BUART:tx_bitclk\:cy_dff
 	PORT MAP(d=>\UART:BUART:tx_bitclk\\D\,
 		clk=>\UART:BUART:clock_op\,

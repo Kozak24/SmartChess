@@ -15,8 +15,6 @@
   <file name="C:\My\SmartChess\GRBL.cydsn\codegentemp\cydisabledsheets.h" value="HEADER;;;;;" />
   <file name="C:\My\SmartChess\GRBL.cydsn\codegentemp\Rx_Int.c" value="SOURCE_C;CortexM0;;;;Rx_Int" />
   <file name="C:\My\SmartChess\GRBL.cydsn\codegentemp\Rx_Int.h" value="HEADER;;;;;Rx_Int" />
-  <file name="C:\My\SmartChess\GRBL.cydsn\codegentemp\Tx_Int.c" value="SOURCE_C;CortexM0;;;;Tx_Int" />
-  <file name="C:\My\SmartChess\GRBL.cydsn\codegentemp\Tx_Int.h" value="HEADER;;;;;Tx_Int" />
   <file name="C:\My\SmartChess\GRBL.cydsn\codegentemp\Timer0.c" value="SOURCE_C;CortexM0;;;;Timer0" />
   <file name="C:\My\SmartChess\GRBL.cydsn\codegentemp\Timer0.h" value="HEADER;;;;;Timer0" />
   <file name="C:\My\SmartChess\GRBL.cydsn\codegentemp\Timer0_PM.c" value="SOURCE_C;CortexM0;;;;Timer0" />
@@ -62,6 +60,8 @@
   <file name="C:\My\SmartChess\GRBL.cydsn\codegentemp\Debug_Red_Pin.h" value="HEADER;;;;;Debug_Red_Pin" />
   <file name="C:\My\SmartChess\GRBL.cydsn\codegentemp\Debug_Red_Pin_aliases.h" value="HEADER;;;;;Debug_Red_Pin" />
   <file name="C:\My\SmartChess\GRBL.cydsn\codegentemp\Debug_Red_Pin_PM.c" value="SOURCE_C;CortexM0;;;;Debug_Red_Pin" />
+  <file name="C:\My\SmartChess\GRBL.cydsn\codegentemp\Tx_Int.c" value="SOURCE_C;CortexM0;;;;Tx_Int" />
+  <file name="C:\My\SmartChess\GRBL.cydsn\codegentemp\Tx_Int.h" value="HEADER;;;;;Tx_Int" />
   <file name="C:\My\SmartChess\GRBL.cydsn\codegentemp\UART_IntClock.c" value="SOURCE_C;CortexM0;;;;UART_IntClock" />
   <file name="C:\My\SmartChess\GRBL.cydsn\codegentemp\UART_IntClock.h" value="HEADER;;;;;UART_IntClock" />
   <file name="C:\My\SmartChess\GRBL.cydsn\codegentemp\cm0gcc.ld" value="LINKER_SCRIPT;;;b98f980c-3bd1-4fc7-a887-c56a20a46fdd;;cy_boot" />

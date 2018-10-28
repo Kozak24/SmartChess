@@ -51,8 +51,6 @@ int main(void)
   CyGlobalIntEnable; // Enable Global interrupts
   
   /********************Cypress Interrupts********************/
-  
-  
   #ifdef ENABLE_SOFTWARE_DEBOUNCE
       WDT_Int_StartEx( WDT_Int_Handler );
   #endif
@@ -75,8 +73,6 @@ int main(void)
 
   memset(sys_position,0,sizeof(sys_position)); // Clear machine position.
   
-  
-
   // Initialize system state.
   #ifdef FORCE_INITIALIZATION_ALARM
     // Force Grbl into an ALARM state upon a power-cycle or hard reset.

@@ -135,6 +135,15 @@
 #define UART_IntClock__DIV_ID 0x00000042u
 #define UART_IntClock__DIV_REGISTER CYREG_PERI_DIV_16_CTL2
 #define UART_IntClock__PA_DIV_ID 0x000000FFu
+#define UART_TXInternalInterrupt__INTC_CLR_EN_REG CYREG_CM0_ICER
+#define UART_TXInternalInterrupt__INTC_CLR_PD_REG CYREG_CM0_ICPR
+#define UART_TXInternalInterrupt__INTC_MASK 0x40u
+#define UART_TXInternalInterrupt__INTC_NUMBER 6u
+#define UART_TXInternalInterrupt__INTC_PRIOR_MASK 0xC00000u
+#define UART_TXInternalInterrupt__INTC_PRIOR_NUM 3u
+#define UART_TXInternalInterrupt__INTC_PRIOR_REG CYREG_CM0_IPR1
+#define UART_TXInternalInterrupt__INTC_SET_EN_REG CYREG_CM0_ISER
+#define UART_TXInternalInterrupt__INTC_SET_PD_REG CYREG_CM0_ISPR
 
 /* Clock0 */
 #define Clock0__CTRL_REGISTER CYREG_PERI_PCLK_CTL7
@@ -906,7 +915,7 @@
 #define Stepper_Pins__5__MASK 0x20u
 #define Stepper_Pins__5__OUT_SEL CYREG_UDB_PA1_CFG11
 #define Stepper_Pins__5__OUT_SEL_SHIFT 10u
-#define Stepper_Pins__5__OUT_SEL_VAL 0u
+#define Stepper_Pins__5__OUT_SEL_VAL 3u
 #define Stepper_Pins__5__PA__CFG0 CYREG_UDB_PA1_CFG0
 #define Stepper_Pins__5__PA__CFG1 CYREG_UDB_PA1_CFG1
 #define Stepper_Pins__5__PA__CFG10 CYREG_UDB_PA1_CFG10

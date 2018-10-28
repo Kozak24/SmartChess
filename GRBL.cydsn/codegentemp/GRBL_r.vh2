@@ -1,5 +1,5 @@
 -- Project:   GRBL
--- Generated: 10/09/2018 18:29:22
+-- Generated: 10/25/2018 22:56:05
 -- PSoC Creator  4.2
 
 ENTITY GRBL IS
@@ -63,10 +63,7 @@ ARCHITECTURE __DEFAULT__ OF GRBL IS
     SIGNAL Limit_Pins(4)__PA : bit;
     SIGNAL Limit_Pins(5)__PA : bit;
     SIGNAL Net_336 : bit;
-    SIGNAL Net_337 : bit;
     SIGNAL Net_338 : bit;
-    SIGNAL Net_351 : bit;
-    SIGNAL Net_352 : bit;
     SIGNAL Net_353 : bit;
     SIGNAL Net_354 : bit;
     SIGNAL Net_355 : bit;
@@ -82,9 +79,12 @@ ARCHITECTURE __DEFAULT__ OF GRBL IS
     SIGNAL Net_406 : bit;
     SIGNAL Net_409 : bit;
     SIGNAL Net_410 : bit;
-    SIGNAL Net_498 : bit;
     SIGNAL Net_499 : bit;
     SIGNAL Net_500 : bit;
+    SIGNAL Net_519 : bit;
+    SIGNAL Net_654 : bit;
+    SIGNAL Net_656 : bit;
+    SIGNAL Net_683 : bit;
     SIGNAL Stepper_Pins(0)__PA : bit;
     SIGNAL Stepper_Pins(1)__PA : bit;
     SIGNAL Stepper_Pins(2)__PA : bit;
@@ -230,7 +230,6 @@ ARCHITECTURE __DEFAULT__ OF GRBL IS
     ATTRIBUTE lib_model OF \UART:BUART:rx_status_5\ : LABEL IS "macrocell8";
     ATTRIBUTE Location OF \UART:BUART:rx_status_5\ : LABEL IS "U(0,1)";
     ATTRIBUTE Location OF Rx_Int : LABEL IS "[IntrContainer=(0)][IntrId=(1)]";
-    ATTRIBUTE Location OF Tx_Int : LABEL IS "[IntrContainer=(0)][IntrId=(5)]";
     ATTRIBUTE Location OF \Timer0:cy_m0s8_tcpwm_1\ : LABEL IS "F(TCPWM,0)";
     ATTRIBUTE Location OF Timer1_Comp_Int : LABEL IS "[IntrContainer=(0)][IntrId=(4)]";
     ATTRIBUTE Location OF Timer0_Comp_Int : LABEL IS "[IntrContainer=(0)][IntrId=(17)]";
@@ -238,6 +237,7 @@ ARCHITECTURE __DEFAULT__ OF GRBL IS
     ATTRIBUTE Location OF Timer0_Ovf_Int : LABEL IS "[IntrContainer=(0)][IntrId=(2)]";
     ATTRIBUTE Location OF Limit_Int : LABEL IS "[IntrContainer=(0)][IntrId=(0)]";
     ATTRIBUTE Location OF Control_Int : LABEL IS "[IntrContainer=(0)][IntrId=(3)]";
+    ATTRIBUTE Location OF \UART:TXInternalInterrupt\ : LABEL IS "[IntrContainer=(0)][IntrId=(6)]";
     ATTRIBUTE lib_model OF \UART:BUART:sTX:TxShifter:u0\ : LABEL IS "datapathcell1";
     ATTRIBUTE Location OF \UART:BUART:sTX:TxShifter:u0\ : LABEL IS "U(1,0)";
     ATTRIBUTE lib_model OF \UART:BUART:sTX:sCLOCK:TxBitClkGen\ : LABEL IS "datapathcell2";
@@ -250,6 +250,7 @@ ARCHITECTURE __DEFAULT__ OF GRBL IS
     ATTRIBUTE lib_model OF \UART:BUART:sRX:RxSts\ : LABEL IS "statusicell2";
     ATTRIBUTE Location OF \UART:BUART:sRX:RxSts\ : LABEL IS "U(0,1)";
     ATTRIBUTE Location OF WDT_Int : LABEL IS "[IntrContainer=(0)][IntrId=(8)]";
+    ATTRIBUTE Location OF Tx_Int : LABEL IS "[IntrContainer=(0)][IntrId=(5)]";
     ATTRIBUTE lib_model OF \UART:BUART:txn\ : LABEL IS "macrocell9";
     ATTRIBUTE Location OF \UART:BUART:txn\ : LABEL IS "U(0,0)";
     ATTRIBUTE lib_model OF \UART:BUART:tx_state_1\ : LABEL IS "macrocell10";
@@ -1449,14 +1450,6 @@ BEGIN
             interrupt => Net_338,
             clock => ClockBlock_HFClk);
 
-    Tx_Int:interrupt
-        GENERIC MAP(
-            int_type => "10",
-            is_nmi => 0)
-        PORT MAP(
-            interrupt => Net_337,
-            clock => ClockBlock_HFClk);
-
     \Timer0:cy_m0s8_tcpwm_1\:m0s8tcpwmcell
         GENERIC MAP(
             cy_registers => "")
@@ -1468,18 +1461,18 @@ BEGIN
             stop => '0',
             start => '0',
             tr_underflow => Net_353,
-            tr_overflow => Net_352,
+            tr_overflow => Net_654,
             tr_compare_match => Net_354,
             line => Net_355,
             line_compl => Net_356,
-            interrupt => Net_351);
+            interrupt => Net_656);
 
     Timer1_Comp_Int:interrupt
         GENERIC MAP(
             int_type => "10",
             is_nmi => 0)
         PORT MAP(
-            interrupt => Net_498,
+            interrupt => Net_683,
             clock => ClockBlock_HFClk);
 
     Timer0_Comp_Int:interrupt
@@ -1487,7 +1480,7 @@ BEGIN
             int_type => "10",
             is_nmi => 0)
         PORT MAP(
-            interrupt => Net_351,
+            interrupt => Net_656,
             clock => ClockBlock_HFClk);
 
     \Timer1:cy_m0s8_tcpwm_1\:m0s8tcpwmcell
@@ -1501,7 +1494,7 @@ BEGIN
             stop => '0',
             start => '0',
             tr_underflow => Net_500,
-            tr_overflow => Net_498,
+            tr_overflow => Net_683,
             tr_compare_match => Net_401,
             line => Net_405,
             line_compl => Net_406,
@@ -1512,7 +1505,7 @@ BEGIN
             int_type => "10",
             is_nmi => 0)
         PORT MAP(
-            interrupt => Net_352,
+            interrupt => Net_654,
             clock => ClockBlock_HFClk);
 
     Limit_Int:interrupt
@@ -1529,6 +1522,14 @@ BEGIN
             is_nmi => 0)
         PORT MAP(
             interrupt => Net_409,
+            clock => ClockBlock_HFClk);
+
+    \UART:TXInternalInterrupt\:interrupt
+        GENERIC MAP(
+            int_type => "10",
+            is_nmi => 0)
+        PORT MAP(
+            interrupt => Net_519,
             clock => ClockBlock_HFClk);
 
     \UART:BUART:sTX:TxShifter:u0\:datapathcell
@@ -1621,7 +1622,7 @@ BEGIN
             status_2 => \UART:BUART:tx_status_2\,
             status_1 => \UART:BUART:tx_fifo_empty\,
             status_0 => \UART:BUART:tx_status_0\,
-            interrupt => Net_337);
+            interrupt => Net_519);
 
     \UART:BUART:sRX:RxShifter:u0\:datapathcell
         GENERIC MAP(
@@ -1710,6 +1711,14 @@ BEGIN
             is_nmi => 0)
         PORT MAP(
             interrupt => WDT_INT_OUT,
+            clock => ClockBlock_HFClk);
+
+    Tx_Int:interrupt
+        GENERIC MAP(
+            int_type => "10",
+            is_nmi => 0)
+        PORT MAP(
+            interrupt => Net_519,
             clock => ClockBlock_HFClk);
 
     \UART:BUART:txn\:macrocell

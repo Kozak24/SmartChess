@@ -241,8 +241,9 @@ void st_wake_up()
 
   // Enable Stepper Driver Interrupt
   //TIMSK1 |= (1<<OCIE1A);
-  //Timer1_Comp_Int_Enable(); //                                             <--NEW_LINE
-  Timer1_Start(); //                                                         <--NEW_LINE
+  Timer1_Comp_Int_Enable(); //                                             <--NEW_LINE
+  Timer1_Start(); //                                                       <--NEW_LINE
+  Timer1_WriteCounter(0); //                                               <--NEW_LINE
 }
 
 
@@ -251,7 +252,7 @@ void st_go_idle()
 {
   // Disable Stepper Driver Interrupt. Allow Stepper Port Reset Interrupt to finish, if active.
   //TIMSK1 &= ~(1<<OCIE1A); // Disable Timer1 interrupt
-  //Timer1_Comp_Int_Disable(); //                                                                 <--NEW_LINE
+  Timer1_Comp_Int_Disable(); //                                                                   <--NEW_LINE
   Timer1_Stop();               //                                                                 <--NEW_LINE
   //TCCR1B = (TCCR1B & ~((1<<CS12) | (1<<CS11))) | (1<<CS10); // Reset clock to no prescaling.
   //No prescaling enabled in the Timer1 component
@@ -334,7 +335,6 @@ CY_ISR( Timer1_Comp_Int_Handler ) //                                            
 //ISR(TIMER1_COMPA_vect)
 {
   //In original lines configured on the stepper_init()
-  //Timer1_WriteCounter( 0 ); //                                                          <--NEW_LINE
 
   if (busy) { return; } // The busy-flag is used to avoid reentering this interrupt
 
@@ -355,12 +355,15 @@ CY_ISR( Timer1_Comp_Int_Handler ) //                                            
   // exactly settings.pulse_microseconds microseconds, independent of the main Timer1 prescaler.
   
   //TCNT0 = st.step_pulse_time; // Reload Timer0 counter
-  Timer0_WriteCounter( st.step_pulse_time ); //Reload Timer0 counter                            <--
+  Timer0_WriteCounter( st.step_pulse_time ); //Reload Timer0 counter                            <--NEW_LINE
   
   //TCCR0B = (1<<CS01); // Begin Timer0. Full speed, 1/8 prescaler
   Timer0_Start(); // prescaler configured on the TopDesign                                      <--NEW_LINE
 
   busy = true;
+ 
+  //Timer1_Comp_Int_Enable(); //                                                              <--NEW_LINE
+  //Timer1_Start(); //                                                                        <--NEW_LINE
   //__enable_irq(); //                                                                        <--NEW_LINE
   //sei(); // Re-enable interrupts to allow Stepper Port Reset Interrupt to fire on-time.
          // NOTE: The remaining code in this ISR will finish before returning to main program.
@@ -406,17 +409,17 @@ CY_ISR( Timer1_Comp_Int_Handler ) //                                            
         // Set real-time spindle output as segment is loaded, just prior to the first step.
         spindle_set_speed(st.exec_segment->spindle_pwm);
       #endif
-
     } else {
       // Segment buffer empty. Shutdown.
       st_go_idle();
+      report_realtime_status();
       #ifdef VARIABLE_SPINDLE
         // Ensure pwm is set properly upon completion of rate-controlled motion.
         if (st.exec_block->is_pwm_rate_adjusted) { spindle_set_speed(SPINDLE_PWM_OFF_VALUE); }
       #endif
       system_set_exec_state_flag(EXEC_CYCLE_STOP); // Flag main program for cycle end
     
-      Timer1_ClearInterrupt( Timer1_INTR_MASK_CC_MATCH ); //                                <--NEW_LINE
+      //Timer1_ClearInterrupt( Timer1_INTR_MASK_TC ); //                                <--NEW_LINE
         
       return; // Nothing to do but exit.
     }
@@ -476,8 +479,7 @@ CY_ISR( Timer1_Comp_Int_Handler ) //                                            
 
   st.step_outbits ^= step_port_invert_mask;  // Apply step port invert mask
   busy = false;
-  
-  Timer1_ClearInterrupt( Timer1_INTR_MASK_CC_MATCH ); //                                <--NEW_LINE
+  //Timer1_ClearInterrupt( Timer1_INTR_MASK_TC ); //                                <--NEW_LINE
 }
 
 
