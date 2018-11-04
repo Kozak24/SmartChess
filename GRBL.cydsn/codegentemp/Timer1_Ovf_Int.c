@@ -1,5 +1,5 @@
 /*******************************************************************************
-* File Name: Timer1_Comp_Int.c  
+* File Name: Timer1_Ovf_Int.c  
 * Version 1.70
 *
 *  Description:
@@ -18,15 +18,15 @@
 
 #include <cydevice_trm.h>
 #include <CyLib.h>
-#include <Timer1_Comp_Int.h>
+#include <Timer1_Ovf_Int.h>
 #include "cyapicallbacks.h"
 
-#if !defined(Timer1_Comp_Int__REMOVED) /* Check for removal by optimization */
+#if !defined(Timer1_Ovf_Int__REMOVED) /* Check for removal by optimization */
 
 /*******************************************************************************
 *  Place your includes, defines and code here 
 ********************************************************************************/
-/* `#START Timer1_Comp_Int_intc` */
+/* `#START Timer1_Ovf_Int_intc` */
 
 /* `#END` */
 
@@ -37,7 +37,7 @@ CY_ISR_PROTO(IntDefaultHandler);
 
 
 /*******************************************************************************
-* Function Name: Timer1_Comp_Int_Start
+* Function Name: Timer1_Ovf_Int_Start
 ********************************************************************************
 *
 * Summary:
@@ -53,24 +53,24 @@ CY_ISR_PROTO(IntDefaultHandler);
 *   None
 *
 *******************************************************************************/
-void Timer1_Comp_Int_Start(void)
+void Timer1_Ovf_Int_Start(void)
 {
     /* For all we know the interrupt is active. */
-    Timer1_Comp_Int_Disable();
+    Timer1_Ovf_Int_Disable();
 
-    /* Set the ISR to point to the Timer1_Comp_Int Interrupt. */
-    Timer1_Comp_Int_SetVector(&Timer1_Comp_Int_Interrupt);
+    /* Set the ISR to point to the Timer1_Ovf_Int Interrupt. */
+    Timer1_Ovf_Int_SetVector(&Timer1_Ovf_Int_Interrupt);
 
     /* Set the priority. */
-    Timer1_Comp_Int_SetPriority((uint8)Timer1_Comp_Int_INTC_PRIOR_NUMBER);
+    Timer1_Ovf_Int_SetPriority((uint8)Timer1_Ovf_Int_INTC_PRIOR_NUMBER);
 
     /* Enable it. */
-    Timer1_Comp_Int_Enable();
+    Timer1_Ovf_Int_Enable();
 }
 
 
 /*******************************************************************************
-* Function Name: Timer1_Comp_Int_StartEx
+* Function Name: Timer1_Ovf_Int_StartEx
 ********************************************************************************
 *
 * Summary:
@@ -96,24 +96,24 @@ void Timer1_Comp_Int_Start(void)
 *   None
 *
 *******************************************************************************/
-void Timer1_Comp_Int_StartEx(cyisraddress address)
+void Timer1_Ovf_Int_StartEx(cyisraddress address)
 {
     /* For all we know the interrupt is active. */
-    Timer1_Comp_Int_Disable();
+    Timer1_Ovf_Int_Disable();
 
-    /* Set the ISR to point to the Timer1_Comp_Int Interrupt. */
-    Timer1_Comp_Int_SetVector(address);
+    /* Set the ISR to point to the Timer1_Ovf_Int Interrupt. */
+    Timer1_Ovf_Int_SetVector(address);
 
     /* Set the priority. */
-    Timer1_Comp_Int_SetPriority((uint8)Timer1_Comp_Int_INTC_PRIOR_NUMBER);
+    Timer1_Ovf_Int_SetPriority((uint8)Timer1_Ovf_Int_INTC_PRIOR_NUMBER);
 
     /* Enable it. */
-    Timer1_Comp_Int_Enable();
+    Timer1_Ovf_Int_Enable();
 }
 
 
 /*******************************************************************************
-* Function Name: Timer1_Comp_Int_Stop
+* Function Name: Timer1_Ovf_Int_Stop
 ********************************************************************************
 *
 * Summary:
@@ -126,22 +126,22 @@ void Timer1_Comp_Int_StartEx(cyisraddress address)
 *   None
 *
 *******************************************************************************/
-void Timer1_Comp_Int_Stop(void)
+void Timer1_Ovf_Int_Stop(void)
 {
     /* Disable this interrupt. */
-    Timer1_Comp_Int_Disable();
+    Timer1_Ovf_Int_Disable();
 
     /* Set the ISR to point to the passive one. */
-    Timer1_Comp_Int_SetVector(&IntDefaultHandler);
+    Timer1_Ovf_Int_SetVector(&IntDefaultHandler);
 }
 
 
 /*******************************************************************************
-* Function Name: Timer1_Comp_Int_Interrupt
+* Function Name: Timer1_Ovf_Int_Interrupt
 ********************************************************************************
 *
 * Summary:
-*   The default Interrupt Service Routine for Timer1_Comp_Int.
+*   The default Interrupt Service Routine for Timer1_Ovf_Int.
 *
 *   Add custom code between the START and END comments to keep the next version
 *   of this file from over-writing your code.
@@ -156,27 +156,27 @@ void Timer1_Comp_Int_Stop(void)
 *   None
 *
 *******************************************************************************/
-CY_ISR(Timer1_Comp_Int_Interrupt)
+CY_ISR(Timer1_Ovf_Int_Interrupt)
 {
-    #ifdef Timer1_Comp_Int_INTERRUPT_INTERRUPT_CALLBACK
-        Timer1_Comp_Int_Interrupt_InterruptCallback();
-    #endif /* Timer1_Comp_Int_INTERRUPT_INTERRUPT_CALLBACK */ 
+    #ifdef Timer1_Ovf_Int_INTERRUPT_INTERRUPT_CALLBACK
+        Timer1_Ovf_Int_Interrupt_InterruptCallback();
+    #endif /* Timer1_Ovf_Int_INTERRUPT_INTERRUPT_CALLBACK */ 
 
     /*  Place your Interrupt code here. */
-    /* `#START Timer1_Comp_Int_Interrupt` */
+    /* `#START Timer1_Ovf_Int_Interrupt` */
 
     /* `#END` */
 }
 
 
 /*******************************************************************************
-* Function Name: Timer1_Comp_Int_SetVector
+* Function Name: Timer1_Ovf_Int_SetVector
 ********************************************************************************
 *
 * Summary:
-*   Change the ISR vector for the Interrupt. Note calling Timer1_Comp_Int_Start
+*   Change the ISR vector for the Interrupt. Note calling Timer1_Ovf_Int_Start
 *   will override any effect this method would have had. To set the vector 
-*   before the component has been started use Timer1_Comp_Int_StartEx instead.
+*   before the component has been started use Timer1_Ovf_Int_StartEx instead.
 * 
 *   When defining ISR functions, the CY_ISR and CY_ISR_PROTO macros should be 
 *   used to provide consistent definition across compilers:
@@ -196,14 +196,14 @@ CY_ISR(Timer1_Comp_Int_Interrupt)
 *   None
 *
 *******************************************************************************/
-void Timer1_Comp_Int_SetVector(cyisraddress address)
+void Timer1_Ovf_Int_SetVector(cyisraddress address)
 {
-    CyRamVectors[CYINT_IRQ_BASE + Timer1_Comp_Int__INTC_NUMBER] = address;
+    CyRamVectors[CYINT_IRQ_BASE + Timer1_Ovf_Int__INTC_NUMBER] = address;
 }
 
 
 /*******************************************************************************
-* Function Name: Timer1_Comp_Int_GetVector
+* Function Name: Timer1_Ovf_Int_GetVector
 ********************************************************************************
 *
 * Summary:
@@ -216,22 +216,22 @@ void Timer1_Comp_Int_SetVector(cyisraddress address)
 *   Address of the ISR in the interrupt vector table.
 *
 *******************************************************************************/
-cyisraddress Timer1_Comp_Int_GetVector(void)
+cyisraddress Timer1_Ovf_Int_GetVector(void)
 {
-    return CyRamVectors[CYINT_IRQ_BASE + Timer1_Comp_Int__INTC_NUMBER];
+    return CyRamVectors[CYINT_IRQ_BASE + Timer1_Ovf_Int__INTC_NUMBER];
 }
 
 
 /*******************************************************************************
-* Function Name: Timer1_Comp_Int_SetPriority
+* Function Name: Timer1_Ovf_Int_SetPriority
 ********************************************************************************
 *
 * Summary:
 *   Sets the Priority of the Interrupt. 
 *
-*   Note calling Timer1_Comp_Int_Start or Timer1_Comp_Int_StartEx will 
+*   Note calling Timer1_Ovf_Int_Start or Timer1_Ovf_Int_StartEx will 
 *   override any effect this API would have had. This API should only be called
-*   after Timer1_Comp_Int_Start or Timer1_Comp_Int_StartEx has been called. 
+*   after Timer1_Ovf_Int_Start or Timer1_Ovf_Int_StartEx has been called. 
 *   To set the initial priority for the component, use the Design-Wide Resources
 *   Interrupt Editor.
 *
@@ -246,20 +246,20 @@ cyisraddress Timer1_Comp_Int_GetVector(void)
 *   None
 *
 *******************************************************************************/
-void Timer1_Comp_Int_SetPriority(uint8 priority)
+void Timer1_Ovf_Int_SetPriority(uint8 priority)
 {
 	uint8 interruptState;
-    uint32 priorityOffset = ((Timer1_Comp_Int__INTC_NUMBER % 4u) * 8u) + 6u;
+    uint32 priorityOffset = ((Timer1_Ovf_Int__INTC_NUMBER % 4u) * 8u) + 6u;
     
 	interruptState = CyEnterCriticalSection();
-    *Timer1_Comp_Int_INTC_PRIOR = (*Timer1_Comp_Int_INTC_PRIOR & (uint32)(~Timer1_Comp_Int__INTC_PRIOR_MASK)) |
+    *Timer1_Ovf_Int_INTC_PRIOR = (*Timer1_Ovf_Int_INTC_PRIOR & (uint32)(~Timer1_Ovf_Int__INTC_PRIOR_MASK)) |
                                     ((uint32)priority << priorityOffset);
 	CyExitCriticalSection(interruptState);
 }
 
 
 /*******************************************************************************
-* Function Name: Timer1_Comp_Int_GetPriority
+* Function Name: Timer1_Ovf_Int_GetPriority
 ********************************************************************************
 *
 * Summary:
@@ -274,19 +274,19 @@ void Timer1_Comp_Int_SetPriority(uint8 priority)
 *    PSoC 4: Priority is from 0 to 3.
 *
 *******************************************************************************/
-uint8 Timer1_Comp_Int_GetPriority(void)
+uint8 Timer1_Ovf_Int_GetPriority(void)
 {
     uint32 priority;
-	uint32 priorityOffset = ((Timer1_Comp_Int__INTC_NUMBER % 4u) * 8u) + 6u;
+	uint32 priorityOffset = ((Timer1_Ovf_Int__INTC_NUMBER % 4u) * 8u) + 6u;
 
-    priority = (*Timer1_Comp_Int_INTC_PRIOR & Timer1_Comp_Int__INTC_PRIOR_MASK) >> priorityOffset;
+    priority = (*Timer1_Ovf_Int_INTC_PRIOR & Timer1_Ovf_Int__INTC_PRIOR_MASK) >> priorityOffset;
 
     return (uint8)priority;
 }
 
 
 /*******************************************************************************
-* Function Name: Timer1_Comp_Int_Enable
+* Function Name: Timer1_Ovf_Int_Enable
 ********************************************************************************
 *
 * Summary:
@@ -301,15 +301,15 @@ uint8 Timer1_Comp_Int_GetPriority(void)
 *   None
 *
 *******************************************************************************/
-void Timer1_Comp_Int_Enable(void)
+void Timer1_Ovf_Int_Enable(void)
 {
     /* Enable the general interrupt. */
-    *Timer1_Comp_Int_INTC_SET_EN = Timer1_Comp_Int__INTC_MASK;
+    *Timer1_Ovf_Int_INTC_SET_EN = Timer1_Ovf_Int__INTC_MASK;
 }
 
 
 /*******************************************************************************
-* Function Name: Timer1_Comp_Int_GetState
+* Function Name: Timer1_Ovf_Int_GetState
 ********************************************************************************
 *
 * Summary:
@@ -322,15 +322,15 @@ void Timer1_Comp_Int_Enable(void)
 *   1 if enabled, 0 if disabled.
 *
 *******************************************************************************/
-uint8 Timer1_Comp_Int_GetState(void)
+uint8 Timer1_Ovf_Int_GetState(void)
 {
     /* Get the state of the general interrupt. */
-    return ((*Timer1_Comp_Int_INTC_SET_EN & (uint32)Timer1_Comp_Int__INTC_MASK) != 0u) ? 1u:0u;
+    return ((*Timer1_Ovf_Int_INTC_SET_EN & (uint32)Timer1_Ovf_Int__INTC_MASK) != 0u) ? 1u:0u;
 }
 
 
 /*******************************************************************************
-* Function Name: Timer1_Comp_Int_Disable
+* Function Name: Timer1_Ovf_Int_Disable
 ********************************************************************************
 *
 * Summary:
@@ -343,15 +343,15 @@ uint8 Timer1_Comp_Int_GetState(void)
 *   None
 *
 *******************************************************************************/
-void Timer1_Comp_Int_Disable(void)
+void Timer1_Ovf_Int_Disable(void)
 {
     /* Disable the general interrupt. */
-    *Timer1_Comp_Int_INTC_CLR_EN = Timer1_Comp_Int__INTC_MASK;
+    *Timer1_Ovf_Int_INTC_CLR_EN = Timer1_Ovf_Int__INTC_MASK;
 }
 
 
 /*******************************************************************************
-* Function Name: Timer1_Comp_Int_SetPending
+* Function Name: Timer1_Ovf_Int_SetPending
 ********************************************************************************
 *
 * Summary:
@@ -370,14 +370,14 @@ void Timer1_Comp_Int_Disable(void)
 *   interrupts).
 *
 *******************************************************************************/
-void Timer1_Comp_Int_SetPending(void)
+void Timer1_Ovf_Int_SetPending(void)
 {
-    *Timer1_Comp_Int_INTC_SET_PD = Timer1_Comp_Int__INTC_MASK;
+    *Timer1_Ovf_Int_INTC_SET_PD = Timer1_Ovf_Int__INTC_MASK;
 }
 
 
 /*******************************************************************************
-* Function Name: Timer1_Comp_Int_ClearPending
+* Function Name: Timer1_Ovf_Int_ClearPending
 ********************************************************************************
 *
 * Summary:
@@ -395,9 +395,9 @@ void Timer1_Comp_Int_SetPending(void)
 *   None
 *
 *******************************************************************************/
-void Timer1_Comp_Int_ClearPending(void)
+void Timer1_Ovf_Int_ClearPending(void)
 {
-    *Timer1_Comp_Int_INTC_CLR_PD = Timer1_Comp_Int__INTC_MASK;
+    *Timer1_Ovf_Int_INTC_CLR_PD = Timer1_Ovf_Int__INTC_MASK;
 }
 
 #endif /* End check for removal by optimization */

@@ -241,7 +241,7 @@ void st_wake_up()
 
   // Enable Stepper Driver Interrupt
   //TIMSK1 |= (1<<OCIE1A);
-  Timer1_Comp_Int_Enable(); //                                             <--NEW_LINE
+  Timer1_Ovf_Int_Enable(); //                                             <--NEW_LINE
   Timer1_Start(); //                                                       <--NEW_LINE
   Timer1_WriteCounter(0); //                                               <--NEW_LINE
 }
@@ -252,7 +252,7 @@ void st_go_idle()
 {
   // Disable Stepper Driver Interrupt. Allow Stepper Port Reset Interrupt to finish, if active.
   //TIMSK1 &= ~(1<<OCIE1A); // Disable Timer1 interrupt
-  Timer1_Comp_Int_Disable(); //                                                                   <--NEW_LINE
+  Timer1_Ovf_Int_Disable(); //                                                                   <--NEW_LINE
   Timer1_Stop();               //                                                                 <--NEW_LINE
   //TCCR1B = (TCCR1B & ~((1<<CS12) | (1<<CS11))) | (1<<CS10); // Reset clock to no prescaling.
   //No prescaling enabled in the Timer1 component
@@ -331,7 +331,7 @@ void st_go_idle()
 // with probing and homing cycles that require true real-time positions.
 //char counter = 0;
 
-CY_ISR( Timer1_Comp_Int_Handler ) //                                                    <--NEW_LINE
+CY_ISR( Timer1_Ovf_Int_Handler ) //                                                    <--NEW_LINE
 //ISR(TIMER1_COMPA_vect)
 {
   //In original lines configured on the stepper_init()
@@ -340,7 +340,7 @@ CY_ISR( Timer1_Comp_Int_Handler ) //                                            
 
   // Set the direction pins a couple of nanoseconds before we step the steppers
   //DIRECTION_PORT = (DIRECTION_PORT & ~DIRECTION_MASK) | (st.dir_outbits & DIRECTION_MASK);
-  Stepper_Pins_Write( ( Stepper_Pins_Read() & ~DIRECTION_MASK)  | ( st.dir_outbits & DIRECTION_MASK ) ); //   <--NEW_LINE
+  Control_Reg_Direction_Write(st.dir_outbits); //                                                               <--NEW_LINE
 
   // Then pulse the stepping pins
   #ifdef STEP_PULSE_DELAY
@@ -348,7 +348,7 @@ CY_ISR( Timer1_Comp_Int_Handler ) //                                            
     st.step_bits = ( Stepper_Pins_Read() & ~(STEP_MASK) ) | st.step_outbits; // Store out_bits to prevent overwriting.      <--NEW_LINE
   #else  // Normal operation
     //STEP_PORT = (STEP_PORT & ~STEP_MASK) | st.step_outbits;
-    Stepper_Pins_Write( ( (Stepper_Pins_Read() & ~STEP_MASK) ) | st.step_outbits ); //          <--NEW_LINE
+    Control_Reg_Step_Write(st.step_outbits);
   #endif 
 
   // Enable step pulse reset timer so that The Stepper Port Reset Interrupt can reset the signal after
@@ -359,12 +359,12 @@ CY_ISR( Timer1_Comp_Int_Handler ) //                                            
   
   //TCCR0B = (1<<CS01); // Begin Timer0. Full speed, 1/8 prescaler
   Timer0_Start(); // prescaler configured on the TopDesign                                      <--NEW_LINE
+  Timer0_Ovf_Int_Enable();
 
   busy = true;
  
-  //Timer1_Comp_Int_Enable(); //                                                              <--NEW_LINE
-  //Timer1_Start(); //                                                                        <--NEW_LINE
-  //__enable_irq(); //                                                                        <--NEW_LINE
+  //Timer1_Ovf_Int_Enable(); //                                                              <--NEW_LINE
+  Timer1_Start(); //                                                                        <--NEW_LINE
   //sei(); // Re-enable interrupts to allow Stepper Port Reset Interrupt to fire on-time.
          // NOTE: The remaining code in this ISR will finish before returning to main program.
 
@@ -412,7 +412,6 @@ CY_ISR( Timer1_Comp_Int_Handler ) //                                            
     } else {
       // Segment buffer empty. Shutdown.
       st_go_idle();
-      report_realtime_status();
       #ifdef VARIABLE_SPINDLE
         // Ensure pwm is set properly upon completion of rate-controlled motion.
         if (st.exec_block->is_pwm_rate_adjusted) { spindle_set_speed(SPINDLE_PWM_OFF_VALUE); }
@@ -499,9 +498,10 @@ CY_ISR( Timer0_Ovf_Int_Handler ) //                                             
 {
   // Reset stepping pins (leave the direction pins)
   //STEP_PORT = (STEP_PORT & ~STEP_MASK) | (step_port_invert_mask & STEP_MASK);
-  Stepper_Pins_Write( ( Stepper_Pins_Read() & ~STEP_MASK ) | ( step_port_invert_mask & STEP_MASK ) ); //                    <--NEW_LINE  
+  Control_Reg_Step_Write(0b000); //                                                              <--NEW_LINE
   //TCCR0B = 0; // Disable Timer0 to prevent re-entering this interrupt when it's not needed.
   Timer0_Stop();//Disable Timer0 to prevent re-entering this interrupt when it's not needed      <--NEW_LINE
+  Timer0_Ovf_Int_Disable(); //                                                                   <--NEW_LINE
 }
 #ifdef STEP_PULSE_DELAY
   // This interrupt is used only when STEP_PULSE_DELAY is enabled. Here, the step pulse is
@@ -509,12 +509,12 @@ CY_ISR( Timer0_Ovf_Int_Handler ) //                                             
   // will then trigger after the appropriate settings.pulse_microseconds, as in normal operation.
   // The new timing between direction, step pulse, and step complete events are setup in the
   // st_wake_up() routine.
-  CY_ISR( Timer0_Comp_Int_Handler ) //                                                           <--NEW_LINE
+  CY_ISR( Timer0_Comp_Int_Handler ) //                                                      <--NEW_LINE
   //ISR(TIMER0_COMPA_vect)
   {
     //STEP_PORT = st.step_bits; // Begin step pulse.
-    Stepper_Pins_Write( st.step_bits ); // Begin step pulse.                              <--NEW_LINE
-    Timer0_ClearInterrupt( Timer0_INTR_MASK_CC_MATCH ); //                                <--NEW_LINE
+    Control_Reg_Direction_Write( st.step_bits ); //                                         <--NEW_LINE
+    Timer0_ClearInterrupt( Timer0_INTR_MASK_CC_MATCH ); //                                  <--NEW_LINE
   }
 #endif
 
@@ -554,8 +554,8 @@ void st_reset()
   // Initialize step and direction port pins.
   //STEP_PORT = (STEP_PORT & ~STEP_MASK) | step_port_invert_mask;
   //DIRECTION_PORT = (DIRECTION_PORT & ~DIRECTION_MASK) | dir_port_invert_mask;
-  Stepper_Pins_Write( (Stepper_Pins_Read() & ~( STEP_MASK ) ) | step_port_invert_mask ); //                  <--NEW_LINE
-  Stepper_Pins_Write( (Stepper_Pins_Read() & ~( DIRECTION_MASK ) ) | dir_port_invert_mask ); //              <--NEW_LINE
+  Control_Reg_Step_Write(0b000); //                                                 <--NEW_LINE
+  Control_Reg_Direction_Write(0b000); //                                            <--NEW_LINE
 }
 
 
@@ -576,7 +576,7 @@ void stepper_init()
   TCCR1B &= ~(1<<WGM13); // waveform generation = 0100 = CTC
   TCCR1B |=  (1<<WGM12);
   TCCR1A &= ~((1<<WGM11) | (1<<WGM10));
-  //CTC CONFIGURED IN THE Timer1_Comp_Int_Handler
+  //CTC CONFIGURED IN THE Timer1_Ovf_Int_Handler
     
   TCCR1A &= ~((1<<COM1A1) | (1<<COM1A0) | (1<<COM1B1) | (1<<COM1B0)); // Disconnect OC1 output
   //Don't need to configure this
@@ -595,17 +595,12 @@ void stepper_init()
   TIMSK0 |= (1<<TOIE0); // Enable Timer0 overflow interrupt
   *************************************************************/
   
-  /*************************************NEW_LINES*******************************/
-  Timer0_Init();
-  Timer1_Init();  
-  
+  /*************************************NEW_LINES*******************************/ 
   #ifdef STEP_PULSE_DELAY
     Timer0_Comp_Int_StartEx( Timer0_Comp_Int_Handler );
   #endif
   Timer0_Ovf_Int_StartEx( Timer0_Ovf_Int_Handler );
-  Timer1_Comp_Int_StartEx( Timer1_Comp_Int_Handler );  
-    
-  Timer0_Ovf_Int_Enable(); 
+  Timer1_Ovf_Int_StartEx( Timer1_Ovf_Int_Handler );  
   /*****************************************************************************/
     
   #ifdef STEP_PULSE_DELAY

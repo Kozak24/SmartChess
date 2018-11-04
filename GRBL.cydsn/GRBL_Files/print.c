@@ -25,7 +25,7 @@
 
 void printString(const char *s)
 {
-  //UART_PutString(s); //                                                 <--NEW_LINE
+//  UART_PutString(s); //                                                 <--NEW_LINE
   while (*s)
     serial_write(*s++);
 }

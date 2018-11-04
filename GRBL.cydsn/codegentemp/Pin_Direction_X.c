@@ -1,5 +1,5 @@
 /*******************************************************************************
-* File Name: Stepper_Pins.c  
+* File Name: Pin_Direction_X.c  
 * Version 2.20
 *
 * Description:
@@ -13,35 +13,35 @@
 *******************************************************************************/
 
 #include "cytypes.h"
-#include "Stepper_Pins.h"
+#include "Pin_Direction_X.h"
 
 
-#if defined(Stepper_Pins__PC)
-    #define Stepper_Pins_SetP4PinDriveMode(shift, mode)  \
+#if defined(Pin_Direction_X__PC)
+    #define Pin_Direction_X_SetP4PinDriveMode(shift, mode)  \
     do { \
-        Stepper_Pins_PC =   (Stepper_Pins_PC & \
-                                (uint32)(~(uint32)(Stepper_Pins_DRIVE_MODE_IND_MASK << \
-                                (Stepper_Pins_DRIVE_MODE_BITS * (shift))))) | \
+        Pin_Direction_X_PC =   (Pin_Direction_X_PC & \
+                                (uint32)(~(uint32)(Pin_Direction_X_DRIVE_MODE_IND_MASK << \
+                                (Pin_Direction_X_DRIVE_MODE_BITS * (shift))))) | \
                                 (uint32)((uint32)(mode) << \
-                                (Stepper_Pins_DRIVE_MODE_BITS * (shift))); \
+                                (Pin_Direction_X_DRIVE_MODE_BITS * (shift))); \
     } while (0)
 #else
     #if (CY_PSOC4_4200L)
-        #define Stepper_Pins_SetP4PinDriveMode(shift, mode)  \
+        #define Pin_Direction_X_SetP4PinDriveMode(shift, mode)  \
         do { \
-            Stepper_Pins_USBIO_CTRL_REG = (Stepper_Pins_USBIO_CTRL_REG & \
-                                    (uint32)(~(uint32)(Stepper_Pins_DRIVE_MODE_IND_MASK << \
-                                    (Stepper_Pins_DRIVE_MODE_BITS * (shift))))) | \
+            Pin_Direction_X_USBIO_CTRL_REG = (Pin_Direction_X_USBIO_CTRL_REG & \
+                                    (uint32)(~(uint32)(Pin_Direction_X_DRIVE_MODE_IND_MASK << \
+                                    (Pin_Direction_X_DRIVE_MODE_BITS * (shift))))) | \
                                     (uint32)((uint32)(mode) << \
-                                    (Stepper_Pins_DRIVE_MODE_BITS * (shift))); \
+                                    (Pin_Direction_X_DRIVE_MODE_BITS * (shift))); \
         } while (0)
     #endif
 #endif
   
 
-#if defined(Stepper_Pins__PC) || (CY_PSOC4_4200L) 
+#if defined(Pin_Direction_X__PC) || (CY_PSOC4_4200L) 
     /*******************************************************************************
-    * Function Name: Stepper_Pins_SetDriveMode
+    * Function Name: Pin_Direction_X_SetDriveMode
     ****************************************************************************//**
     *
     * \brief Sets the drive mode for each of the Pins component's pins.
@@ -67,24 +67,17 @@
     *  APIs (primary method) or disable interrupts around this function.
     *
     * \funcusage
-    *  \snippet Stepper_Pins_SUT.c usage_Stepper_Pins_SetDriveMode
+    *  \snippet Pin_Direction_X_SUT.c usage_Pin_Direction_X_SetDriveMode
     *******************************************************************************/
-    void Stepper_Pins_SetDriveMode(uint8 mode)
+    void Pin_Direction_X_SetDriveMode(uint8 mode)
     {
-		Stepper_Pins_SetP4PinDriveMode(Stepper_Pins__0__SHIFT, mode);
-		Stepper_Pins_SetP4PinDriveMode(Stepper_Pins__1__SHIFT, mode);
-		Stepper_Pins_SetP4PinDriveMode(Stepper_Pins__2__SHIFT, mode);
-		Stepper_Pins_SetP4PinDriveMode(Stepper_Pins__3__SHIFT, mode);
-		Stepper_Pins_SetP4PinDriveMode(Stepper_Pins__4__SHIFT, mode);
-		Stepper_Pins_SetP4PinDriveMode(Stepper_Pins__5__SHIFT, mode);
-		Stepper_Pins_SetP4PinDriveMode(Stepper_Pins__6__SHIFT, mode);
-		Stepper_Pins_SetP4PinDriveMode(Stepper_Pins__7__SHIFT, mode);
+		Pin_Direction_X_SetP4PinDriveMode(Pin_Direction_X__0__SHIFT, mode);
     }
 #endif
 
 
 /*******************************************************************************
-* Function Name: Stepper_Pins_Write
+* Function Name: Pin_Direction_X_Write
 ****************************************************************************//**
 *
 * \brief Writes the value to the physical port (data output register), masking
@@ -113,18 +106,18 @@
 *  this function.
 *
 * \funcusage
-*  \snippet Stepper_Pins_SUT.c usage_Stepper_Pins_Write
+*  \snippet Pin_Direction_X_SUT.c usage_Pin_Direction_X_Write
 *******************************************************************************/
-void Stepper_Pins_Write(uint8 value)
+void Pin_Direction_X_Write(uint8 value)
 {
-    uint8 drVal = (uint8)(Stepper_Pins_DR & (uint8)(~Stepper_Pins_MASK));
-    drVal = (drVal | ((uint8)(value << Stepper_Pins_SHIFT) & Stepper_Pins_MASK));
-    Stepper_Pins_DR = (uint32)drVal;
+    uint8 drVal = (uint8)(Pin_Direction_X_DR & (uint8)(~Pin_Direction_X_MASK));
+    drVal = (drVal | ((uint8)(value << Pin_Direction_X_SHIFT) & Pin_Direction_X_MASK));
+    Pin_Direction_X_DR = (uint32)drVal;
 }
 
 
 /*******************************************************************************
-* Function Name: Stepper_Pins_Read
+* Function Name: Pin_Direction_X_Read
 ****************************************************************************//**
 *
 * \brief Reads the associated physical port (pin status register) and masks 
@@ -138,16 +131,16 @@ void Stepper_Pins_Write(uint8 value)
 *  The current value for the pins in the component as a right justified number.
 *
 * \funcusage
-*  \snippet Stepper_Pins_SUT.c usage_Stepper_Pins_Read  
+*  \snippet Pin_Direction_X_SUT.c usage_Pin_Direction_X_Read  
 *******************************************************************************/
-uint8 Stepper_Pins_Read(void)
+uint8 Pin_Direction_X_Read(void)
 {
-    return (uint8)((Stepper_Pins_PS & Stepper_Pins_MASK) >> Stepper_Pins_SHIFT);
+    return (uint8)((Pin_Direction_X_PS & Pin_Direction_X_MASK) >> Pin_Direction_X_SHIFT);
 }
 
 
 /*******************************************************************************
-* Function Name: Stepper_Pins_ReadDataReg
+* Function Name: Pin_Direction_X_ReadDataReg
 ****************************************************************************//**
 *
 * \brief Reads the associated physical port's data output register and masks 
@@ -156,8 +149,8 @@ uint8 Stepper_Pins_Read(void)
 *
 * The data output register controls the signal applied to the physical pin in 
 * conjunction with the drive mode parameter. This is not the same as the 
-* preferred Stepper_Pins_Read() API because the 
-* Stepper_Pins_ReadDataReg() reads the data register instead of the status 
+* preferred Pin_Direction_X_Read() API because the 
+* Pin_Direction_X_ReadDataReg() reads the data register instead of the status 
 * register. For output pins this is a useful function to determine the value 
 * just written to the pin.
 *
@@ -166,16 +159,16 @@ uint8 Stepper_Pins_Read(void)
 *  justified number for the component instance.
 *
 * \funcusage
-*  \snippet Stepper_Pins_SUT.c usage_Stepper_Pins_ReadDataReg 
+*  \snippet Pin_Direction_X_SUT.c usage_Pin_Direction_X_ReadDataReg 
 *******************************************************************************/
-uint8 Stepper_Pins_ReadDataReg(void)
+uint8 Pin_Direction_X_ReadDataReg(void)
 {
-    return (uint8)((Stepper_Pins_DR & Stepper_Pins_MASK) >> Stepper_Pins_SHIFT);
+    return (uint8)((Pin_Direction_X_DR & Pin_Direction_X_MASK) >> Pin_Direction_X_SHIFT);
 }
 
 
 /*******************************************************************************
-* Function Name: Stepper_Pins_SetInterruptMode
+* Function Name: Pin_Direction_X_SetInterruptMode
 ****************************************************************************//**
 *
 * \brief Configures the interrupt mode for each of the Pins component's
@@ -188,12 +181,12 @@ uint8 Stepper_Pins_ReadDataReg(void)
 * \param position
 *  The pin position as listed in the Pins component. You may OR these to be 
 *  able to configure the interrupt mode of multiple pins within a Pins 
-*  component. Or you may use Stepper_Pins_INTR_ALL to configure the
+*  component. Or you may use Pin_Direction_X_INTR_ALL to configure the
 *  interrupt mode of all the pins in the Pins component.       
-*  - Stepper_Pins_0_INTR       (First pin in the list)
-*  - Stepper_Pins_1_INTR       (Second pin in the list)
+*  - Pin_Direction_X_0_INTR       (First pin in the list)
+*  - Pin_Direction_X_1_INTR       (Second pin in the list)
 *  - ...
-*  - Stepper_Pins_INTR_ALL     (All pins in Pins component)
+*  - Pin_Direction_X_INTR_ALL     (All pins in Pins component)
 *
 * \param mode
 *  Interrupt mode for the selected pins. Valid options are documented in
@@ -209,19 +202,19 @@ uint8 Stepper_Pins_ReadDataReg(void)
 *  port.
 *
 * \funcusage
-*  \snippet Stepper_Pins_SUT.c usage_Stepper_Pins_SetInterruptMode
+*  \snippet Pin_Direction_X_SUT.c usage_Pin_Direction_X_SetInterruptMode
 *******************************************************************************/
-void Stepper_Pins_SetInterruptMode(uint16 position, uint16 mode)
+void Pin_Direction_X_SetInterruptMode(uint16 position, uint16 mode)
 {
     uint32 intrCfg;
     
-    intrCfg =  Stepper_Pins_INTCFG & (uint32)(~(uint32)position);
-    Stepper_Pins_INTCFG = intrCfg | ((uint32)position & (uint32)mode);
+    intrCfg =  Pin_Direction_X_INTCFG & (uint32)(~(uint32)position);
+    Pin_Direction_X_INTCFG = intrCfg | ((uint32)position & (uint32)mode);
 }
 
 
 /*******************************************************************************
-* Function Name: Stepper_Pins_ClearInterrupt
+* Function Name: Pin_Direction_X_ClearInterrupt
 ****************************************************************************//**
 *
 * \brief Clears any active interrupts attached with the component and returns 
@@ -238,13 +231,13 @@ void Stepper_Pins_SetInterruptMode(uint16 position, uint16 mode)
 *  those associated with the Pins component.
 *
 * \funcusage
-*  \snippet Stepper_Pins_SUT.c usage_Stepper_Pins_ClearInterrupt
+*  \snippet Pin_Direction_X_SUT.c usage_Pin_Direction_X_ClearInterrupt
 *******************************************************************************/
-uint8 Stepper_Pins_ClearInterrupt(void)
+uint8 Pin_Direction_X_ClearInterrupt(void)
 {
-	uint8 maskedStatus = (uint8)(Stepper_Pins_INTSTAT & Stepper_Pins_MASK);
-	Stepper_Pins_INTSTAT = maskedStatus;
-    return maskedStatus >> Stepper_Pins_SHIFT;
+	uint8 maskedStatus = (uint8)(Pin_Direction_X_INTSTAT & Pin_Direction_X_MASK);
+	Pin_Direction_X_INTSTAT = maskedStatus;
+    return maskedStatus >> Pin_Direction_X_SHIFT;
 }
 
 

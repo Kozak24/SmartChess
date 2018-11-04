@@ -6,7 +6,7 @@
 
 #Build Date:         Dec  5 2017 15:35:27
 
-#File Generated:     Oct 25 2018 22:56:05
+#File Generated:     Nov 4 2018 23:01:36
 
 #Purpose:            
 
@@ -47,7 +47,7 @@ Design Statistics after Packing
     Number of Combinational MCs 	:	8
     Number of Sequential MCs    	:	16
     Number of DPs               	:	3
-    Number of Controls          	:	1
+    Number of Controls          	:	3
     Number of Status            	:	2
     Number of SyncCells         	:	0
     Number of count7cells       	:	1
@@ -119,13 +119,13 @@ Clock: UART_IntClock        | Frequency:   2.5 MHz | Target:   0.9 MHz
 ======================================================================
                      End of Clock Summary
 ######################################################################
-D2088: Phase 7, elapsed time : 0.0 (sec)
+D2088: Phase 7, elapsed time : 0.1 (sec)
 
 Final Design Statistics
     Number of Combinational MCs 	:	8
     Number of Sequential MCs    	:	16
     Number of DPs               	:	3
-    Number of Controls          	:	1
+    Number of Controls          	:	3
     Number of Status            	:	2
     Number of SyncCells         	:	0
     Number of count7cells       	:	1
@@ -173,5 +173,5 @@ D2088: Phase 8, elapsed time : 0.0 (sec)
 
 D2054: Placement of the design completed successfully
 
-I2076: Total run-time: 0.4 sec.
+I2076: Total run-time: 0.5 sec.
 

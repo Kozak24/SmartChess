@@ -31,7 +31,7 @@
 /***********CYPRESS_INTERRUPTS*************/
 CY_ISR( Timer0_Comp_Int_Handler );
 CY_ISR( Timer0_Ovf_Int_Handler );
-CY_ISR( Timer1_Comp_Int_Handler );
+CY_ISR( Timer1_Ovf_Int_Handler );
 
 // Initialize and setup the stepper motor subsystem
 void stepper_init();

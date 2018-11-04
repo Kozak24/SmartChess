@@ -72,7 +72,7 @@ extern uint8  Timer1_initVar;
 
 /* Timer/Counter Mode */
 /* Parameters */
-#define Timer1_TC_RUN_MODE                    (0lu)
+#define Timer1_TC_RUN_MODE                    (1lu)
 #define Timer1_TC_COUNTER_MODE                (0lu)
 #define Timer1_TC_COMP_CAP_MODE               (0lu)
 #define Timer1_TC_PRESCALER                   (0lu)

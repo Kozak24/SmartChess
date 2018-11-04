@@ -40,9 +40,10 @@
   #define Y_STEP_BIT      3  // Uno Digital Pin 3
   #define Z_STEP_BIT      4  // Uno Digital Pin 4
   *************************************************/
-  #define X_STEP_BIT      6  // Uno Digital Pin 2 - Cypress P[1.6]                  <--NEW_LINE
-  #define Y_STEP_BIT      7  // Uno Digital Pin 3 - Cypress P[1.7]                  <--NEW_LINE
-  #define Z_STEP_BIT      3  // Uno Digital Pin 4 - Cypress P[1.3]                  <--NEW_LINE
+  // Changed according to the scheme (TopDesign)
+  #define X_STEP_BIT      0  // Uno Digital Pin 2 - Cypress P[1.6]                  <--NEW_LINE
+  #define Y_STEP_BIT      1  // Uno Digital Pin 3 - Cypress P[1.7]                  <--NEW_LINE
+  #define Z_STEP_BIT      2  // Uno Digital Pin 4 - Cypress P[1.3]                  <--NEW_LINE
   #define STEP_MASK       ((1<<X_STEP_BIT)|(1<<Y_STEP_BIT)|(1<<Z_STEP_BIT)) // All step bits
 
   // Define step direction output pins. NOTE: All direction pins must be on the same port.
@@ -53,9 +54,10 @@
   #define Y_DIRECTION_BIT   6  // Uno Digital Pin 6
   #define Z_DIRECTION_BIT   7  // Uno Digital Pin 7
   *************************************************/
-  #define X_DIRECTION_BIT   2  // Uno Digital Pin 5 - Cypress P[1.2]                <--NEW_LINE
+  //Changed according to the scheme (TopDesign)
+  #define X_DIRECTION_BIT   0  // Uno Digital Pin 5 - Cypress P[1.2]                <--NEW_LINE
   #define Y_DIRECTION_BIT   1  // Uno Digital Pin 6 - Cypress P[1.1]                <--NEW_LINE
-  #define Z_DIRECTION_BIT   0  // Uno Digital Pin 7 - Cypress P[1.0]                <--NEW_LINE
+  #define Z_DIRECTION_BIT   2  // Uno Digital Pin 7 - Cypress P[1.0]                <--NEW_LINE
   #define DIRECTION_MASK    ((1<<X_DIRECTION_BIT)|(1<<Y_DIRECTION_BIT)|(1<<Z_DIRECTION_BIT)) // All direction bits
 
   // Define stepper driver enable/disable output pin.

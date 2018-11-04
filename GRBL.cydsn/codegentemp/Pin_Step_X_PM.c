@@ -1,5 +1,5 @@
 /*******************************************************************************
-* File Name: Stepper_Pins.c  
+* File Name: Pin_Step_X.c  
 * Version 2.20
 *
 * Description:
@@ -15,13 +15,13 @@
 *******************************************************************************/
 
 #include "cytypes.h"
-#include "Stepper_Pins.h"
+#include "Pin_Step_X.h"
 
-static Stepper_Pins_BACKUP_STRUCT  Stepper_Pins_backup = {0u, 0u, 0u};
+static Pin_Step_X_BACKUP_STRUCT  Pin_Step_X_backup = {0u, 0u, 0u};
 
 
 /*******************************************************************************
-* Function Name: Stepper_Pins_Sleep
+* Function Name: Pin_Step_X_Sleep
 ****************************************************************************//**
 *
 * \brief Stores the pin configuration and prepares the pin for entering chip 
@@ -39,30 +39,30 @@ static Stepper_Pins_BACKUP_STRUCT  Stepper_Pins_backup = {0u, 0u, 0u};
 *  deep-sleep/hibernate modes.
 *
 * \funcusage
-*  \snippet Stepper_Pins_SUT.c usage_Stepper_Pins_Sleep_Wakeup
+*  \snippet Pin_Step_X_SUT.c usage_Pin_Step_X_Sleep_Wakeup
 *******************************************************************************/
-void Stepper_Pins_Sleep(void)
+void Pin_Step_X_Sleep(void)
 {
-    #if defined(Stepper_Pins__PC)
-        Stepper_Pins_backup.pcState = Stepper_Pins_PC;
+    #if defined(Pin_Step_X__PC)
+        Pin_Step_X_backup.pcState = Pin_Step_X_PC;
     #else
         #if (CY_PSOC4_4200L)
             /* Save the regulator state and put the PHY into suspend mode */
-            Stepper_Pins_backup.usbState = Stepper_Pins_CR1_REG;
-            Stepper_Pins_USB_POWER_REG |= Stepper_Pins_USBIO_ENTER_SLEEP;
-            Stepper_Pins_CR1_REG &= Stepper_Pins_USBIO_CR1_OFF;
+            Pin_Step_X_backup.usbState = Pin_Step_X_CR1_REG;
+            Pin_Step_X_USB_POWER_REG |= Pin_Step_X_USBIO_ENTER_SLEEP;
+            Pin_Step_X_CR1_REG &= Pin_Step_X_USBIO_CR1_OFF;
         #endif
     #endif
-    #if defined(CYIPBLOCK_m0s8ioss_VERSION) && defined(Stepper_Pins__SIO)
-        Stepper_Pins_backup.sioState = Stepper_Pins_SIO_REG;
+    #if defined(CYIPBLOCK_m0s8ioss_VERSION) && defined(Pin_Step_X__SIO)
+        Pin_Step_X_backup.sioState = Pin_Step_X_SIO_REG;
         /* SIO requires unregulated output buffer and single ended input buffer */
-        Stepper_Pins_SIO_REG &= (uint32)(~Stepper_Pins_SIO_LPM_MASK);
+        Pin_Step_X_SIO_REG &= (uint32)(~Pin_Step_X_SIO_LPM_MASK);
     #endif  
 }
 
 
 /*******************************************************************************
-* Function Name: Stepper_Pins_Wakeup
+* Function Name: Pin_Step_X_Wakeup
 ****************************************************************************//**
 *
 * \brief Restores the pin configuration that was saved during Pin_Sleep(). This 
@@ -77,22 +77,22 @@ void Stepper_Pins_Sleep(void)
 *  None
 *  
 * \funcusage
-*  Refer to Stepper_Pins_Sleep() for an example usage.
+*  Refer to Pin_Step_X_Sleep() for an example usage.
 *******************************************************************************/
-void Stepper_Pins_Wakeup(void)
+void Pin_Step_X_Wakeup(void)
 {
-    #if defined(Stepper_Pins__PC)
-        Stepper_Pins_PC = Stepper_Pins_backup.pcState;
+    #if defined(Pin_Step_X__PC)
+        Pin_Step_X_PC = Pin_Step_X_backup.pcState;
     #else
         #if (CY_PSOC4_4200L)
             /* Restore the regulator state and come out of suspend mode */
-            Stepper_Pins_USB_POWER_REG &= Stepper_Pins_USBIO_EXIT_SLEEP_PH1;
-            Stepper_Pins_CR1_REG = Stepper_Pins_backup.usbState;
-            Stepper_Pins_USB_POWER_REG &= Stepper_Pins_USBIO_EXIT_SLEEP_PH2;
+            Pin_Step_X_USB_POWER_REG &= Pin_Step_X_USBIO_EXIT_SLEEP_PH1;
+            Pin_Step_X_CR1_REG = Pin_Step_X_backup.usbState;
+            Pin_Step_X_USB_POWER_REG &= Pin_Step_X_USBIO_EXIT_SLEEP_PH2;
         #endif
     #endif
-    #if defined(CYIPBLOCK_m0s8ioss_VERSION) && defined(Stepper_Pins__SIO)
-        Stepper_Pins_SIO_REG = Stepper_Pins_backup.sioState;
+    #if defined(CYIPBLOCK_m0s8ioss_VERSION) && defined(Pin_Step_X__SIO)
+        Pin_Step_X_SIO_REG = Pin_Step_X_backup.sioState;
     #endif
 }
 
