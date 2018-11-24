@@ -2,7 +2,8 @@
 
 enum ErrorCodes{
   RIGHT_COMMAND = 0x01, ERROR_IS_ALLY = 0x02, ERROR_FIGURE_NOT_FOUND = 0x03,
-  ERROR_NON_PLAYER_S_FIGURE = 0x04
+  ERROR_NON_PLAYER_S_FIGURE = 0x04, ERROR_PATH_BLOCKED_BY_ENEMY = 0x05,
+  ERROR_PATH_BLOCKED_BY_ALLY = 0x06, ERROR_FIGURE_TYPE_DON_T_MATCH = 0x07
 };
 
 /* default array on start need this to quick restore
@@ -20,12 +21,12 @@ const char * chessPositionArray[8][8] = {
 // Array of chess position on the Chess board
 const char * chessPositionArray[8][8] = {
   {"wR", "wN", "wB", "wQ", "wK", "wB", "wN", "wR"},
-  {"", "wP", "", "wP", "", "wP", "", "wP"},
+  {"wP", "wP", "wP", "wP", "wP", "wP", "wP", ""},
+  {"wR", "", "", "", "", "", "", ""},
   {"", "", "", "", "", "", "", ""},
-  {"wP", "", "wP", "", "wP", "", "wP", ""},
-  {"", "bP", "", "bP", "", "bP", "", "bP"},
   {"", "", "", "", "", "", "", ""},
-  {"bP", "", "bP", "", "bP", "", "bP", ""},
+  {"", "", "", "", "", "", "", "bR"},
+  {"", "bP", "bP", "bP", "bP", "bP", "bP", "bP"},
   {"bR", "bN", "bB", "bK", "bQ", "bB", "bN", "bR"}
 };
 
@@ -40,8 +41,8 @@ char chessFiguresLettersArray[5] = {
 };
 
 // Test commands
-const char * commandArray[5] = {
-    "h5", "e7", "a4", "d5", "e4"
+const char * commandArray[3] = {
+    "a4", "b4", "h5"
 };
 
 char chessCoordinates[8][2] = {
@@ -68,7 +69,6 @@ typedef struct {
   int endPosX;
   int endPosY; 
 
-
   // Figure type for validation and checks
   const char * figureType;
 
@@ -94,7 +94,7 @@ int main(void) {
   game_info.player = "white";
 
   print_chess_position_array();
-  for(int i = 0; i < 5; i++) {
+  for(int i = 0; i < 3; i++) {
     validate_command(commandArray[i]);
   }
 }
@@ -120,6 +120,7 @@ void validate_command(const char *command) {
   for(int validationStep = 0; validationStep < 3; validationStep++) {
     if(game_info.commandStatus != RIGHT_COMMAND) {
       printf("\nERROR CODE %d\n", game_info.commandStatus);
+      printf("________________________________\n");
       return;
     } else {
       /* First step is find a possible coordinate 
@@ -130,13 +131,25 @@ void validate_command(const char *command) {
       } else if(validationStep == 1) {
         is_figure_on_the_square();
       // Third step is validate path if need
-      } else if (validationStep == 2) {
+      } else if(validationStep == 2) {
         //validate_path(figureType);
+      // Fourth step is generate GCODE
+      } else if(validationStep == 3) {
+        // Generate GCODE here
+      // Fifth step is move figure
+      } else if(validationStep == 4) {
+        moveCoordinate();
       }
     }
   }
+  
 
-  printf("\nFigure - %s X%dY%d -> X%dY%d\n", game_info.figureType, game_info.figurePosX, game_info.figurePosY, game_info.endPosX, game_info.endPosY);
+  printf("\nFigure - %s \nLocal coordinates X%dY%d -> X%dY%d\n", game_info.figureType, 
+  game_info.figurePosX, game_info.figurePosY, game_info.endPosX, game_info.endPosY);
+  printf("Global coordinates %c%c -> %c%c\n", chessCoordinates[game_info.figurePosX][0],
+   chessCoordinates[game_info.figurePosY][1], chessCoordinates[game_info.endPosX][0],
+   chessCoordinates[game_info.endPosY][1]);
+  printf("________________________________\n");
 
   // Change player if command is right or leave the same player if command isn't right
   if(game_info.commandStatus == RIGHT_COMMAND) {
@@ -165,89 +178,24 @@ void find_figure() {
   }
 }
 
-void find_pawn() {
-  game_info.figurePosX = 0;
-  game_info.figurePosY = 0;
-  if(game_info.isSquareEmpty) {
-    printf("Find Pawn");
-  } else {
-    /* Calculate Y coordinate of Pawn
-    Just add 1 to Y coordinate if black or substract 1 if white player */
-    if(game_info.player == "white") {
-      game_info.figurePosY = game_info.endPosY - 1;
-    } else {
-      game_info.figurePosY = game_info.endPosY + 1;
-    }
-
-    if(game_info.endPosX > 0 & game_info.endPosX < 7) {
-      /* When Pawn attack he can be only to the right of enemy figure
-      or to the left of enemy figure */
-
-      /* For black player left figure will on another side
-      then white player left figure, so declare here offset
-      that will change his value with changing player*/
-      int offset;
-      if(game_info.player == "white") {
-        offset = -1;
-      } else {
-        offset = 1;
-      }
-
-      const char * leftSquare = chessPositionArray[game_info.figurePosY][game_info.endPosX-offset];
-      const char * rightSquare = chessPositionArray[game_info.figurePosY][game_info.endPosX+offset];
-
-      /* Check if left and right square isn't empty if not
-      then check if left isn't empty if not
-      then check if right isn't empty */
-      if(rightSquare != "" && leftSquare != "") {
-        // If it's not player figure 
-        if(leftSquare[0] != game_info.player[0] 
-        && rightSquare[0] != game_info.player[0]) {
-          game_info.commandStatus = ERROR_NON_PLAYER_S_FIGURE;
-        /* If leftSquare isn't player figure, 
-        then rightSquare is a possible position of figure */
-        } else if (leftSquare[0] != game_info.player[0]) {
-          game_info.figurePosX = game_info.endPosX + offset;
-        /* If rightSquare isn't player figure, 
-        then leftSquare is a possible position of figure */
-        } else if (rightSquare[0] != game_info.player[0]) {
-          game_info.figurePosX = game_info.endPosX - offset;
-        /* Last case all figures are player's, then 
-        assign coordinate of left figure by default */
-        } else {
-          game_info.figurePosX = game_info.endPosX - offset;
-        }
-      // if rightSquare isn't empty then it's possible position of figure
-      } else if(rightSquare != "") {
-        game_info.figurePosX = game_info.endPosX + offset;
-      // if leftSquare isn't empty then it's possible position of figure
-      } else if(leftSquare != "") {
-        game_info.figurePosX = game_info.endPosX - offset;
-      }
-    } else {
-      /* If enemy's figure are at the border coordinate - A or H
-      then player's attacking Pawn will be at B(1) or G(6) coordinate*/
-      if(game_info.endPosX == 0) {
-        game_info.figurePosX = 1;
-      } else if(game_info.endPosX == 7) {
-        game_info.figurePosX = 6;
-      }
-    }
-  }
-}
-
 /* Check if figure is on the square and is it player figure, 
 if not then assign to command status error code*/
 void is_figure_on_the_square() {
   const char * figure = chessPositionArray[game_info.figurePosY][game_info.figurePosX];
+  // Check if figure is on the square
   if(figure != "") {
-    if(figure[0] != game_info.player[0]) {
+    if(figure[1] != game_info.figureType[0]) {
+      printf(figure);
+      game_info.commandStatus = ERROR_FIGURE_TYPE_DON_T_MATCH;
+    } else if(figure[0] != game_info.player[0]) {
       game_info.commandStatus = ERROR_NON_PLAYER_S_FIGURE;
     }
+  // Then square is empty
   } else {
     game_info.commandStatus = ERROR_FIGURE_NOT_FOUND;
   }
 }
+
 
 // Function that return type of figure
 const char * get_chess_figure_type(char chessFigureLetter) {
@@ -284,7 +232,7 @@ int is_square_empty(const char * coordinates) {
   }
   
   //Check if square is empty
-  if(chessPositionArray[game_info.endPosY][game_info.endPosX]) {
+  if(chessPositionArray[game_info.endPosY][game_info.endPosX] != "") {
     printf("Square isn't empty\n");
     is_figure_ally(
       chessPositionArray[game_info.endPosY][game_info.endPosX]);
@@ -307,7 +255,8 @@ void is_figure_ally(const char * figure) {
 
 void validate_path(const char * figureType) {
   if(figureType == "Pawn") {
-    // Check Pawn path
+    // Pawn path don't need validation so exit function
+    return;
   } else if(figureType == "Rook") {
     // Check Rook path
   } else if(figureType == "Knight") {
@@ -321,9 +270,165 @@ void validate_path(const char * figureType) {
   }
 }
 
+void find_pawn() {
+  game_info.figurePosX = 0;
+  game_info.figurePosY = 0;
+
+  if(game_info.isSquareEmpty) {
+    game_info.figurePosX = game_info.endPosX;
+    if(game_info.player == "white") {
+      /* At the start square Pawn can move 2 square forward
+      if player want this */
+      if(game_info.endPosY == 3) {
+        // Bottom figure coordinates is [a-h]2
+        const char * bottomSquare = chessPositionArray[1][game_info.endPosX];
+        // Top figure coordinates is [a-h]3
+        const char * topSquare = chessPositionArray[2][game_info.endPosX];  
+
+        if(bottomSquare != "" && topSquare != "") {
+          // If at top square is enemy then path is blocked
+          if(topSquare[0] != game_info.player[0] 
+          && bottomSquare[0] == game_info.player[0]) {
+            game_info.commandStatus = ERROR_PATH_BLOCKED_BY_ENEMY;
+          /* If at top square is player's, then it's possible Pawn
+          this'll be checked in second step of validation */
+          } else if(topSquare[0] == game_info.player[0]
+          && bottomSquare[0] == game_info.player[0]) {
+            // If top square figure isn't Pawn then error
+            if(topSquare[1] != game_info.figureType[0]) {
+              game_info.commandStatus = ERROR_PATH_BLOCKED_BY_ALLY;
+            } else {
+              game_info.figurePosY = 2;
+            }
+          }
+        // If bottom and top squares is empty then no figure found
+        } else if(bottomSquare == "" && topSquare == "") {
+          game_info.commandStatus = ERROR_FIGURE_NOT_FOUND;
+        /* If bottom square isn't empty and top square is empty
+        then bottom square is possible position of Pawn */
+        } else if(bottomSquare != "" && topSquare == "") {
+          game_info.figurePosY = 1;
+        /* If bottom square is empty and top square isn't empty
+        then top square is possible position of Pawn */
+        } else if(bottomSquare == "" && topSquare != "") {
+          game_info.figurePosY = 2;
+        }
+      // In this case figure position is Y destination position - 1
+      } else if(game_info.endPosY > 1) {
+        game_info.figurePosY = game_info.endPosY - 1;
+      }
+    // If player is black then 
+    } else {
+      if(game_info.endPosY == 4) {
+        // Bottom figure coordinates is [a-h]7
+        const char * bottomSquare = chessPositionArray[6][game_info.endPosX];
+        // Top figure coordinates is [a-h]6
+        const char * topSquare = chessPositionArray[5][game_info.endPosX];  
+
+        if(bottomSquare != "" && topSquare != "") {
+          // If at top square is enemy then path is blocked
+          if(topSquare[0] != game_info.player[0] 
+          && bottomSquare[0] == game_info.player[0]) {
+            game_info.commandStatus = ERROR_PATH_BLOCKED_BY_ENEMY;
+          /* If at top square is player's, then it's possible Pawn
+          this'll be checked in second step of validation */
+          } else if(topSquare[0] == game_info.player[0]
+          && bottomSquare[0] == game_info.player[0]) {
+            // If top square figure isn't Pawn then error
+            if(topSquare[1] != game_info.figureType[0]) {
+              game_info.commandStatus = ERROR_PATH_BLOCKED_BY_ALLY;
+            } else {
+              game_info.figurePosY = 5;
+            }
+          }
+        // If bottom and top squares is empty then no figure found
+        } else if(bottomSquare == "" && topSquare == "") {
+          game_info.commandStatus = ERROR_FIGURE_NOT_FOUND;
+        /* If bottom square isn't empty and top square is empty
+        then bottom square is possible position of Pawn */
+        } else if(bottomSquare != "" && topSquare == "") {
+          game_info.figurePosY = 6;
+        /* If bottom square is empty and top square isn't empty
+        then top square is possible position of Pawn */
+        } else if(bottomSquare == "" && topSquare != "") {
+          game_info.figurePosY = 5;
+        }
+      // In this case figure position is Y destination position + 1
+      } else if(game_info.endPosY < 6){
+        game_info.figurePosY = game_info.endPosY + 1;
+      }
+    }
+
+  } else {
+    /* Calculate Y coordinate of Pawn
+    Just add 1 to Y coordinate if black or substract 1 if white player */
+    if(game_info.player == "white") {
+      game_info.figurePosY = game_info.endPosY - 1;
+    } else {
+      game_info.figurePosY = game_info.endPosY + 1;
+    }
+
+    if(game_info.endPosX > 0 & game_info.endPosX < 7) {
+      /* When Pawn attack he can be only to the right of enemy figure
+      or to the left of enemy figure */
+
+      /* For black player left figure will on another side
+      then white player left figure, so declare here offset
+      that will change his value with changing player*/
+      int offsetX;
+      if(game_info.player == "white") {
+        offsetX = -1;
+      } else {
+        offsetX = 1;
+      }
+
+      const char * leftSquare = chessPositionArray[game_info.figurePosY][game_info.endPosX-offsetX];
+      const char * rightSquare = chessPositionArray[game_info.figurePosY][game_info.endPosX+offsetX];
+
+      /* Check if left and right square isn't empty if not
+      then check if left isn't empty if not
+      then check if right isn't empty */
+      if(rightSquare != "" && leftSquare != "") {
+        // If it's not player figure 
+        if(leftSquare[0] != game_info.player[0] 
+        && rightSquare[0] != game_info.player[0]) {
+          game_info.commandStatus = ERROR_NON_PLAYER_S_FIGURE;
+        /* If leftSquare isn't player figure, 
+        then rightSquare is a possible position of figure */
+        } else if (leftSquare[0] != game_info.player[0]) {
+          game_info.figurePosX = game_info.endPosX + offsetX;
+        /* If rightSquare isn't player figure, 
+        then leftSquare is a possible position of figure */
+        } else if (rightSquare[0] != game_info.player[0]) {
+          game_info.figurePosX = game_info.endPosX - offsetX;
+        /* Last case all figures are player's, then 
+        assign coordinate of left figure by default */
+        } else {
+          game_info.figurePosX = game_info.endPosX - offsetX;
+        }
+      // if rightSquare isn't empty then it's possible position of figure
+      } else if(rightSquare != "") {
+        game_info.figurePosX = game_info.endPosX + offsetX;
+      // if leftSquare isn't empty then it's possible position of figure
+      } else if(leftSquare != "") {
+        game_info.figurePosX = game_info.endPosX - offsetX;
+      }
+    } else {
+      /* If enemy's figure are at the border coordinate - A or H
+      then player's attacking Pawn will be at B(1) or G(6) coordinate*/
+      if(game_info.endPosX == 0) {
+        game_info.figurePosX = 1;
+      } else if(game_info.endPosX == 7) {
+        game_info.figurePosX = 6;
+      }
+    }
+  }
+}
+
 // Print chess board and all chess figures position
 void print_chess_position_array() {
     for(int y = 0; y < 8; y++) {
+      printf("%c ", chessCoordinates[y][1]);
       for(int x = 0; x < 8; x++) {
         if(chessPositionArray[y][x] == 0 | chessPositionArray[y][x] == "") {
           printf("[  ]");
@@ -335,5 +440,9 @@ void print_chess_position_array() {
         printf(" ");
       }
       printf("\r\n");
+    }
+    printf("  ");
+    for(int i = 0; i < 8; i++) {
+      printf("  %c  ", chessCoordinates[i][0]);
     }
 }
