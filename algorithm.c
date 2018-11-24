@@ -3,10 +3,11 @@
 enum ErrorCodes{
   RIGHT_COMMAND = 0x01, ERROR_IS_ALLY = 0x02, ERROR_FIGURE_NOT_FOUND = 0x03,
   ERROR_NON_PLAYER_S_FIGURE = 0x04, ERROR_PATH_BLOCKED_BY_ENEMY = 0x05,
-  ERROR_PATH_BLOCKED_BY_ALLY = 0x06, ERROR_FIGURE_TYPE_DON_T_MATCH = 0x07
+  ERROR_PATH_BLOCKED_BY_ALLY = 0x06, ERROR_FIGURE_TYPE_DON_T_MATCH = 0x07,
+  ERROR_DESTINATION_FIGURE_IS_KING = 0x08
 };
 
-/* default array on start need this to quick restore
+// Array of chess position on the Chess board
 const char * chessPositionArray[8][8] = {
   {"wR", "wN", "wB", "wQ", "wK", "wB", "wN", "wR"},
   {"wP", "wP", "wP", "wP", "wP", "wP", "wP", "wP"},
@@ -15,18 +16,6 @@ const char * chessPositionArray[8][8] = {
   {"", "", "", "", "", "", "", ""},
   {"", "", "", "", "", "", "", ""},
   {"bP", "bP", "bP", "bP", "bP", "bP", "bP", "bP"},
-  {"bR", "bN", "bB", "bK", "bQ", "bB", "bN", "bR"}
-};*/
-
-// Array of chess position on the Chess board
-const char * chessPositionArray[8][8] = {
-  {"wR", "wN", "wB", "wQ", "wK", "wB", "wN", "wR"},
-  {"wP", "wP", "wP", "wP", "wP", "wP", "wP", ""},
-  {"wR", "", "", "", "", "", "", ""},
-  {"", "", "", "", "", "", "", ""},
-  {"", "", "", "", "", "", "", ""},
-  {"", "", "", "", "", "", "", "bR"},
-  {"", "bP", "bP", "bP", "bP", "bP", "bP", "bP"},
   {"bR", "bN", "bB", "bK", "bQ", "bB", "bN", "bR"}
 };
 
@@ -41,8 +30,8 @@ char chessFiguresLettersArray[5] = {
 };
 
 // Test commands
-const char * commandArray[3] = {
-    "a4", "b4", "h5"
+const char * commandArray[10] = {
+    "a4", "h5", "a5", "h4", "a6", "h3", "b7", "g2", "c8", "f1"
 };
 
 char chessCoordinates[8][2] = {
@@ -81,12 +70,16 @@ void validate_command(const char * command);
 const char * get_chess_figure_type(char chessFigureLetter);
 int is_square_empty(const char * coordinates);
 void is_figure_ally();
+int is_destination_figure_king();
 
 void find_figure();
 void find_pawn();
 void is_figure_on_the_square();
 
 void validate_path();
+void pawn_become_queen();
+
+void update_chess_array();
 
 void print_chess_position_array();
 
@@ -94,15 +87,22 @@ int main(void) {
   game_info.player = "white";
 
   print_chess_position_array();
-  for(int i = 0; i < 3; i++) {
-    validate_command(commandArray[i]);
+  printf("Input command: ");
+  char command[3];
+  for(;;) {
+    scanf("%s", command);
+    validate_command(command);
   }
+  // Automated testing
+  /*for(int i = 0; i < 10; i++) {
+    validate_command(commandArray[i]);
+  }*/
 }
 
 void validate_command(const char *command) {
   game_info.commandStatus = RIGHT_COMMAND;
   printf("\nPlayer is %s\n", game_info.player);
-  printf("Command %s\n", command);
+  printf("Command %s\n\n", command);
   // Get figure type
   game_info.figureType = get_chess_figure_type(command[0]);
 
@@ -115,12 +115,17 @@ void validate_command(const char *command) {
     game_info.isSquareEmpty = is_square_empty(coordinates);
   }
 
+  // Check if destination position figure isn't King
+  if(is_destination_figure_king()) {
+    game_info.commandStatus = ERROR_DESTINATION_FIGURE_IS_KING;
+  }
+
   /* If bad command then quit function and wait for the next command
   in other case find figure */
-  for(int validationStep = 0; validationStep < 3; validationStep++) {
+  for(int validationStep = 0; validationStep < 5; validationStep++) {
     if(game_info.commandStatus != RIGHT_COMMAND) {
+
       printf("\nERROR CODE %d\n", game_info.commandStatus);
-      printf("________________________________\n");
       return;
     } else {
       /* First step is find a possible coordinate 
@@ -138,18 +143,25 @@ void validate_command(const char *command) {
         // Generate GCODE here
       // Fifth step is move figure
       } else if(validationStep == 4) {
-        moveCoordinate();
+        if(game_info.figureType == "Pawn") {
+          if(game_info.player == "white" && game_info.endPosY == 7
+          ||  game_info.player == "black" && game_info.endPosY == 0) {
+            pawn_become_queen();
+          }
+        }
+        update_chess_array();
       }
     }
   }
-  
 
-  printf("\nFigure - %s \nLocal coordinates X%dY%d -> X%dY%d\n", game_info.figureType, 
+  /*printf("\nFigure - %s \nLocal coordinates X%dY%d -> X%dY%d\n", game_info.figureType, 
   game_info.figurePosX, game_info.figurePosY, game_info.endPosX, game_info.endPosY);
-  printf("Global coordinates %c%c -> %c%c\n", chessCoordinates[game_info.figurePosX][0],
+  printf("Global coordinates %c%c -> %c%c\n\n", chessCoordinates[game_info.figurePosX][0],
    chessCoordinates[game_info.figurePosY][1], chessCoordinates[game_info.endPosX][0],
-   chessCoordinates[game_info.endPosY][1]);
-  printf("________________________________\n");
+   chessCoordinates[game_info.endPosY][1]);*/
+
+  // Print updated array
+  print_chess_position_array();
 
   // Change player if command is right or leave the same player if command isn't right
   if(game_info.commandStatus == RIGHT_COMMAND) {
@@ -158,6 +170,18 @@ void validate_command(const char *command) {
     } else {
       game_info.player = "white";
     }
+  }
+}
+
+void update_chess_array() {
+  // Update position in array
+  if(game_info.isSquareEmpty) {
+    chessPositionArray[game_info.endPosY][game_info.endPosX] = chessPositionArray[game_info.figurePosY][game_info.figurePosX];
+    chessPositionArray[game_info.figurePosY][game_info.figurePosX] = "";
+  } else {
+    // There will block to save figure at defeated figures array
+    chessPositionArray[game_info.endPosY][game_info.endPosX] = chessPositionArray[game_info.figurePosY][game_info.figurePosX];
+    chessPositionArray[game_info.figurePosY][game_info.figurePosX] = "";
   }
 }
 
@@ -196,7 +220,6 @@ void is_figure_on_the_square() {
   }
 }
 
-
 // Function that return type of figure
 const char * get_chess_figure_type(char chessFigureLetter) {
   const char * chessFigureType = 0;
@@ -209,7 +232,6 @@ const char * get_chess_figure_type(char chessFigureLetter) {
   if(chessFigureType == 0) {
     chessFigureType = "Pawn";
   }
-  printf("Figure type - %s\n", chessFigureType);
   return chessFigureType;
 }
 
@@ -233,12 +255,10 @@ int is_square_empty(const char * coordinates) {
   
   //Check if square is empty
   if(chessPositionArray[game_info.endPosY][game_info.endPosX] != "") {
-    printf("Square isn't empty\n");
     is_figure_ally(
       chessPositionArray[game_info.endPosY][game_info.endPosX]);
     return 0;
   } else {
-    printf("Square is empty\n");
     return 1;
   }
 }
@@ -246,10 +266,8 @@ int is_square_empty(const char * coordinates) {
 //Check if figure is ally
 void is_figure_ally(const char * figure) {
   if(figure[0] == game_info.player[0]) {
-    printf("Figure is ally (BAD COMMAND)\n");
     game_info.commandStatus = ERROR_IS_ALLY;
   } else {
-    printf("Figure is enemy\n");
   }
 }
 
@@ -267,6 +285,24 @@ void validate_path(const char * figureType) {
     // Check King path
   } else if(figureType == "Queen") {
     // Check Queen path
+  }
+}
+
+void pawn_become_queen() {
+  const char * queen;
+  if(game_info.player == "white") {
+    queen = "wQ";
+  } else {
+    queen = "bQ";
+  }
+  chessPositionArray[game_info.figurePosY][game_info.figurePosX] = queen;
+}
+
+int is_destination_figure_king() {
+  if(chessPositionArray[game_info.endPosY][game_info.endPosX][1] == 'K') {
+    return 1;
+  } else {
+    return 0;
   }
 }
 
@@ -354,11 +390,11 @@ void find_pawn() {
           game_info.figurePosY = 5;
         }
       // In this case figure position is Y destination position + 1
-      } else if(game_info.endPosY < 6){
+      } else if(game_info.endPosY < 6) {
         game_info.figurePosY = game_info.endPosY + 1;
-      }
+      } 
     }
-
+  // If square isn't empty
   } else {
     /* Calculate Y coordinate of Pawn
     Just add 1 to Y coordinate if black or substract 1 if white player */
@@ -427,22 +463,23 @@ void find_pawn() {
 
 // Print chess board and all chess figures position
 void print_chess_position_array() {
-    for(int y = 0; y < 8; y++) {
-      printf("%c ", chessCoordinates[y][1]);
-      for(int x = 0; x < 8; x++) {
-        if(chessPositionArray[y][x] == 0 | chessPositionArray[y][x] == "") {
-          printf("[  ]");
-        } else {
-          printf("[");
-          printf(chessPositionArray[y][x]);
-          printf("]");
-        }
-        printf(" ");
+  for(int y = 0; y < 8; y++) {
+    printf("%c ", chessCoordinates[y][1]);
+    for(int x = 0; x < 8; x++) {
+      if(chessPositionArray[y][x] == 0 | chessPositionArray[y][x] == "") {
+        printf("[  ]");
+      } else {
+        printf("[");
+        printf(chessPositionArray[y][x]);
+        printf("]");
       }
-      printf("\r\n");
+      printf(" ");
     }
-    printf("  ");
-    for(int i = 0; i < 8; i++) {
-      printf("  %c  ", chessCoordinates[i][0]);
-    }
+    printf("\r\n");
+  }
+  printf("  ");
+  for(int i = 0; i < 8; i++) {
+    printf("  %c  ", chessCoordinates[i][0]);
+  }
+  printf("\n");
 }
