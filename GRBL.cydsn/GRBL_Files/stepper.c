@@ -355,11 +355,11 @@ CY_ISR( Timer1_Ovf_Int_Handler ) //                                             
   // exactly settings.pulse_microseconds microseconds, independent of the main Timer1 prescaler.
   
   //TCNT0 = st.step_pulse_time; // Reload Timer0 counter
-  Timer0_WriteCounter( st.step_pulse_time ); //Reload Timer0 counter                            <--NEW_LINE
+  //Timer0_WriteCounter( st.step_pulse_time ); //Reload Timer0 counter                            <--NEW_LINE
   
   //TCCR0B = (1<<CS01); // Begin Timer0. Full speed, 1/8 prescaler
-  Timer0_Start(); // prescaler configured on the TopDesign                                      <--NEW_LINE
-  Timer0_Ovf_Int_Enable();
+  //Timer0_Start(); // prescaler configured on the TopDesign                                      <--NEW_LINE
+  //Timer0_Ovf_Int_Enable();
 
   busy = true;
  
@@ -500,8 +500,8 @@ CY_ISR( Timer0_Ovf_Int_Handler ) //                                             
   //STEP_PORT = (STEP_PORT & ~STEP_MASK) | (step_port_invert_mask & STEP_MASK);
   Control_Reg_Step_Write(0b000); //                                                              <--NEW_LINE
   //TCCR0B = 0; // Disable Timer0 to prevent re-entering this interrupt when it's not needed.
-  Timer0_Stop();//Disable Timer0 to prevent re-entering this interrupt when it's not needed      <--NEW_LINE
-  Timer0_Ovf_Int_Disable(); //                                                                   <--NEW_LINE
+  //Timer0_Stop();//Disable Timer0 to prevent re-entering this interrupt when it's not needed      <--NEW_LINE
+  //Timer0_Ovf_Int_Disable(); //                                                                   <--NEW_LINE
 }
 #ifdef STEP_PULSE_DELAY
   // This interrupt is used only when STEP_PULSE_DELAY is enabled. Here, the step pulse is
@@ -599,7 +599,7 @@ void stepper_init()
   #ifdef STEP_PULSE_DELAY
     Timer0_Comp_Int_StartEx( Timer0_Comp_Int_Handler );
   #endif
-  Timer0_Ovf_Int_StartEx( Timer0_Ovf_Int_Handler );
+  //Timer0_Ovf_Int_StartEx( Timer0_Ovf_Int_Handler );
   Timer1_Ovf_Int_StartEx( Timer1_Ovf_Int_Handler );  
   /*****************************************************************************/
     
@@ -687,7 +687,7 @@ void st_prep_buffer()
   if (bit_istrue(sys.step_control,STEP_CONTROL_END_MOTION)) { return; }
 
   while (segment_buffer_tail != segment_next_head) { // Check if we need to fill the buffer.
-
+    CyBle_ProcessEvents();
     // Determine if we need to load a new planner block or if the block needs to be recomputed.
     if (pl_block == NULL) {
 

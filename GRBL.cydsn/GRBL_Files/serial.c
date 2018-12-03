@@ -220,6 +220,22 @@ CY_ISR(Rx_Int_Handler)
     }
 }
 
+// Function to process incoming data from PSoC BLE component
+/*************************************************************/
+void process_ble_data(uint8_t data)
+{
+    uint8_t next_head;
+    next_head = serial_rx_buffer_head + 1;
+    
+    if (next_head == RX_RING_BUFFER) { next_head = 0; }
+
+    // Write data to buffer unless it is full.
+    if (next_head != serial_rx_buffer_tail) {
+        serial_rx_buffer[serial_rx_buffer_head] = data;
+        serial_rx_buffer_head = next_head;
+    }
+}
+/**************************************************************/
 
 void serial_reset_read_buffer()
 {

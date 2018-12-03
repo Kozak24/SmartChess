@@ -20,6 +20,7 @@
 */
 
 #include "grbl.h"
+#include "stdio.h"
 
 // Define line flags. Includes comment type tracking and line overflow detection.
 #define LINE_FLAG_OVERFLOW bit(0)
@@ -67,15 +68,17 @@ void protocol_main_loop()
   // Primary loop! Upon a system abort, this exits back to main() to reset the system.
   // This is also where Grbl idles while waiting for something to do.
   // ---------------------------------------------------------------------------------
-
+  
   uint8_t line_flags = 0;
   uint8_t char_counter = 0;
   uint8_t c;
   for (;;) {
+    CyBle_ProcessEvents();
 
     // Process one line of incoming serial data, as the data becomes available. Performs an
     // initial filtering by removing spaces and comments and capitalizing all letters.
     while((c = serial_read()) != SERIAL_NO_DATA) {
+
       if ((c == '\n') || (c == '\r')) { // End of line reached
 
         protocol_execute_realtime(); // Runtime command check point.
@@ -150,7 +153,9 @@ void protocol_main_loop()
 
       }
     }
-
+    
+    
+    
     // If there are no more characters in the serial read buffer to be processed and executed,
     // this indicates that g-code streaming has either filled the planner buffer or has
     // completed. In either case, auto-cycle start, if enabled, any queued moves.
@@ -171,6 +176,7 @@ void protocol_buffer_synchronize()
   // If system is queued, ensure cycle resumes if the auto start flag is present.
   protocol_auto_cycle_start();
   do {
+    CyBle_ProcessEvents();
     protocol_execute_realtime();   // Check and execute run-time commands
     if (sys.abort) { return; } // Check for system abort
   } while (plan_get_current_block() || (sys.state == STATE_CYCLE));
@@ -227,6 +233,8 @@ void protocol_exec_rt_system()
       report_feedback_message(MESSAGE_CRITICAL_EVENT);
       system_clear_exec_state_flag(EXEC_RESET); // Disable any existing reset
       do {
+        CyBle_ProcessEvents();
+        
         // Block everything, except reset and status reports, until user issues reset or power
         // cycles. Hard limits typically occur while unattended or not paying attention. Gives
         // the user and a GUI time to do what is needed before resetting, like killing the

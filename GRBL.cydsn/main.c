@@ -49,6 +49,7 @@ volatile uint8_t sys_rt_exec_accessory_override; // Global realtime executor bit
 int main(void)
 {
   CyGlobalIntEnable; // Enable Global interrupts
+  //sei(); // Enable interrupts
   
   /********************Cypress Interrupts********************/
   #ifdef ENABLE_SOFTWARE_DEBOUNCE
@@ -59,11 +60,11 @@ int main(void)
   Limit_Int_StartEx( Limit_Int_Handler );
   /***********************************************************/
 
-  /* Cypress components */
+  /***************Cypress components******************/
   Em_EEPROM_Init((uint32_t)Em_EEPROM_em_EepromStorage);
-  /**********************/
-    
-  //sei(); // Enable interrupts
+
+  CyBle_Start(BleCallBack);
+  /***************************************************/
     
   // Initialize system upon power-up.
   serial_init();   // Setup serial baud rate and interrupts

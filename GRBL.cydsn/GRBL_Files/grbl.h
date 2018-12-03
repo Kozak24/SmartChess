@@ -37,6 +37,9 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+    
+// Define PSoC system include files.
+#include "ble_control.h"
 
 // Define the Grbl system include files. NOTE: Do not alter organization.
 #include "config.h"

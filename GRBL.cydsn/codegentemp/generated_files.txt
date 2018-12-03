@@ -31,11 +31,6 @@
   <file name="C:\My\SmartChess\GRBL.cydsn\codegentemp\Timer0_Comp_Int.h" value="HEADER;;;;;Timer0_Comp_Int" />
   <file name="C:\My\SmartChess\GRBL.cydsn\codegentemp\Timer0_Ovf_Int.c" value="SOURCE_C;CortexM0;;;;Timer0_Ovf_Int" />
   <file name="C:\My\SmartChess\GRBL.cydsn\codegentemp\Timer0_Ovf_Int.h" value="HEADER;;;;;Timer0_Ovf_Int" />
-  <file name="C:\My\SmartChess\GRBL.cydsn\codegentemp\UART.c" value="SOURCE_C;CortexM0;;;;UART" />
-  <file name="C:\My\SmartChess\GRBL.cydsn\codegentemp\UART.h" value="HEADER;;;;;UART" />
-  <file name="C:\My\SmartChess\GRBL.cydsn\codegentemp\UART_PM.c" value="SOURCE_C;CortexM0;;;;UART" />
-  <file name="C:\My\SmartChess\GRBL.cydsn\codegentemp\UART_INT.c" value="SOURCE_C;CortexM0;;;;UART" />
-  <file name="C:\My\SmartChess\GRBL.cydsn\codegentemp\UART_BOOT.c" value="SOURCE_C;CortexM0;;;;UART" />
   <file name="C:\My\SmartChess\GRBL.cydsn\codegentemp\Limit_Pins.c" value="SOURCE_C;CortexM0;;;;Limit_Pins" />
   <file name="C:\My\SmartChess\GRBL.cydsn\codegentemp\Limit_Pins.h" value="HEADER;;;;;Limit_Pins" />
   <file name="C:\My\SmartChess\GRBL.cydsn\codegentemp\Limit_Pins_aliases.h" value="HEADER;;;;;Limit_Pins" />
@@ -60,8 +55,6 @@
   <file name="C:\My\SmartChess\GRBL.cydsn\codegentemp\Debug_Red_Pin.h" value="HEADER;;;;;Debug_Red_Pin" />
   <file name="C:\My\SmartChess\GRBL.cydsn\codegentemp\Debug_Red_Pin_aliases.h" value="HEADER;;;;;Debug_Red_Pin" />
   <file name="C:\My\SmartChess\GRBL.cydsn\codegentemp\Debug_Red_Pin_PM.c" value="SOURCE_C;CortexM0;;;;Debug_Red_Pin" />
-  <file name="C:\My\SmartChess\GRBL.cydsn\codegentemp\Rx_Int.c" value="SOURCE_C;CortexM0;;;;Rx_Int" />
-  <file name="C:\My\SmartChess\GRBL.cydsn\codegentemp\Rx_Int.h" value="HEADER;;;;;Rx_Int" />
   <file name="C:\My\SmartChess\GRBL.cydsn\codegentemp\Control_Reg_Step.h" value="HEADER;;;;;Control_Reg_Step" />
   <file name="C:\My\SmartChess\GRBL.cydsn\codegentemp\Control_Reg_Step.c" value="SOURCE_C;CortexM0;;;;Control_Reg_Step" />
   <file name="C:\My\SmartChess\GRBL.cydsn\codegentemp\Control_Reg_Step_PM.c" value="SOURCE_C;CortexM0;;;;Control_Reg_Step" />
@@ -69,10 +62,17 @@
   <file name="C:\My\SmartChess\GRBL.cydsn\codegentemp\Pin_Step_Z.h" value="HEADER;;;;;Pin_Step_Z" />
   <file name="C:\My\SmartChess\GRBL.cydsn\codegentemp\Pin_Step_Z_aliases.h" value="HEADER;;;;;Pin_Step_Z" />
   <file name="C:\My\SmartChess\GRBL.cydsn\codegentemp\Pin_Step_Z_PM.c" value="SOURCE_C;CortexM0;;;;Pin_Step_Z" />
+  <file name="C:\My\SmartChess\GRBL.cydsn\codegentemp\UART.c" value="SOURCE_C;CortexM0;;;;UART" />
+  <file name="C:\My\SmartChess\GRBL.cydsn\codegentemp\UART.h" value="HEADER;;;;;UART" />
+  <file name="C:\My\SmartChess\GRBL.cydsn\codegentemp\UART_PM.c" value="SOURCE_C;CortexM0;;;;UART" />
+  <file name="C:\My\SmartChess\GRBL.cydsn\codegentemp\UART_INT.c" value="SOURCE_C;CortexM0;;;;UART" />
+  <file name="C:\My\SmartChess\GRBL.cydsn\codegentemp\UART_BOOT.c" value="SOURCE_C;CortexM0;;;;UART" />
   <file name="C:\My\SmartChess\GRBL.cydsn\codegentemp\Pin_Step_Y.c" value="SOURCE_C;CortexM0;;;;Pin_Step_Y" />
   <file name="C:\My\SmartChess\GRBL.cydsn\codegentemp\Pin_Step_Y.h" value="HEADER;;;;;Pin_Step_Y" />
   <file name="C:\My\SmartChess\GRBL.cydsn\codegentemp\Pin_Step_Y_aliases.h" value="HEADER;;;;;Pin_Step_Y" />
   <file name="C:\My\SmartChess\GRBL.cydsn\codegentemp\Pin_Step_Y_PM.c" value="SOURCE_C;CortexM0;;;;Pin_Step_Y" />
+  <file name="C:\My\SmartChess\GRBL.cydsn\codegentemp\Rx_Int.c" value="SOURCE_C;CortexM0;;;;Rx_Int" />
+  <file name="C:\My\SmartChess\GRBL.cydsn\codegentemp\Rx_Int.h" value="HEADER;;;;;Rx_Int" />
   <file name="C:\My\SmartChess\GRBL.cydsn\codegentemp\Control_Reg_Direction.h" value="HEADER;;;;;Control_Reg_Direction" />
   <file name="C:\My\SmartChess\GRBL.cydsn\codegentemp\Control_Reg_Direction.c" value="SOURCE_C;CortexM0;;;;Control_Reg_Direction" />
   <file name="C:\My\SmartChess\GRBL.cydsn\codegentemp\Control_Reg_Direction_PM.c" value="SOURCE_C;CortexM0;;;;Control_Reg_Direction" />
@@ -88,8 +88,41 @@
   <file name="C:\My\SmartChess\GRBL.cydsn\codegentemp\Pin_Direction_Z.h" value="HEADER;;;;;Pin_Direction_Z" />
   <file name="C:\My\SmartChess\GRBL.cydsn\codegentemp\Pin_Direction_Z_aliases.h" value="HEADER;;;;;Pin_Direction_Z" />
   <file name="C:\My\SmartChess\GRBL.cydsn\codegentemp\Pin_Direction_Z_PM.c" value="SOURCE_C;CortexM0;;;;Pin_Direction_Z" />
+  <file name="C:\My\SmartChess\GRBL.cydsn\codegentemp\BLE_Status_Pin.c" value="SOURCE_C;CortexM0;;;;BLE_Status_Pin" />
+  <file name="C:\My\SmartChess\GRBL.cydsn\codegentemp\BLE_Status_Pin.h" value="HEADER;;;;;BLE_Status_Pin" />
+  <file name="C:\My\SmartChess\GRBL.cydsn\codegentemp\BLE_Status_Pin_aliases.h" value="HEADER;;;;;BLE_Status_Pin" />
+  <file name="C:\My\SmartChess\GRBL.cydsn\codegentemp\BLE_Status_Pin_PM.c" value="SOURCE_C;CortexM0;;;;BLE_Status_Pin" />
+  <file name="C:\My\SmartChess\GRBL.cydsn\codegentemp\BLE_gatt.h" value="HEADER;;;;;BLE" />
+  <file name="C:\My\SmartChess\GRBL.cydsn\codegentemp\BLE.h" value="HEADER;;;;;BLE" />
+  <file name="C:\My\SmartChess\GRBL.cydsn\codegentemp\BLE.c" value="SOURCE_C;CortexM0;;;;BLE" />
+  <file name="C:\My\SmartChess\GRBL.cydsn\codegentemp\BLE_gatt.c" value="SOURCE_C;CortexM0;;;;BLE" />
+  <file name="C:\My\SmartChess\GRBL.cydsn\codegentemp\BLE_eventHandler.c" value="SOURCE_C;CortexM0;;;;BLE" />
+  <file name="C:\My\SmartChess\GRBL.cydsn\codegentemp\BLE_HAL_INT.c" value="SOURCE_C;CortexM0;;;;BLE" />
+  <file name="C:\My\SmartChess\GRBL.cydsn\codegentemp\BLE_HAL_PVT.c" value="SOURCE_C;CortexM0;;;;BLE" />
+  <file name="C:\My\SmartChess\GRBL.cydsn\codegentemp\BLE_HAL_PVT.h" value="HEADER;;;;;BLE" />
+  <file name="C:\My\SmartChess\GRBL.cydsn\codegentemp\BLE_STACK_PVT.h" value="HEADER;;;;;BLE" />
+  <file name="C:\My\SmartChess\GRBL.cydsn\codegentemp\BLE_StackGap.h" value="HEADER;;;;;BLE" />
+  <file name="C:\My\SmartChess\GRBL.cydsn\codegentemp\BLE_StackGatt.h" value="HEADER;;;;;BLE" />
+  <file name="C:\My\SmartChess\GRBL.cydsn\codegentemp\BLE_StackGattDb.h" value="HEADER;;;;;BLE" />
+  <file name="C:\My\SmartChess\GRBL.cydsn\codegentemp\BLE_StackHostMain.h" value="HEADER;;;;;BLE" />
+  <file name="C:\My\SmartChess\GRBL.cydsn\codegentemp\BLE_StackL2cap.h" value="HEADER;;;;;BLE" />
+  <file name="C:\My\SmartChess\GRBL.cydsn\codegentemp\BLE_StackGattServer.h" value="HEADER;;;;;BLE" />
+  <file name="C:\My\SmartChess\GRBL.cydsn\codegentemp\BLE_StackGattClient.h" value="HEADER;;;;;BLE" />
+  <file name="C:\My\SmartChess\GRBL.cydsn\codegentemp\BLE_Stack.h" value="HEADER;;;;;BLE" />
+  <file name="C:\My\SmartChess\GRBL.cydsn\codegentemp\BLE_eventHandler.h" value="HEADER;;;;;BLE" />
+  <file name="C:\My\SmartChess\GRBL.cydsn\codegentemp\BLE_custom.h" value="HEADER;;;;;BLE" />
+  <file name="C:\My\SmartChess\GRBL.cydsn\codegentemp\BLE_custom.c" value="SOURCE_C;CortexM0;;;;BLE" />
+  <file name="C:\My\SmartChess\GRBL.cydsn\codegentemp\TempTimer.c" value="SOURCE_C;CortexM0;;;;TempTimer" />
+  <file name="C:\My\SmartChess\GRBL.cydsn\codegentemp\TempTimer.h" value="HEADER;;;;;TempTimer" />
+  <file name="C:\My\SmartChess\GRBL.cydsn\codegentemp\TempTimer_PM.c" value="SOURCE_C;CortexM0;;;;TempTimer" />
+  <file name="C:\My\SmartChess\GRBL.cydsn\codegentemp\Clock_1.c" value="SOURCE_C;CortexM0;;;;Clock_1" />
+  <file name="C:\My\SmartChess\GRBL.cydsn\codegentemp\Clock_1.h" value="HEADER;;;;;Clock_1" />
+  <file name="C:\My\SmartChess\GRBL.cydsn\codegentemp\Step_Pulse_Clock.c" value="SOURCE_C;CortexM0;;;;Step_Pulse_Clock" />
+  <file name="C:\My\SmartChess\GRBL.cydsn\codegentemp\Step_Pulse_Clock.h" value="HEADER;;;;;Step_Pulse_Clock" />
   <file name="C:\My\SmartChess\GRBL.cydsn\codegentemp\UART_IntClock.c" value="SOURCE_C;CortexM0;;;;UART_IntClock" />
   <file name="C:\My\SmartChess\GRBL.cydsn\codegentemp\UART_IntClock.h" value="HEADER;;;;;UART_IntClock" />
+  <file name="C:\My\SmartChess\GRBL.cydsn\codegentemp\BLE_bless_isr.c" value="SOURCE_C;CortexM0;;;;BLE_bless_isr" />
+  <file name="C:\My\SmartChess\GRBL.cydsn\codegentemp\BLE_bless_isr.h" value="HEADER;;;;;BLE_bless_isr" />
   <file name="C:\My\SmartChess\GRBL.cydsn\codegentemp\cm0gcc.ld" value="LINKER_SCRIPT;;;b98f980c-3bd1-4fc7-a887-c56a20a46fdd;;cy_boot" />
   <file name="C:\My\SmartChess\GRBL.cydsn\codegentemp\Cm0RealView.scat" value="LINKER_SCRIPT;;;fdb8e1ae-f83a-46cf-9446-1d703716f38a;;cy_boot" />
   <file name="C:\My\SmartChess\GRBL.cydsn\codegentemp\Cm0Start.c" value="SOURCE_C;CortexM0;;;;cy_boot" />

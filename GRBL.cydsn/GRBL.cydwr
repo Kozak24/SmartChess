@@ -19,10 +19,11 @@
     </Group>
     <Group key="Interrupt">
       <Data key="1b4e5f4a-707f-434b-9602-d39f254bb977" value="Tx_Int" />
+      <Data key="3a5454c6-4d4b-4c70-9037-022954e29dfc/0bca1fc6-354d-4d61-89fa-de74f0d280d1" value="BLE_bless_isr" />
       <Data key="3e336348-d85e-40b3-a855-2648251185c9" value="Limit_Int" />
       <Data key="7a449e4d-68c0-4fae-9286-20dbaa9f38af" value="Timer0_Comp_Int" />
       <Data key="9d85b07b-d0a3-43d5-9c79-a337709a4229" value="WDT_Int" />
-      <Data key="75dafed3-d9f1-4529-9d9e-9d0d675fa253" value="Timer1_Comp_Int" />
+      <Data key="75dafed3-d9f1-4529-9d9e-9d0d675fa253" value="Timer1_Ovf_Int" />
       <Data key="26808c42-5bd7-45da-b8dc-a65df05435ff" value="Timer0_Ovf_Int" />
       <Data key="48896b69-71be-4c43-99d6-56bc0f272247" value="Rx_Int" />
       <Data key="b0162966-0060-4af5-82d1-fcb491ad7619/0758f7e0-b58c-4a6b-bb59-e7d003cac7de" value="UART_TXInternalInterrupt" />
@@ -63,6 +64,7 @@
       <Data key="ed092b9b-d398-4703-be89-cebf998501f6" value="Tx_1" />
       <Data key="f9846004-ba66-4896-a22a-514b67353268" value="Pin_A3" />
       <Data key="fdea09b9-a22a-4e0f-80f9-cb4b0734a550" value="Pin_A1" />
+      <Data key="fe1cdd76-dc47-454f-94c0-faabf5acb447" value="BLE_Status_Pin" />
       <Data key="ffd53ab4-f853-49e0-b32f-b96b89ff6c37" value="Pin_Direction_Z" />
     </Group>
   </Group>
@@ -3146,10 +3148,38 @@
     </Group>
   </Group>
   <Group key="Interrupt">
+    <Group key="3a5454c6-4d4b-4c70-9037-022954e29dfc/0bca1fc6-354d-4d61-89fa-de74f0d280d1">
+      <Group key="CortexM0">
+        <Data key="Assigned" value="True" />
+        <Data key="Priority" value="3" />
+        <Data key="Vector" value="-1" />
+      </Group>
+    </Group>
+    <Group key="7a449e4d-68c0-4fae-9286-20dbaa9f38af">
+      <Group key="CortexM0">
+        <Data key="Assigned" value="True" />
+        <Data key="Priority" value="3" />
+        <Data key="Vector" value="-1" />
+      </Group>
+    </Group>
     <Group key="9d85b07b-d0a3-43d5-9c79-a337709a4229">
       <Group key="CortexM0">
         <Data key="Assigned" value="True" />
         <Data key="Priority" value="3" />
+        <Data key="Vector" value="-1" />
+      </Group>
+    </Group>
+    <Group key="75dafed3-d9f1-4529-9d9e-9d0d675fa253">
+      <Group key="CortexM0">
+        <Data key="Assigned" value="True" />
+        <Data key="Priority" value="3" />
+        <Data key="Vector" value="-1" />
+      </Group>
+    </Group>
+    <Group key="26808c42-5bd7-45da-b8dc-a65df05435ff">
+      <Group key="CortexM0">
+        <Data key="Assigned" value="True" />
+        <Data key="Priority" value="2" />
         <Data key="Vector" value="-1" />
       </Group>
     </Group>
@@ -3818,6 +3848,11 @@
         <Data key="Port Format" value="1,5" />
       </Group>
     </Group>
+    <Group key="fe1cdd76-dc47-454f-94c0-faabf5acb447">
+      <Group key="0">
+        <Data key="Port Format" value="3,7" />
+      </Group>
+    </Group>
     <Group key="ffd53ab4-f853-49e0-b32f-b96b89ff6c37">
       <Group key="0">
         <Data key="Port Format" value="1,0" />
@@ -3896,8 +3931,8 @@
     <Data key="CYDEV_CONFIGURATION_MODE" value="COMPRESSED" />
     <Data key="CYDEV_DEBUG_PROTECT" value="OPEN" />
     <Data key="CYDEV_DEBUGGING_DPS" value="SWD" />
-    <Data key="CYDEV_HEAP_SIZE" value="0x80" />
-    <Data key="CYDEV_STACK_SIZE" value="0x0800" />
+    <Data key="CYDEV_HEAP_SIZE" value="0x1800" />
+    <Data key="CYDEV_STACK_SIZE" value="0x1800" />
     <Data key="CYDEV_TEMPERATURE" value="-40C - 85C" />
     <Data key="CYDEV_USE_BUNDLED_CMSIS" value="True" />
     <Data key="CYDEV_VARIABLE_VDDA" value="True" />
