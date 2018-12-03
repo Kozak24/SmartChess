@@ -72,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
     // Variables to access objects from the layout such as buttons, switches, values
     private Button start_button;
     private ImageButton speech_button;
-    private Button send_data_button;
+    private Button send_command_button;
     private Button disconnect_button;
     private TextView command_text_view;
 
@@ -136,9 +136,13 @@ public class MainActivity extends AppCompatActivity {
         // Set up variables for accessing buttons and slide switches
         start_button = findViewById(R.id.start_button);
         speech_button = findViewById(R.id.speech_button);
-        send_data_button = findViewById(R.id.send_data);
+        send_command_button = findViewById(R.id.send_command);
         disconnect_button = findViewById(R.id.disconnect_button);
         command_text_view = findViewById(R.id.command_text_view);
+
+        send_command_button.setVisibility(View.INVISIBLE);
+        speech_button.setVisibility(View.INVISIBLE);
+        command_text_view.setVisibility(View.INVISIBLE);
 
         // Initialize service and connection state variable
         mServiceConnected = false;
@@ -329,19 +333,8 @@ public class MainActivity extends AppCompatActivity {
         /* The callback broadcasts a message which is picked up by the mGattUpdateReceiver */
     }
 
-    public void sendData(View view) {
+    public void sendCommand(View view) {
         byte[] byteValues = getBytes();
-        tempCounter++;
-        /*byteValues[0] = (byte) chars[0];
-        byteValues[1] = (byte) chars[1];*/
-        /*if(tempCounter == 1) {
-            byteValues[0] = (byte) (97);
-            byteValues[1] = (byte) (49);
-        } else if(tempCounter == 2) {
-            byteValues[0] = (byte) (98);
-            byteValues[1] = (byte) (50);
-            tempCounter = 0;
-        }*/
 
         mPSoCSmartChessService.writeCommandCharacteristic(byteValues);
     }
@@ -409,8 +402,9 @@ public class MainActivity extends AppCompatActivity {
                 case PSoCSmartChessService.ACTION_CONNECTED:
                     if (!mConnectState) {
                         disconnect_button.setEnabled(true);
-                        send_data_button.setEnabled(true);
-                        //speech_button.setEnabled(true);
+                        send_command_button.setVisibility(View.VISIBLE);
+                        speech_button.setVisibility(View.VISIBLE);
+                        command_text_view.setVisibility(View.VISIBLE);
                         mConnectState = true;
                         Log.d(TAG, "Connected to Device");
                     }
@@ -418,8 +412,9 @@ public class MainActivity extends AppCompatActivity {
                 case PSoCSmartChessService.ACTION_DISCONNECTED:
                     // Disable the disconnect, discover svc, discover char button, and enable the search button
                     disconnect_button.setEnabled(false);
-                    send_data_button.setEnabled(false);
-                    //speech_button.setEnabled(false);
+                    send_command_button.setVisibility(View.INVISIBLE);
+                    speech_button.setVisibility(View.INVISIBLE);
+                    command_text_view.setVisibility(View.INVISIBLE);
                     mConnectState = false;
                     Log.d(TAG, "Disconnected");
                     break;
