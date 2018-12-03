@@ -28,7 +28,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 For more information on Cypress BLE products visit:
 http://www.cypress.com/products/bluetooth-low-energy-ble
 -->
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
     android:layout_width="match_parent"
@@ -51,21 +52,49 @@ http://www.cypress.com/products/bluetooth-low-energy-ble
 
     <Button
         android:id="@+id/disconnect_button"
-        android:text="@string/Disconnect"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textAllCaps="false"
+        android:layout_marginTop="16dp"
         android:enabled="false"
         android:onClick="Disconnect"
-        />
+        android:text="@string/Disconnect"
+        android:textAllCaps="false"
+        app:layout_constraintTop_toBottomOf="@+id/start_button"
+        tools:layout_editor_absoluteX="16dp" />
+
+    <ImageButton
+        android:id="@+id/speech_button"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="8dp"
+        android:gravity="center"
+        android:onClick="getSpeechInput"
+        android:src="@drawable/ic_mic"
+        app:layout_constraintTop_toBottomOf="@+id/disconnect_button"
+        tools:layout_editor_absoluteX="0dp" />
+
+    <TextView
+        android:id="@+id/command_text_view"
+        android:layout_width="250dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="16dp"
+        android:textColor="#000"
+        android:textSize="26sp"
+        android:textStyle="normal"
+        app:layout_constraintStart_toEndOf="@+id/speech_button"
+        app:layout_constraintTop_toBottomOf="@+id/disconnect_button" />
 
     <Button
         android:id="@+id/send_data"
-        android:text="@string/send_data"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textAllCaps="false"
+        android:layout_marginTop="16dp"
         android:enabled="false"
-        android:onClick="sendData"/>
+        android:onClick="sendData"
+        android:text="@string/send_data"
+        android:textAllCaps="false"
+        app:layout_constraintTop_toBottomOf="@+id/command_text_view"
+        tools:layout_editor_absoluteX="38dp" />
 
-</LinearLayout>
+</android.support.constraint.ConstraintLayout>

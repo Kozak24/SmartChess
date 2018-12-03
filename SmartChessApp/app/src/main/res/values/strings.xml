@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">Smart Chess</string>
 
-    <string name="Start">Start Bluetooth</string>
+    <string name="Start">Connect to SmartChess</string>
     <string name="Search">Search for Device</string>
     <string name="Connect">Connect to Device</string>
     <string name="DiscoverServices">Discover Services and Characteristics</string>

@@ -48,15 +48,21 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
+import android.speech.RecognizerIntent;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.CompoundButton;
-import android.widget.Switch;
+import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -65,8 +71,10 @@ public class MainActivity extends AppCompatActivity {
 
     // Variables to access objects from the layout such as buttons, switches, values
     private Button start_button;
+    private ImageButton speech_button;
     private Button send_data_button;
     private Button disconnect_button;
+    private TextView command_text_view;
 
     // Variables to manage BLE connection
     private static boolean mConnectState;
@@ -78,6 +86,8 @@ public class MainActivity extends AppCompatActivity {
 
     //This is required for Android 6.0 (Marshmallow)
     private static final int PERMISSION_REQUEST_COARSE_LOCATION = 1;
+    private int tempCounter = 0;
+    private byte[] bytes;
 
 
     /**
@@ -125,12 +135,16 @@ public class MainActivity extends AppCompatActivity {
 
         // Set up variables for accessing buttons and slide switches
         start_button = findViewById(R.id.start_button);
+        speech_button = findViewById(R.id.speech_button);
         send_data_button = findViewById(R.id.send_data);
         disconnect_button = findViewById(R.id.disconnect_button);
+        command_text_view = findViewById(R.id.command_text_view);
 
         // Initialize service and connection state variable
         mServiceConnected = false;
         mConnectState = false;
+
+        speech_button.setImageResource(R.drawable.ic_mic_black_24dp);
 
         mHandler = new Handler();
 
@@ -175,6 +189,23 @@ public class MainActivity extends AppCompatActivity {
         }
     } //End of section for Android 6.0 (Marshmallow)
 
+    public void getSpeechInput(View view) {
+
+        Intent intent = new Intent( RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+                RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault());
+
+        if (intent.resolveActivity(getPackageManager()) != null) {
+            startActivityForResult(intent, 10);
+        } else {
+            Toast.makeText(this, "Your Device Don't Support Speech Input",
+                    Toast.LENGTH_SHORT).show();
+        }
+    }
+
+
+
     @Override
     protected void onResume() {
         super.onResume();
@@ -188,14 +219,45 @@ public class MainActivity extends AppCompatActivity {
         registerReceiver(mBleUpdateReceiver, filter);
     }
 
+/*    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+
+    }*/
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         // User chose not to enable Bluetooth.
+        switch (requestCode) {
+            case 10:
+                if (resultCode == RESULT_OK && data != null) {
+                    ArrayList<String> result =
+                            data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
+                    String string = result.get(0);
+                    List<String> items = Arrays.asList(string.split("\\s* \\s*"));
+                    byte[] bytes = { (byte) items.get(0).toLowerCase().charAt(0),
+                            (byte) items.get(1).toLowerCase().charAt(0)};
+                    String commandString = new String(bytes);
+                    setBytes(bytes);
+                    command_text_view.setText( String.format( "Command is: %s", commandString ) );
+                }
+                break;
+        }
+
         if (requestCode == REQUEST_ENABLE_BLE && resultCode == Activity.RESULT_CANCELED) {
             finish();
             return;
         }
         super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    private void setBytes(byte[] bytes) {
+        this.bytes = bytes;
+    }
+
+    private byte[] getBytes() {
+        return bytes;
     }
 
     @Override
@@ -268,10 +330,18 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void sendData(View view) {
-        byte[] byteValues = new byte[5];
-
-        byteValues[0] = (byte) (97);
-        byteValues[1] = (byte) (49);
+        byte[] byteValues = getBytes();
+        tempCounter++;
+        /*byteValues[0] = (byte) chars[0];
+        byteValues[1] = (byte) chars[1];*/
+        /*if(tempCounter == 1) {
+            byteValues[0] = (byte) (97);
+            byteValues[1] = (byte) (49);
+        } else if(tempCounter == 2) {
+            byteValues[0] = (byte) (98);
+            byteValues[1] = (byte) (50);
+            tempCounter = 0;
+        }*/
 
         mPSoCSmartChessService.writeCommandCharacteristic(byteValues);
     }
@@ -340,6 +410,7 @@ public class MainActivity extends AppCompatActivity {
                     if (!mConnectState) {
                         disconnect_button.setEnabled(true);
                         send_data_button.setEnabled(true);
+                        //speech_button.setEnabled(true);
                         mConnectState = true;
                         Log.d(TAG, "Connected to Device");
                     }
@@ -348,6 +419,7 @@ public class MainActivity extends AppCompatActivity {
                     // Disable the disconnect, discover svc, discover char button, and enable the search button
                     disconnect_button.setEnabled(false);
                     send_data_button.setEnabled(false);
+                    //speech_button.setEnabled(false);
                     mConnectState = false;
                     Log.d(TAG, "Disconnected");
                     break;
