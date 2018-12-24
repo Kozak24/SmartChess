@@ -59,21 +59,6 @@ void convert_command_to_gcode()
 {
     char commandBuffer[20];
     
-    /*if(validate_array())
-    {
-        UART_PutString("Valid BLE command\r\n");
-        for(uint8 i = 0; i < sizeof(commandBuffer); i++) {
-            process_ble_data(commandBuffer[i]);
-        }
-    } else {
-        UART_PutString("Not a valid BLE command\r\n");
-    }*/
-    
-    /*
-    sprintf(command, "%c%c%c%c%c\n\r", commandArray[0], commandArray[1],
-    commandArray[2], commandArray[3], commandArray[4]);
-    UART_PutString(command);*/
-    
     char buffer[2];
     
     CyBle_ProcessEvents();
@@ -120,7 +105,7 @@ void convert_command_to_gcode()
         sprintf(commandBuffer, "G01 X11 Y11 F500\r\n");
         counter = 0;
     }*/
-    UART_PutString(commandBuffer);
+    //UART_UartPutString(commandBuffer);
     
     for(uint8 i = 0; i < sizeof(commandBuffer); i++) {
         process_ble_data(commandBuffer[i]);

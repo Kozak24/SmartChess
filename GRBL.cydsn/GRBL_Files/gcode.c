@@ -65,6 +65,7 @@ void gc_sync_position()
 // coordinates, respectively.
 uint8_t gc_execute_line(char *line)
 {
+  Servo_TCPWM_Stop();
   /* -------------------------------------------------------------------------------------
      STEP 1: Initialize parser block struct and copy current g-code state modes. The parser
      updates these modes and commands as the block line is parser and will only be used and
@@ -115,7 +116,6 @@ uint8_t gc_execute_line(char *line)
   else { char_counter = 0; }
 
   while (line[char_counter] != 0) { // Loop until no more g-code words in line.
-
     // Import the next g-code word, expecting a letter followed by a value. Otherwise, error out.
     letter = line[char_counter];
     if((letter < 'A') || (letter > 'Z')) { FAIL(STATUS_EXPECTED_COMMAND_LETTER); } // [Expected word letter]
@@ -296,7 +296,17 @@ uint8_t gc_execute_line(char *line)
            legal g-code words and stores their value. Error-checking is performed later since some
            words (I,J,K,L,P,R) have multiple connotations and/or depend on the issued commands. */
         switch(letter){
-          // case 'A': // Not supported
+          case 'A':
+            if(value == 1) {
+                Servo_TCPWM_Start();
+                Servo_TCPWM_WriteCompare(5);
+                Servo_TCPWM_Stop();
+            } else if(value == 0) {
+                Servo_TCPWM_Start();
+                Servo_TCPWM_WriteCompare(1);
+                Servo_TCPWM_Stop();
+            }
+            break; // Not supported
           // case 'B': // Not supported
           // case 'C': // Not supported
           // case 'D': // Not supported
@@ -361,6 +371,18 @@ uint8_t gc_execute_line(char *line)
      new g-code block when the EOL character is received. However, this would break Grbl's startup
      lines in how it currently works and would require some refactoring to make it compatible.
   */
+
+  /***************SERVO_CONTROLLING******************/
+  /*if(gc_block.values.xyz[Z_AXIS] == 1) {
+    //BLE_Status_Pin_Write(1);
+    Servo_TCPWM_Start();
+    Servo_TCPWM_WriteCompare(5);
+  } else if (gc_block.values.xyz[Z_AXIS] == 0) {
+    Servo_TCPWM_Start();
+    Servo_TCPWM_WriteCompare(1);
+    //BLE_Status_Pin_Write(0);
+  }*/
+  /**************************************************/
 
   // [0. Non-specific/common error-checks and miscellaneous setup]:
 
@@ -912,7 +934,6 @@ uint8_t gc_execute_line(char *line)
   // [3. Set feed rate ]:
   gc_state.feed_rate = gc_block.values.f; // Always copy this value. See feed rate error-checking.
   pl_data->feed_rate = gc_state.feed_rate; // Record data for planner use.
-
   // [4. Set spindle speed ]:
   if ((gc_state.spindle_speed != gc_block.values.s) || bit_istrue(gc_parser_flags,GC_PARSER_LASER_FORCE_SYNC)) {
     if (gc_state.modal.spindle != SPINDLE_DISABLE) { 

@@ -74,6 +74,7 @@ void protocol_main_loop()
   uint8_t c;
   for (;;) {
     CyBle_ProcessEvents();
+    Servo_TCPWM_Start();
 
     // Process one line of incoming serial data, as the data becomes available. Performs an
     // initial filtering by removing spaces and comments and capitalizing all letters.

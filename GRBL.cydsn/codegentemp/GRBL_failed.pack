@@ -24,8 +24,8 @@ set_location_hint "\UART:BUART:rx_bitclk_enable\" 1 0 1 2
 set_location_hint "\UART:BUART:sTX:TxShifter:u0\" 1 0 2 
 set_location_hint "\UART:BUART:sTX:TxSts\" 1 0 4 
 set_location_hint "\UART:BUART:rx_last\" 0 0 0 0
-set_location_hint "\UART:BUART:rx_status_5\" 0 0 0 1
-set_location_hint "\UART:BUART:rx_status_4\" 0 0 0 2
+set_location_hint "\UART:BUART:rx_status_4\" 0 0 0 1
+set_location_hint "\UART:BUART:rx_status_5\" 0 0 0 2
 set_location_hint "\UART:BUART:tx_status_2\" 0 0 0 3
 set_location_hint "Net_1043" 0 0 1 0
 set_location_hint "\UART:BUART:sRX:RxSts\" 0 0 4 

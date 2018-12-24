@@ -160,7 +160,6 @@ uint8_t serial_read()
   }
 }
 
-
 CY_ISR(Rx_Int_Handler)
 //ISR(SERIAL_RX)
 {

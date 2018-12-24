@@ -1,5 +1,5 @@
 -- Project:   GRBL
--- Generated: 12/03/2018 00:44:49
+-- Generated: 12/22/2018 00:14:34
 -- PSoC Creator  4.2
 
 ENTITY GRBL IS
@@ -25,7 +25,8 @@ ENTITY GRBL IS
         Pin_Direction_X(0)_PAD : OUT std_ulogic;
         Pin_Direction_Y(0)_PAD : OUT std_ulogic;
         Pin_Direction_Z(0)_PAD : OUT std_ulogic;
-        BLE_Status_Pin(0)_PAD : OUT std_ulogic);
+        BLE_Status_Pin(0)_PAD : OUT std_ulogic;
+        Pseudo_Direction_Z(0)_PAD : OUT std_ulogic);
     ATTRIBUTE voltage_VDDA_CTB OF __DEFAULT__ : ENTITY IS 3.3e0;
     ATTRIBUTE voltage_VDDA_1 OF __DEFAULT__ : ENTITY IS 3.3e0;
     ATTRIBUTE voltage_VDDIO_0 OF __DEFAULT__ : ENTITY IS 3.3e0;
@@ -65,24 +66,13 @@ ARCHITECTURE __DEFAULT__ OF GRBL IS
     SIGNAL Limit_Pins(4)__PA : bit;
     SIGNAL Limit_Pins(5)__PA : bit;
     SIGNAL Net_1004 : bit;
-    SIGNAL Net_1005 : bit;
     SIGNAL Net_1007 : bit;
-    SIGNAL Net_1040_digital : bit;
-    ATTRIBUTE global_signal OF Net_1040_digital : SIGNAL IS true;
     SIGNAL Net_1041 : bit;
     SIGNAL Net_1043 : bit;
-    ATTRIBUTE placement_force OF Net_1043 : SIGNAL IS "U(1,0,B)1";
+    ATTRIBUTE placement_force OF Net_1043 : SIGNAL IS "U(1,1,A)2";
     SIGNAL Net_1048 : bit;
     SIGNAL Net_1049 : bit;
     SIGNAL Net_1122 : bit;
-    SIGNAL Net_1128 : bit;
-    SIGNAL Net_1129 : bit;
-    SIGNAL Net_1130 : bit;
-    SIGNAL Net_1131 : bit;
-    SIGNAL Net_1132 : bit;
-    SIGNAL Net_1133 : bit;
-    SIGNAL Net_1134_ff9 : bit;
-    ATTRIBUTE global_signal OF Net_1134_ff9 : SIGNAL IS true;
     SIGNAL Net_1213 : bit;
     SIGNAL Net_1214 : bit;
     SIGNAL Net_1215_ff8 : bit;
@@ -91,6 +81,26 @@ ARCHITECTURE __DEFAULT__ OF GRBL IS
     SIGNAL Net_1223 : bit;
     SIGNAL Net_1224 : bit;
     SIGNAL Net_1225 : bit;
+    SIGNAL Net_1364 : bit;
+    SIGNAL Net_1365 : bit;
+    SIGNAL Net_1366 : bit;
+    SIGNAL Net_1367 : bit;
+    SIGNAL Net_1368 : bit;
+    SIGNAL Net_1369 : bit;
+    SIGNAL Net_1386 : bit;
+    SIGNAL Net_1394 : bit;
+    SIGNAL Net_1414 : bit;
+    SIGNAL Net_1416 : bit;
+    SIGNAL Net_1417 : bit;
+    SIGNAL Net_1418 : bit;
+    SIGNAL Net_1419 : bit;
+    SIGNAL Net_1916_digital : bit;
+    ATTRIBUTE global_signal OF Net_1916_digital : SIGNAL IS true;
+    SIGNAL Net_1965 : bit;
+    SIGNAL Net_1966_ff10 : bit;
+    ATTRIBUTE global_signal OF Net_1966_ff10 : SIGNAL IS true;
+    SIGNAL Net_1966_ff9 : bit;
+    ATTRIBUTE global_signal OF Net_1966_ff9 : SIGNAL IS true;
     SIGNAL Net_369_ff7 : bit;
     ATTRIBUTE global_signal OF Net_369_ff7 : SIGNAL IS true;
     SIGNAL Net_409 : bit;
@@ -102,7 +112,6 @@ ARCHITECTURE __DEFAULT__ OF GRBL IS
     SIGNAL Net_955 : bit;
     SIGNAL Net_956 : bit;
     SIGNAL Net_994 : bit;
-    SIGNAL Net_995 : bit;
     SIGNAL Net_997 : bit;
     SIGNAL Pin_Direction_X(0)__PA : bit;
     SIGNAL Pin_Direction_Y(0)__PA : bit;
@@ -110,9 +119,9 @@ ARCHITECTURE __DEFAULT__ OF GRBL IS
     SIGNAL Pin_Step_X(0)__PA : bit;
     SIGNAL Pin_Step_Y(0)__PA : bit;
     SIGNAL Pin_Step_Z(0)__PA : bit;
+    SIGNAL Pseudo_Direction_Z(0)__PA : bit;
     SIGNAL Rx_1(0)__PA : bit;
     SIGNAL Tx_1(0)__PA : bit;
-    SIGNAL WDT_INT_OUT : bit;
     SIGNAL \BLE:Net_15\ : bit;
     SIGNAL \Control_Reg_Direction:control_3\ : bit;
     SIGNAL \Control_Reg_Direction:control_4\ : bit;
@@ -125,11 +134,11 @@ ARCHITECTURE __DEFAULT__ OF GRBL IS
     SIGNAL \Control_Reg_Step:control_6\ : bit;
     SIGNAL \Control_Reg_Step:control_7\ : bit;
     SIGNAL \UART:BUART:counter_load_not\ : bit;
-    ATTRIBUTE placement_force OF \UART:BUART:counter_load_not\ : SIGNAL IS "U(1,1,A)2";
+    ATTRIBUTE placement_force OF \UART:BUART:counter_load_not\ : SIGNAL IS "U(1,0,B)2";
     SIGNAL \UART:BUART:pollcount_0\ : bit;
     ATTRIBUTE placement_force OF \UART:BUART:pollcount_0\ : SIGNAL IS "U(0,0,B)0";
     SIGNAL \UART:BUART:pollcount_1\ : bit;
-    ATTRIBUTE placement_force OF \UART:BUART:pollcount_1\ : SIGNAL IS "U(0,0,A)1";
+    ATTRIBUTE placement_force OF \UART:BUART:pollcount_1\ : SIGNAL IS "U(0,0,A)2";
     SIGNAL \UART:BUART:rx_bitclk_enable\ : bit;
     ATTRIBUTE placement_force OF \UART:BUART:rx_bitclk_enable\ : SIGNAL IS "U(0,0,B)2";
     SIGNAL \UART:BUART:rx_count7_tc\ : bit;
@@ -145,11 +154,11 @@ ARCHITECTURE __DEFAULT__ OF GRBL IS
     SIGNAL \UART:BUART:rx_fifofull\ : bit;
     SIGNAL \UART:BUART:rx_fifonotempty\ : bit;
     SIGNAL \UART:BUART:rx_last\ : bit;
-    ATTRIBUTE placement_force OF \UART:BUART:rx_last\ : SIGNAL IS "U(0,0,B)3";
+    ATTRIBUTE placement_force OF \UART:BUART:rx_last\ : SIGNAL IS "U(1,1,A)0";
     SIGNAL \UART:BUART:rx_load_fifo\ : bit;
     ATTRIBUTE placement_force OF \UART:BUART:rx_load_fifo\ : SIGNAL IS "U(0,1,A)1";
     SIGNAL \UART:BUART:rx_postpoll\ : bit;
-    ATTRIBUTE placement_force OF \UART:BUART:rx_postpoll\ : SIGNAL IS "U(0,0,A)3";
+    ATTRIBUTE placement_force OF \UART:BUART:rx_postpoll\ : SIGNAL IS "U(0,0,B)1";
     SIGNAL \UART:BUART:rx_state_0\ : bit;
     ATTRIBUTE placement_force OF \UART:BUART:rx_state_0\ : SIGNAL IS "U(0,1,A)0";
     SIGNAL \UART:BUART:rx_state_2\ : bit;
@@ -161,28 +170,28 @@ ARCHITECTURE __DEFAULT__ OF GRBL IS
     SIGNAL \UART:BUART:rx_status_3\ : bit;
     ATTRIBUTE placement_force OF \UART:BUART:rx_status_3\ : SIGNAL IS "U(0,1,A)3";
     SIGNAL \UART:BUART:rx_status_4\ : bit;
-    ATTRIBUTE placement_force OF \UART:BUART:rx_status_4\ : SIGNAL IS "U(0,0,A)0";
+    ATTRIBUTE placement_force OF \UART:BUART:rx_status_4\ : SIGNAL IS "U(1,1,A)3";
     SIGNAL \UART:BUART:rx_status_5\ : bit;
-    ATTRIBUTE placement_force OF \UART:BUART:rx_status_5\ : SIGNAL IS "U(0,0,A)2";
+    ATTRIBUTE placement_force OF \UART:BUART:rx_status_5\ : SIGNAL IS "U(0,1,B)3";
     SIGNAL \UART:BUART:tx_bitclk\ : bit;
-    ATTRIBUTE placement_force OF \UART:BUART:tx_bitclk\ : SIGNAL IS "U(1,1,B)1";
+    ATTRIBUTE placement_force OF \UART:BUART:tx_bitclk\ : SIGNAL IS "U(1,0,B)1";
     SIGNAL \UART:BUART:tx_bitclk_enable_pre\ : bit;
     SIGNAL \UART:BUART:tx_counter_dp\ : bit;
     SIGNAL \UART:BUART:tx_ctrl_mark_last\ : bit;
-    ATTRIBUTE placement_force OF \UART:BUART:tx_ctrl_mark_last\ : SIGNAL IS "U(0,0,B)1";
+    ATTRIBUTE placement_force OF \UART:BUART:tx_ctrl_mark_last\ : SIGNAL IS "U(0,0,B)3";
     SIGNAL \UART:BUART:tx_fifo_empty\ : bit;
     SIGNAL \UART:BUART:tx_fifo_notfull\ : bit;
     SIGNAL \UART:BUART:tx_shift_out\ : bit;
     SIGNAL \UART:BUART:tx_state_0\ : bit;
-    ATTRIBUTE placement_force OF \UART:BUART:tx_state_0\ : SIGNAL IS "U(1,1,A)0";
+    ATTRIBUTE placement_force OF \UART:BUART:tx_state_0\ : SIGNAL IS "U(0,0,A)0";
     SIGNAL \UART:BUART:tx_state_1\ : bit;
-    ATTRIBUTE placement_force OF \UART:BUART:tx_state_1\ : SIGNAL IS "U(1,1,B)2";
+    ATTRIBUTE placement_force OF \UART:BUART:tx_state_1\ : SIGNAL IS "U(1,0,A)1";
     SIGNAL \UART:BUART:tx_state_2\ : bit;
-    ATTRIBUTE placement_force OF \UART:BUART:tx_state_2\ : SIGNAL IS "U(1,1,B)0";
+    ATTRIBUTE placement_force OF \UART:BUART:tx_state_2\ : SIGNAL IS "U(1,0,B)0";
     SIGNAL \UART:BUART:tx_status_0\ : bit;
-    ATTRIBUTE placement_force OF \UART:BUART:tx_status_0\ : SIGNAL IS "U(1,1,A)1";
+    ATTRIBUTE placement_force OF \UART:BUART:tx_status_0\ : SIGNAL IS "U(0,0,A)1";
     SIGNAL \UART:BUART:tx_status_2\ : bit;
-    ATTRIBUTE placement_force OF \UART:BUART:tx_status_2\ : SIGNAL IS "U(1,0,B)3";
+    ATTRIBUTE placement_force OF \UART:BUART:tx_status_2\ : SIGNAL IS "U(1,1,A)1";
     SIGNAL \UART:BUART:txn\ : bit;
     ATTRIBUTE placement_force OF \UART:BUART:txn\ : SIGNAL IS "U(1,0,A)0";
     SIGNAL \UART:Net_9_digital\ : bit;
@@ -246,34 +255,35 @@ ARCHITECTURE __DEFAULT__ OF GRBL IS
     ATTRIBUTE Location OF Pin_Direction_Z(0) : LABEL IS "P1[0]";
     ATTRIBUTE lib_model OF BLE_Status_Pin(0) : LABEL IS "iocell22";
     ATTRIBUTE Location OF BLE_Status_Pin(0) : LABEL IS "P3[7]";
+    ATTRIBUTE lib_model OF Pseudo_Direction_Z(0) : LABEL IS "iocell23";
+    ATTRIBUTE Location OF Pseudo_Direction_Z(0) : LABEL IS "P2[0]";
     ATTRIBUTE lib_model OF Net_1043 : LABEL IS "macrocell1";
-    ATTRIBUTE Location OF Net_1043 : LABEL IS "U(1,0)";
+    ATTRIBUTE Location OF Net_1043 : LABEL IS "U(1,1)";
     ATTRIBUTE lib_model OF \UART:BUART:counter_load_not\ : LABEL IS "macrocell2";
-    ATTRIBUTE Location OF \UART:BUART:counter_load_not\ : LABEL IS "U(1,1)";
+    ATTRIBUTE Location OF \UART:BUART:counter_load_not\ : LABEL IS "U(1,0)";
     ATTRIBUTE lib_model OF \UART:BUART:tx_status_0\ : LABEL IS "macrocell3";
-    ATTRIBUTE Location OF \UART:BUART:tx_status_0\ : LABEL IS "U(1,1)";
+    ATTRIBUTE Location OF \UART:BUART:tx_status_0\ : LABEL IS "U(0,0)";
     ATTRIBUTE lib_model OF \UART:BUART:tx_status_2\ : LABEL IS "macrocell4";
-    ATTRIBUTE Location OF \UART:BUART:tx_status_2\ : LABEL IS "U(1,0)";
+    ATTRIBUTE Location OF \UART:BUART:tx_status_2\ : LABEL IS "U(1,1)";
     ATTRIBUTE lib_model OF \UART:BUART:rx_counter_load\ : LABEL IS "macrocell5";
     ATTRIBUTE Location OF \UART:BUART:rx_counter_load\ : LABEL IS "U(0,1)";
     ATTRIBUTE lib_model OF \UART:BUART:rx_postpoll\ : LABEL IS "macrocell6";
     ATTRIBUTE Location OF \UART:BUART:rx_postpoll\ : LABEL IS "U(0,0)";
     ATTRIBUTE lib_model OF \UART:BUART:rx_status_4\ : LABEL IS "macrocell7";
-    ATTRIBUTE Location OF \UART:BUART:rx_status_4\ : LABEL IS "U(0,0)";
+    ATTRIBUTE Location OF \UART:BUART:rx_status_4\ : LABEL IS "U(1,1)";
     ATTRIBUTE lib_model OF \UART:BUART:rx_status_5\ : LABEL IS "macrocell8";
-    ATTRIBUTE Location OF \UART:BUART:rx_status_5\ : LABEL IS "U(0,0)";
-    ATTRIBUTE Location OF Tx_Int : LABEL IS "[IntrContainer=(0)][IntrId=(5)]";
-    ATTRIBUTE Location OF Timer1_Ovf_Int : LABEL IS "[IntrContainer=(0)][IntrId=(4)]";
-    ATTRIBUTE Location OF \Timer0:cy_m0s8_tcpwm_1\ : LABEL IS "F(TCPWM,0)";
-    ATTRIBUTE Location OF \Timer1:cy_m0s8_tcpwm_1\ : LABEL IS "F(TCPWM,1)";
-    ATTRIBUTE Location OF Timer0_Comp_Int : LABEL IS "[IntrContainer=(0)][IntrId=(17)]";
-    ATTRIBUTE Location OF Timer0_Ovf_Int : LABEL IS "[IntrContainer=(0)][IntrId=(2)]";
+    ATTRIBUTE Location OF \UART:BUART:rx_status_5\ : LABEL IS "U(0,1)";
+    ATTRIBUTE Location OF Tx_Int : LABEL IS "[IntrContainer=(0)][IntrId=(6)]";
+    ATTRIBUTE Location OF Timer1_Ovf_Int : LABEL IS "[IntrContainer=(0)][IntrId=(5)]";
+    ATTRIBUTE Location OF \Timer0:cy_m0s8_tcpwm_1\ : LABEL IS "F(TCPWM,1)";
+    ATTRIBUTE Location OF \Timer1:cy_m0s8_tcpwm_1\ : LABEL IS "F(TCPWM,2)";
+    ATTRIBUTE Location OF Timer0_Comp_Int : LABEL IS "[IntrContainer=(0)][IntrId=(18)]";
+    ATTRIBUTE Location OF Timer0_Ovf_Int : LABEL IS "[IntrContainer=(0)][IntrId=(4)]";
     ATTRIBUTE Location OF Limit_Int : LABEL IS "[IntrContainer=(0)][IntrId=(0)]";
     ATTRIBUTE Location OF Control_Int : LABEL IS "[IntrContainer=(0)][IntrId=(3)]";
-    ATTRIBUTE Location OF WDT_Int : LABEL IS "[IntrContainer=(0)][IntrId=(8)]";
     ATTRIBUTE lib_model OF \Control_Reg_Step:Sync:ctrl_reg\ : LABEL IS "controlcell1";
     ATTRIBUTE Location OF \Control_Reg_Step:Sync:ctrl_reg\ : LABEL IS "U(0,0)";
-    ATTRIBUTE Location OF \UART:TXInternalInterrupt\ : LABEL IS "[IntrContainer=(0)][IntrId=(6)]";
+    ATTRIBUTE Location OF \UART:TXInternalInterrupt\ : LABEL IS "[IntrContainer=(0)][IntrId=(7)]";
     ATTRIBUTE lib_model OF \UART:BUART:sTX:TxShifter:u0\ : LABEL IS "datapathcell1";
     ATTRIBUTE Location OF \UART:BUART:sTX:TxShifter:u0\ : LABEL IS "U(1,0)";
     ATTRIBUTE lib_model OF \UART:BUART:sTX:sCLOCK:TxBitClkGen\ : LABEL IS "datapathcell2";
@@ -287,20 +297,22 @@ ARCHITECTURE __DEFAULT__ OF GRBL IS
     ATTRIBUTE Location OF \UART:BUART:sRX:RxSts\ : LABEL IS "U(1,1)";
     ATTRIBUTE Location OF Rx_Int : LABEL IS "[IntrContainer=(0)][IntrId=(1)]";
     ATTRIBUTE lib_model OF \Control_Reg_Direction:Sync:ctrl_reg\ : LABEL IS "controlcell2";
-    ATTRIBUTE Location OF \Control_Reg_Direction:Sync:ctrl_reg\ : LABEL IS "U(1,0)";
+    ATTRIBUTE Location OF \Control_Reg_Direction:Sync:ctrl_reg\ : LABEL IS "U(1,1)";
     ATTRIBUTE Location OF \BLE:cy_m0s8_ble\ : LABEL IS "F(BLE,0)";
     ATTRIBUTE Location OF \BLE:bless_isr\ : LABEL IS "[IntrContainer=(0)][IntrId=(12)]";
-    ATTRIBUTE Location OF \TempTimer:cy_m0s8_tcpwm_1\ : LABEL IS "F(TCPWM,2)";
+    ATTRIBUTE Location OF \Servo_TCPWM:cy_m0s8_tcpwm_1\ : LABEL IS "F(TCPWM,0)";
+    ATTRIBUTE Location OF \Servo_TCPWM2:cy_m0s8_tcpwm_1\ : LABEL IS "F(TCPWM,3)";
+    ATTRIBUTE Location OF Servo_TCPWM_Int : LABEL IS "[IntrContainer=(0)][IntrId=(2)]";
     ATTRIBUTE lib_model OF \UART:BUART:txn\ : LABEL IS "macrocell9";
     ATTRIBUTE Location OF \UART:BUART:txn\ : LABEL IS "U(1,0)";
     ATTRIBUTE lib_model OF \UART:BUART:tx_state_1\ : LABEL IS "macrocell10";
-    ATTRIBUTE Location OF \UART:BUART:tx_state_1\ : LABEL IS "U(1,1)";
+    ATTRIBUTE Location OF \UART:BUART:tx_state_1\ : LABEL IS "U(1,0)";
     ATTRIBUTE lib_model OF \UART:BUART:tx_state_0\ : LABEL IS "macrocell11";
-    ATTRIBUTE Location OF \UART:BUART:tx_state_0\ : LABEL IS "U(1,1)";
+    ATTRIBUTE Location OF \UART:BUART:tx_state_0\ : LABEL IS "U(0,0)";
     ATTRIBUTE lib_model OF \UART:BUART:tx_state_2\ : LABEL IS "macrocell12";
-    ATTRIBUTE Location OF \UART:BUART:tx_state_2\ : LABEL IS "U(1,1)";
+    ATTRIBUTE Location OF \UART:BUART:tx_state_2\ : LABEL IS "U(1,0)";
     ATTRIBUTE lib_model OF \UART:BUART:tx_bitclk\ : LABEL IS "macrocell13";
-    ATTRIBUTE Location OF \UART:BUART:tx_bitclk\ : LABEL IS "U(1,1)";
+    ATTRIBUTE Location OF \UART:BUART:tx_bitclk\ : LABEL IS "U(1,0)";
     ATTRIBUTE lib_model OF \UART:BUART:tx_ctrl_mark_last\ : LABEL IS "macrocell14";
     ATTRIBUTE Location OF \UART:BUART:tx_ctrl_mark_last\ : LABEL IS "U(0,0)";
     ATTRIBUTE lib_model OF \UART:BUART:rx_state_0\ : LABEL IS "macrocell15";
@@ -322,8 +334,7 @@ ARCHITECTURE __DEFAULT__ OF GRBL IS
     ATTRIBUTE lib_model OF \UART:BUART:rx_status_3\ : LABEL IS "macrocell23";
     ATTRIBUTE Location OF \UART:BUART:rx_status_3\ : LABEL IS "U(0,1)";
     ATTRIBUTE lib_model OF \UART:BUART:rx_last\ : LABEL IS "macrocell24";
-    ATTRIBUTE Location OF \UART:BUART:rx_last\ : LABEL IS "U(0,0)";
-    ATTRIBUTE Location OF SRSS : LABEL IS "F(SRSS,0)";
+    ATTRIBUTE Location OF \UART:BUART:rx_last\ : LABEL IS "U(1,1)";
     COMPONENT controlcell
         PORT (
             control_0 : OUT std_ulogic;
@@ -611,19 +622,6 @@ ARCHITECTURE __DEFAULT__ OF GRBL IS
             gen_clk_out_6 : OUT std_ulogic;
             gen_clk_out_7 : OUT std_ulogic);
     END COMPONENT;
-    COMPONENT m0s8srsscell
-        PORT (
-            clock_pump : IN std_ulogic;
-            clock_ss : IN std_ulogic;
-            dsi_ss_code_0 : IN std_ulogic;
-            dsi_ss_code_1 : IN std_ulogic;
-            dsi_ss_code_2 : IN std_ulogic;
-            dsi_ss_code_3 : IN std_ulogic;
-            dsi_ss_code_4 : IN std_ulogic;
-            dsi_ss_updown : OUT std_ulogic;
-            interrupt_wdt : OUT std_ulogic;
-            interrupt_pwr : OUT std_ulogic);
-    END COMPONENT;
     COMPONENT m0s8tcpwmcell
         PORT (
             clock : IN std_ulogic;
@@ -716,7 +714,7 @@ BEGIN
         PORT MAP(
             gen_clk_out_0 => \UART:Net_9_digital\,
             gen_clk_in_0 => dclk_to_genclk,
-            gen_clk_out_1 => Net_1040_digital,
+            gen_clk_out_1 => Net_1916_digital,
             gen_clk_in_1 => dclk_to_genclk_1);
 
     ClockBlock:m0s8clockblockcell
@@ -730,11 +728,12 @@ BEGIN
             lfclk => ClockBlock_LFClk,
             wco => ClockBlock_WCO,
             dsi_in_0 => ClockBlock_Routed1,
-            ff_div_7 => Net_1215_ff8,
-            ff_div_8 => Net_369_ff7,
-            ff_div_9 => Net_1134_ff9,
+            ff_div_7 => Net_1966_ff10,
+            ff_div_8 => Net_1215_ff8,
             udb_div_0 => dclk_to_genclk,
-            udb_div_1 => dclk_to_genclk_1);
+            udb_div_1 => dclk_to_genclk_1,
+            ff_div_9 => Net_369_ff7,
+            ff_div_10 => Net_1966_ff9);
 
     Rx_1:logicalport
         GENERIC MAP(
@@ -1556,7 +1555,7 @@ BEGIN
         PORT MAP(
             pa_out => Pin_Step_Z(0)__PA,
             oe => open,
-            pin_input => Net_1005,
+            pin_input => Net_1386,
             pad_out => Pin_Step_Z(0)_PAD,
             pad_in => Pin_Step_Z(0)_PAD,
             in_clock => open,
@@ -1920,11 +1919,11 @@ BEGIN
             oe_sync_mode => 0,
             logicalport => "Pin_Direction_Z",
             logicalport_pin_id => 0,
-            io_capabilities => "0000000000000000000000000000000000000000000000000000000000000101")
+            io_capabilities => "0000000000000000000000000000000000000000000000000000000000000001")
         PORT MAP(
             pa_out => Pin_Direction_Z(0)__PA,
             oe => open,
-            pin_input => Net_995,
+            pin_input => Net_1368,
             pad_out => Pin_Direction_Z(0)_PAD,
             pad_in => Pin_Direction_Z(0)_PAD,
             in_clock => open,
@@ -1939,7 +1938,7 @@ BEGIN
             drive_mode => "110",
             ibuf_enabled => "1",
             id => "fe1cdd76-dc47-454f-94c0-faabf5acb447",
-            init_dr_st => "0",
+            init_dr_st => "1",
             input_buffer_sel => "00",
             input_clk_en => 0,
             input_sync => "1",
@@ -2017,6 +2016,98 @@ BEGIN
             pa_out => BLE_Status_Pin(0)__PA,
             oe => open,
             pad_in => BLE_Status_Pin(0)_PAD,
+            in_clock => open,
+            in_clock_en => '1',
+            in_reset => '0',
+            out_clock => open,
+            out_clock_en => '1',
+            out_reset => '0');
+
+    Pseudo_Direction_Z:logicalport
+        GENERIC MAP(
+            drive_mode => "110",
+            ibuf_enabled => "1",
+            id => "dc0e5d5d-4b56-4849-8896-7b4a879d5708",
+            init_dr_st => "1",
+            input_buffer_sel => "00",
+            input_clk_en => 0,
+            input_sync => "1",
+            input_sync_mode => "0",
+            intr_mode => "00",
+            invert_in_clock => 0,
+            invert_in_clock_en => 0,
+            invert_in_reset => 0,
+            invert_out_clock => 0,
+            invert_out_clock_en => 0,
+            invert_out_reset => 0,
+            io_voltage => "",
+            layout_mode => "CONTIGUOUS",
+            oe_conn => "0",
+            oe_reset => 0,
+            oe_sync => "0",
+            output_clk_en => 0,
+            output_clock_mode => "0",
+            output_conn => "1",
+            output_mode => "0",
+            output_reset => 0,
+            output_sync => "0",
+            ovt_hyst_trim => "0",
+            ovt_needed => "0",
+            ovt_slew_control => "00",
+            pa_in_clock => -1,
+            pa_in_clock_en => -1,
+            pa_in_reset => -1,
+            pa_out_clock => -1,
+            pa_out_clock_en => -1,
+            pa_out_reset => -1,
+            pin_aliases => "",
+            pin_mode => "O",
+            por_state => 4,
+            port_alias_group => "",
+            port_alias_required => 0,
+            sio_group_cnt => 0,
+            sio_hifreq => "00000000",
+            sio_hyst => "1",
+            sio_ibuf => "00000000",
+            sio_info => "00",
+            sio_obuf => "00000000",
+            sio_refsel => "00000000",
+            sio_vohsel => "00000000",
+            sio_vtrip => "00000000",
+            slew_rate => "0",
+            spanning => 0,
+            sw_only => 0,
+            use_annotation => "0",
+            vtrip => "10",
+            width => 1,
+            in_clk_inv => 0,
+            in_clken_inv => 0,
+            in_clken_mode => 1,
+            in_rst_inv => 0,
+            out_clk_inv => 0,
+            out_clken_inv => 0,
+            out_clken_mode => 1,
+            out_rst_inv => 0)
+        PORT MAP(
+            in_clock_en => open,
+            in_reset => open,
+            out_clock_en => open,
+            out_reset => open);
+
+    Pseudo_Direction_Z(0):iocell
+        GENERIC MAP(
+            in_sync_mode => 0,
+            out_sync_mode => 0,
+            oe_sync_mode => 0,
+            logicalport => "Pseudo_Direction_Z",
+            logicalport_pin_id => 0,
+            io_capabilities => "0000000000000000000000000000000000000000000000000000000000000101")
+        PORT MAP(
+            pa_out => Pseudo_Direction_Z(0)__PA,
+            oe => open,
+            pin_input => Net_1394,
+            pad_out => Pseudo_Direction_Z(0)_PAD,
+            pad_in => Pseudo_Direction_Z(0)_PAD,
             in_clock => open,
             in_clock_en => '1',
             in_reset => '0',
@@ -2192,14 +2283,6 @@ BEGIN
             interrupt => Net_409,
             clock => ClockBlock_HFClk);
 
-    WDT_Int:interrupt
-        GENERIC MAP(
-            int_type => "10",
-            is_nmi => 0)
-        PORT MAP(
-            interrupt => WDT_INT_OUT,
-            clock => ClockBlock_HFClk);
-
     \Control_Reg_Step:Sync:ctrl_reg\:controlcell
         GENERIC MAP(
             cy_ctrl_mode_0 => "00000111",
@@ -2210,13 +2293,13 @@ BEGIN
             clk_inv => '0',
             clken_mode => 1)
         PORT MAP(
-            clock => Net_1040_digital,
+            clock => Net_1916_digital,
             control_7 => \Control_Reg_Step:control_7\,
             control_6 => \Control_Reg_Step:control_6\,
             control_5 => \Control_Reg_Step:control_5\,
             control_4 => \Control_Reg_Step:control_4\,
             control_3 => \Control_Reg_Step:control_3\,
-            control_2 => Net_1005,
+            control_2 => Net_1386,
             control_1 => Net_1004,
             control_0 => Net_1007,
             busclk => ClockBlock_HFClk);
@@ -2424,7 +2507,7 @@ BEGIN
             control_5 => \Control_Reg_Direction:control_5\,
             control_4 => \Control_Reg_Direction:control_4\,
             control_3 => \Control_Reg_Direction:control_3\,
-            control_2 => Net_995,
+            control_2 => Net_1394,
             control_1 => Net_994,
             control_0 => Net_997,
             busclk => ClockBlock_HFClk);
@@ -2444,22 +2527,47 @@ BEGIN
             interrupt => \BLE:Net_15\,
             clock => ClockBlock_HFClk);
 
-    \TempTimer:cy_m0s8_tcpwm_1\:m0s8tcpwmcell
+    \Servo_TCPWM:cy_m0s8_tcpwm_1\:m0s8tcpwmcell
         GENERIC MAP(
             cy_registers => "")
         PORT MAP(
-            clock => Net_1134_ff9,
+            clock => Net_1966_ff10,
             capture => '0',
             count => '1',
             reload => '0',
             stop => '0',
             start => '0',
-            tr_underflow => Net_1130,
-            tr_overflow => Net_1129,
-            tr_compare_match => Net_1131,
-            line => Net_1132,
-            line_compl => Net_1133,
-            interrupt => Net_1128);
+            tr_underflow => Net_1366,
+            tr_overflow => Net_1365,
+            tr_compare_match => Net_1367,
+            line => Net_1368,
+            line_compl => Net_1369,
+            interrupt => Net_1364);
+
+    \Servo_TCPWM2:cy_m0s8_tcpwm_1\:m0s8tcpwmcell
+        GENERIC MAP(
+            cy_registers => "")
+        PORT MAP(
+            clock => Net_1966_ff9,
+            capture => '0',
+            count => '1',
+            reload => '0',
+            stop => '0',
+            start => '0',
+            tr_underflow => Net_1416,
+            tr_overflow => Net_1965,
+            tr_compare_match => Net_1417,
+            line => Net_1418,
+            line_compl => Net_1419,
+            interrupt => Net_1414);
+
+    Servo_TCPWM_Int:interrupt
+        GENERIC MAP(
+            int_type => "10",
+            is_nmi => 0)
+        PORT MAP(
+            interrupt => Net_1365,
+            clock => ClockBlock_HFClk);
 
     \UART:BUART:txn\:macrocell
         GENERIC MAP(
@@ -2711,9 +2819,5 @@ BEGIN
             q => \UART:BUART:rx_last\,
             clock_0 => \UART:Net_9_digital\,
             main_0 => Net_1048);
-
-    SRSS:m0s8srsscell
-        PORT MAP(
-            interrupt_wdt => WDT_INT_OUT);
 
 END __DEFAULT__;

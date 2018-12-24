@@ -4,10 +4,10 @@ UDB 0
 ------------------------------------------------------
 	PLD 0:
 		 Instances:
-			\UART:BUART:rx_state_0\
 			\UART:BUART:rx_load_fifo\
-			\UART:BUART:rx_status_3\
 			\UART:BUART:rx_state_3\
+			\UART:BUART:rx_state_0\
+			\UART:BUART:rx_status_3\
 
 		 Clock net: \UART:Net_9_digital\
 		 Set/Reset net: 
@@ -44,10 +44,10 @@ UDB 0
 
 	PLD 1:
 		 Instances:
-			\UART:BUART:rx_counter_load\
+			\UART:BUART:rx_state_stop1_reg\
 			\UART:BUART:rx_state_2\
 			\UART:BUART:tx_ctrl_mark_last\
-			\UART:BUART:rx_state_stop1_reg\
+			\UART:BUART:rx_counter_load\
 
 		 Clock net: \UART:Net_9_digital\
 		 Set/Reset net: 
@@ -218,8 +218,8 @@ UDB 1
 			ClockBlock_HFClk
 
 		 Output nets:
+			Net_1394
 			Net_994
-			Net_995
 			Net_997
 
 	Local clock and reset nets:
@@ -338,10 +338,10 @@ UDB 3
 ------------------------------------------------------
 	PLD 0:
 		 Instances:
-			\UART:BUART:tx_status_2\
-			\UART:BUART:rx_status_5\
 			\UART:BUART:rx_status_4\
+			\UART:BUART:tx_status_2\
 			\UART:BUART:rx_last\
+			\UART:BUART:rx_status_5\
 
 		 Clock net: \UART:Net_9_digital\
 		 Set/Reset net: 
@@ -417,7 +417,7 @@ UDB 4
 		 Instances:
 			\Control_Reg_Step:Sync:ctrl_reg\ : controlcell
 
-		 Clock net: Net_1040_digital
+		 Clock net: Net_1916_digital
 		 Set/Reset net: 
 		 Enable net: 
 
@@ -426,7 +426,7 @@ UDB 4
 
 		 Output nets:
 			Net_1004
-			Net_1005
 			Net_1007
+			Net_1386
 
 	Local clock and reset nets:
