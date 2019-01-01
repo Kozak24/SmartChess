@@ -91,16 +91,8 @@ void find_by_diagonal();
 // Check if piece is on the square and is it player piece
 void is_piece_on_the_square();
 
-void validate_path();
-/* Function that checks if there are any chess pieces 
-from Rook's position to destination position.
-Return 1 if path is free or 0 in other case*/
-int is_rook_path_free();
-// Function that validate diagonal path
-int is_diagonal_path_free();
 /* Checks by string paramater is this piece 
-that we are looking for. Return 1 if piece match to piece
-that we searching and 0 in other cases*/
+that we are looking for */
 int is_piece_found(const char * piece);
 
 
@@ -299,23 +291,6 @@ void is_piece_ally(const char * piece) {
   if(piece[0] == game_info.player[0]) {
     game_info.commandStatus = ERROR_IS_ALLY;
   } else {
-  }
-}
-
-void validate_path(const char * pieceType) {
-  if(pieceType == "Pawn") {
-    // Pawn path don't need validation so exit function
-    return;
-  } else if(pieceType == "Rook") {
-    // Rook path validating after finding
-  } else if(pieceType == "Knight") {
-    // Check Knight path
-  } else if(pieceType == "Bishop") {
-    // Check Bishop path
-  } else if(pieceType == "King") {
-    // Check King path
-  } else if(pieceType == "Queen") {
-    // Check Queen path
   }
 }
 
