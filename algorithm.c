@@ -30,8 +30,10 @@ char chessPiecesLettersArray[5] = {
 };
 
 // Test commands
-const char * commandArray[10] = {
-    "Qc4", "h5", "b5", "h4", "a6", "h3", "b7", "g2", "c8", "f1"
+const char * commandArray[24] = {
+  "a4", "a5", "h4", "h5", "c4", "c5", "d4", "d5",
+  "e4", "e5", "f4", "f5", "g4", "g5", "b4", "b5",
+  "b5", "b4", "c5", "e4", "e5", "g4", "g5", ""
 };
 
 char chessCoordinates[8][2] = {
@@ -95,7 +97,6 @@ void is_piece_on_the_square();
 that we are looking for */
 int is_piece_found(const char * piece);
 
-
 // Change Pawn piece to Queen when reached other side of board
 void pawn_become_queen();
 
@@ -111,15 +112,17 @@ int main(void) {
   game_info.player = "white";
 
   print_chess_position_array();
-  char command[3];
-  /*for(;;) {
+  //Automated testing
+  /*for(int i = 0; i < 24; i++) {
+    validate_command(commandArray[i]);
+  }
+  return 0;*/
+
+  char command[5];
+  for(;;) {
     printf("Input command: ");
     scanf("%s", command);
     validate_command(command);
-  }*/
-  // Automated testing
-  for(int i = 0; i < 1; i++) {
-    validate_command(commandArray[i]);
   }
 }
 
@@ -161,7 +164,7 @@ void validate_command(const char *command) {
       // Second step is check if is piece on the board
       } else if(validationStep == 1) {
         is_piece_on_the_square();
-      // Third step is validate path if need
+      // Third step is generate GCODE
       } else if(validationStep == 2) {
         // Generate GCODE here
         generate_gcode();
@@ -314,6 +317,10 @@ int is_destination_piece_king() {
   } else {
     return 0;
   }
+}
+
+void find_knight() {
+
 }
 
 // Function that find by diagonal path
@@ -551,155 +558,186 @@ void find_by_vertical() {
 
 // Fucntion that find Pawn on the chess board
 void find_pawn() {
-  game_info.piecePosX = 0;
-  game_info.piecePosY = 0;
+  const char * player = game_info.player;
+  int destinationY = game_info.endPosY;
+  int destinationX = game_info.endPosX;
 
   if(game_info.isSquareEmpty) {
-    game_info.piecePosX = game_info.endPosX;
-    if(game_info.player == "white") {
-      /* At the start square Pawn can move 2 square forward
-      if player want this */
-      if(game_info.endPosY == 3) {
-        // Bottom piece coordinates is [a-h]2
-        const char * bottomSquare = chessPositionArray[1][game_info.endPosX];
-        // Top piece coordinates is [a-h]3
-        const char * topSquare = chessPositionArray[2][game_info.endPosX];  
+    game_info.piecePosX = destinationX;
 
-        if(bottomSquare != "" && topSquare != "") {
-          // If at top square is enemy then path is blocked
-          if(topSquare[0] != game_info.player[0] 
-          && bottomSquare[0] == game_info.player[0]) {
-            game_info.commandStatus = ERROR_PATH_BLOCKED_BY_ENEMY;
-          /* If at top square is player's, then it's possible Pawn
-          this'll be checked in second step of validation */
-          } else if(topSquare[0] == game_info.player[0]
-          && bottomSquare[0] == game_info.player[0]) {
-            // If top square piece isn't Pawn then error
-            if(topSquare[1] != game_info.pieceType[0]) {
-              game_info.commandStatus = ERROR_PATH_BLOCKED_BY_ALLY;
-            } else {
-              game_info.piecePosY = 2;
-            }
-          }
-        // If bottom and top squares is empty then no piece found
-        } else if(bottomSquare == "" && topSquare == "") {
-          game_info.commandStatus = ERROR_PIECE_NOT_FOUND;
-        /* If bottom square isn't empty and top square is empty
-        then bottom square is possible position of Pawn */
-        } else if(bottomSquare != "" && topSquare == "") {
-          game_info.piecePosY = 1;
-        /* If bottom square is empty and top square isn't empty
-        then top square is possible position of Pawn */
-        } else if(bottomSquare == "" && topSquare != "") {
-          game_info.piecePosY = 2;
-        }
-      // In this case piece position is Y destination position - 1
-      } else if(game_info.endPosY > 1) {
-        game_info.piecePosY = game_info.endPosY - 1;
+    /* At the start square Pawn can move 2 square forward
+    if player want this */
+    if(destinationY == 3 & player == "white"
+    | destinationY == 4 & player == "black") {
+      // Y positions of bottom and top squares
+      int bottomPosY;
+      int topPosY;
+      if(player == "white") {
+        bottomPosY = 1;
+        topPosY = 2;
+      } else if(player == "black") {
+        bottomPosY = 6;
+        topPosY = 5;
       }
-    // If player is black then 
-    } else {
-      if(game_info.endPosY == 4) {
-        // Bottom piece coordinates is [a-h]7
-        const char * bottomSquare = chessPositionArray[6][game_info.endPosX];
-        // Top piece coordinates is [a-h]6
-        const char * topSquare = chessPositionArray[5][game_info.endPosX];  
 
-        if(bottomSquare != "" && topSquare != "") {
-          // If at top square is enemy then path is blocked
-          if(topSquare[0] != game_info.player[0] 
-          && bottomSquare[0] == game_info.player[0]) {
-            game_info.commandStatus = ERROR_PATH_BLOCKED_BY_ENEMY;
-          /* If at top square is player's, then it's possible Pawn
-          this'll be checked in second step of validation */
-          } else if(topSquare[0] == game_info.player[0]
-          && bottomSquare[0] == game_info.player[0]) {
-            // If top square piece isn't Pawn then error
-            if(topSquare[1] != game_info.pieceType[0]) {
-              game_info.commandStatus = ERROR_PATH_BLOCKED_BY_ALLY;
-            } else {
-              game_info.piecePosY = 5;
-            }
+      // Bottom piece coordinates is [a-h]2 for white or [a-h]7 for black
+      const char * bottomSquare = chessPositionArray[bottomPosY][destinationX];
+      // Top piece coordinates is [a-h]3 for white or [a-h]6 for black
+      const char * topSquare = chessPositionArray[topPosY][destinationX];  
+
+      if(bottomSquare != "" && topSquare != "") {
+        // If at top square is enemy then path is blocked
+        if(topSquare[0] != player[0] 
+        && bottomSquare[0] == player[0]) {
+          game_info.commandStatus = ERROR_PATH_BLOCKED_BY_ENEMY;
+        /* If at top square is player's, then it's possible Pawn
+        this'll be checked in second step of validation */
+        } else if(topSquare[0] == player[0]
+        && bottomSquare[0] == player[0]) {
+          // If top square piece isn't Pawn then error
+          if(topSquare[1] != game_info.pieceType[0]) {
+            game_info.commandStatus = ERROR_PATH_BLOCKED_BY_ALLY;
+          } else {
+            game_info.piecePosY = topPosY;
           }
-        // If bottom and top squares is empty then no piece found
-        } else if(bottomSquare == "" && topSquare == "") {
-          game_info.commandStatus = ERROR_PIECE_NOT_FOUND;
-        /* If bottom square isn't empty and top square is empty
-        then bottom square is possible position of Pawn */
-        } else if(bottomSquare != "" && topSquare == "") {
-          game_info.piecePosY = 6;
-        /* If bottom square is empty and top square isn't empty
-        then top square is possible position of Pawn */
-        } else if(bottomSquare == "" && topSquare != "") {
-          game_info.piecePosY = 5;
         }
-      // In this case piece position is Y destination position + 1
-      } else if(game_info.endPosY < 6) {
-        game_info.piecePosY = game_info.endPosY + 1;
-      } 
+      // If bottom and top squares is empty then no piece found
+      } else if(bottomSquare == "" && topSquare == "") {
+        game_info.commandStatus = ERROR_PIECE_NOT_FOUND;
+      /* If bottom square isn't empty and top square is empty
+      then bottom square is possible position of Pawn */
+      } else if(bottomSquare != "" && topSquare == "") {
+        if(bottomSquare[0] == player[0]
+        && bottomSquare[1] == game_info.pieceType[0]) {
+          game_info.piecePosY = bottomPosY;
+        } else {
+          game_info.commandStatus = ERROR_PIECE_NOT_FOUND;
+        }
+      /* If bottom square is empty and top square isn't empty
+      then top square is possible position of Pawn */
+      } else if(bottomSquare == "" && topSquare != "") {
+        if(topSquare[0] == player[0]
+        && topSquare[1] == game_info.pieceType[0]) {
+          game_info.piecePosY = topPosY;
+        } else {
+          game_info.commandStatus = ERROR_PIECE_NOT_FOUND;
+        }
+      }
+    /* In this case piece position for white player is 
+    destinationY position - 1 and for black player is
+    destinatonY position + 1*/
+    } else if(destinationY > 1 & player == "white" 
+    || destinationY < 6 & player == "black") {
+      if(player == "white") {
+        game_info.piecePosY = destinationY - 1;
+      } else if(player == "black") {
+        game_info.piecePosY = destinationY + 1;
+      }
     }
   // If square isn't empty
   } else {
-    /* Calculate Y coordinate of Pawn
-    Just add 1 to Y coordinate if black or substract 1 if white player */
-    if(game_info.player == "white") {
-      game_info.piecePosY = game_info.endPosY - 1;
-    } else {
-      game_info.piecePosY = game_info.endPosY + 1;
+    /* Calculate offset for Y coordinate of Pawn. Just add 1 to 
+    Y coordinate if black or substract 1 if white player */
+    if(player == "white") {
+      game_info.piecePosY = destinationY - 1;
+    } else if(player == "black") {
+      game_info.piecePosY = destinationY + 1;
     }
 
-    if(game_info.endPosX > 0 & game_info.endPosX < 7) {
-      /* When Pawn attack he can be only to the right of enemy piece
-      or to the left of enemy piece */
+    /* When Pawn attacks he can be only to the right of enemy piece
+    or to the left of enemy piece */
+    if(destinationX > 0 & destinationX < 7) {
 
       /* For black player left piece will on another side
       than white player left piece, so declare here offset
       that will change his value along with changing player*/
       int offsetX;
-      if(game_info.player == "white") {
+      if(player == "white") {
         offsetX = -1;
-      } else {
+      } else if(player == "black") {
         offsetX = 1;
       }
 
-      const char * leftSquare = chessPositionArray[game_info.piecePosY][game_info.endPosX-offsetX];
-      const char * rightSquare = chessPositionArray[game_info.piecePosY][game_info.endPosX+offsetX];
+      const char * leftSquare = chessPositionArray[game_info.piecePosY][destinationX - offsetX];
+      const char * rightSquare = chessPositionArray[game_info.piecePosY][destinationX + offsetX];
 
       /* Check if left and right square isn't empty if not
       then check if left isn't empty if not
       then check if right isn't empty */
       if(rightSquare != "" && leftSquare != "") {
         // If it's not player piece 
-        if(leftSquare[0] != game_info.player[0] 
-        && rightSquare[0] != game_info.player[0]) {
+        if(leftSquare[0] != player[0] 
+        && rightSquare[0] != player[0]) {
           game_info.commandStatus = ERROR_NON_PLAYER_S_PIECE;
         /* If leftSquare isn't player piece, 
         then rightSquare is a possible position of piece */
-        } else if (leftSquare[0] != game_info.player[0]) {
-          game_info.piecePosX = game_info.endPosX + offsetX;
+        } else if (leftSquare[0] != player[0]) {
+          if(rightSquare[0] == player[0] 
+          && rightSquare[1] == game_info.pieceType[0]) {
+            game_info.piecePosX = destinationX + offsetX;
+          } else {
+            game_info.commandStatus = ERROR_PIECE_NOT_FOUND;
+          }
         /* If rightSquare isn't player piece, 
         then leftSquare is a possible position of piece */
-        } else if (rightSquare[0] != game_info.player[0]) {
-          game_info.piecePosX = game_info.endPosX - offsetX;
+        } else if (rightSquare[0] != player[0]) {
+          if(leftSquare[0] == player[0] 
+          && leftSquare[1] == game_info.pieceType[0]) {
+            game_info.piecePosX = destinationX - offsetX;
+          } else {
+            game_info.commandStatus = ERROR_PIECE_NOT_FOUND;
+          }
         /* Last case all pieces are player's, then 
         assign coordinate of left piece by default */
         } else {
-          game_info.piecePosX = game_info.endPosX - offsetX;
+          if(leftSquare[0] == player[0] 
+          && leftSquare[1] == game_info.pieceType[0]) {
+            game_info.piecePosX = destinationX - offsetX;
+          } else if(rightSquare[0] == player[0] 
+          && rightSquare[1] == game_info.pieceType[0]) {
+            game_info.piecePosX = destinationX + offsetX;
+          } else {
+            game_info.commandStatus = ERROR_PIECE_NOT_FOUND;
+          }
         }
-      // if rightSquare isn't empty then it's possible position of piece
+      /* if rightSquare isn't empty and leftSquare is empty,
+      then it's possible position of piece */
       } else if(rightSquare != "") {
-        game_info.piecePosX = game_info.endPosX + offsetX;
-      // if leftSquare isn't empty then it's possible position of piece
+        // Check is it player's piece and is it Pawn
+        if(rightSquare[0] == player[0] 
+        && rightSquare[1] == game_info.pieceType[0]) {
+          game_info.piecePosX = destinationX + offsetX;
+        }
+      /* if leftSquare isn't empty and rightSquare is empty,
+      then it's possible position of piece*/
       } else if(leftSquare != "") {
-        game_info.piecePosX = game_info.endPosX - offsetX;
+        // Check is it player's piece and is it Pawn
+        if(leftSquare[0] == player[0] 
+        && leftSquare[1] == game_info.pieceType[0]) {
+          game_info.piecePosX = destinationX - offsetX;
+        }
+      // if leftSquare and rightSquare is empty, then piece not found
+      } else {
+        game_info.commandStatus = ERROR_PIECE_NOT_FOUND;
       }
     } else {
+      int x;
+      int y = game_info.piecePosY;
       /* If enemy's piece are at the border coordinate - A or H
       then player's attacking Pawn will be at B(1) or G(6) coordinate*/
-      if(game_info.endPosX == 0) {
-        game_info.piecePosX = 1;
-      } else if(game_info.endPosX == 7) {
-        game_info.piecePosX = 6;
+      if(destinationX == 0) {
+        x = 1;
+      } else if(destinationX == 7) {
+        x = 6;
+      }
+
+      // Check if it's pawn
+      const char * piece = chessPositionArray[y][x];
+      if(piece[0] == game_info.player[0]
+      && piece[1] == game_info.pieceType[0]) {
+        game_info.piecePosX = x;
+      } else {
+        game_info.commandStatus = ERROR_PIECE_NOT_FOUND;
       }
     }
   }
