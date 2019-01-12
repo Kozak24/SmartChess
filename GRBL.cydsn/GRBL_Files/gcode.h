@@ -152,6 +152,8 @@
 #define WORD_X  10
 #define WORD_Y  11
 #define WORD_Z  12
+#define WORD_A  13
+#define WORD_B  14
 
 // Define g-code parser position updating flags
 #define GC_UPDATE_POS_TARGET   0 // Must be zero
@@ -210,6 +212,9 @@ typedef struct {
   float s;         // Spindle speed
   uint8_t t;       // Tool selection
   float xyz[3];    // X,Y,Z Translational axes
+  #ifdef SERVOMOTORS
+    float ab[2];   // Servo A & B PWM period values                                <--NEW_LINE
+  #endif
 } gc_values_t;
 
 
@@ -228,6 +233,11 @@ typedef struct {
   float coord_offset[N_AXIS];    // Retains the G92 coordinate offset (work coordinates) relative to
                                  // machine zero in mm. Non-persistent. Cleared upon reset and boot.
   float tool_length_offset;      // Tracks tool length offset value when enabled.
+
+  #ifdef SERVOMOTORS
+    float servo_a_period;
+    float servo_b_period;
+  #endif
 } parser_state_t;
 extern parser_state_t gc_state;
 

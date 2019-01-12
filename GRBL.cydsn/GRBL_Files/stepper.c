@@ -57,6 +57,10 @@
   #endif
 #endif
 
+// Stores the Servomotors period. Storing variables in segment_buffer structure causing problems,
+// so there will be global variables for Servomotors periods.
+uint32 servo_a_period;
+
 // Stores the planner block Bresenham algorithm execution data for the segments in the segment
 // buffer. Normally, this buffer is partially in-use, but, for the worst case scenario, it will
 // never exceed the number of accessible stepper buffer segments (SEGMENT_BUFFER_SIZE-1).
@@ -88,6 +92,10 @@ typedef struct {
   #endif
   #ifdef VARIABLE_SPINDLE
     uint8_t spindle_pwm;
+  #endif
+  #ifdef SERVOMOTORS
+    //uint8_t servo_a_period;
+    //uint8_t servo_b_period;
   #endif
 } segment_t;
 static segment_t segment_buffer[SEGMENT_BUFFER_SIZE];
@@ -349,7 +357,7 @@ CY_ISR( Timer1_Ovf_Int_Handler ) //                                             
   #else  // Normal operation
     //STEP_PORT = (STEP_PORT & ~STEP_MASK) | st.step_outbits;
     Control_Reg_Step_Write(st.step_outbits);
-  #endif 
+  #endif
 
   // Enable step pulse reset timer so that The Stepper Port Reset Interrupt can reset the signal after
   // exactly settings.pulse_microseconds microseconds, independent of the main Timer1 prescaler.
@@ -404,7 +412,14 @@ CY_ISR( Timer1_Ovf_Int_Handler ) //                                             
         st.steps[Y_AXIS] = st.exec_block->steps[Y_AXIS] >> st.exec_segment->amass_level;
         st.steps[Z_AXIS] = st.exec_block->steps[Z_AXIS] >> st.exec_segment->amass_level;
       #endif
-
+      #ifdef SERVOMOTORS
+        Servo_TCPWM_Start();
+        if(servo_a_period > 0) {
+            Servo_TCPWM_Start();
+            Servo_TCPWM_WriteCompare(servo_a_period);
+            //Servo_TCPWM_WriteCompare(5);
+        }
+      #endif
       #ifdef VARIABLE_SPINDLE
         // Set real-time spindle output as segment is loaded, just prior to the first step.
         spindle_set_speed(st.exec_segment->spindle_pwm);
@@ -690,7 +705,7 @@ void st_prep_buffer()
     CyBle_ProcessEvents();
     // Determine if we need to load a new planner block or if the block needs to be recomputed.
     if (pl_block == NULL) {
-
+      Servo_TCPWM_Stop();
       // Query planner for a queued block
       if (sys.step_control & STEP_CONTROL_EXECUTE_SYS_MOTION) { pl_block = plan_get_system_motion_block(); }
       else { pl_block = plan_get_current_block(); }
@@ -956,7 +971,11 @@ void st_prep_buffer()
         }
       }
     } while (mm_remaining > prep.mm_complete); // **Complete** Exit loop. Profile complete.
-
+    #ifdef SERVOMOTORS
+        //prep_segment->servo_a_period = pl_block->servo_a_period;
+        servo_a_period = pl_block->servo_a_period;
+    #endif
+    
     #ifdef VARIABLE_SPINDLE
       /* -----------------------------------------------------------------------------------
         Compute spindle speed PWM output for step segment

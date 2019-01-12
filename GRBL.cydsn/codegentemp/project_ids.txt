@@ -1,6 +1,6 @@
-C:\My\SmartChess\GRBL.cydsn\GRBL.cyprj|1782daf9-3d3b-42ba-a0fa-13d4ad466589
-C:\Program Files (x86)\Cypress\PSoC Creator\4.2\PSoC Creator\psoc\content\default\CyAnnotationLibrary\CyAnnotationLibrary.cylib\CyAnnotationLibrary.cyprj|cd6d6b32-443e-41bc-91d4-31d098e46349
-C:\Users\Kozak\Documents\PSoC Creator\4.2\Downloads ( 4.2).cylib\Downloads ( 4.2).cyprj|0027667c-2502-4bc3-99cf-943cc8bcd35f
-C:\Program Files (x86)\Cypress\PSoC Creator\4.2\PSoC Creator\psoc\content\cycomponentlibraryupdates\CyComponentLibraryUpdates.cylib\CyComponentLibraryUpdates.cyprj|a870ceef-24d2-43f9-b072-cc8bb7b7d96e
-C:\Program Files (x86)\Cypress\PSoC Creator\4.2\PSoC Creator\psoc\content\cycomponentlibrary\CyComponentLibrary.cylib\CyComponentLibrary.cyprj|6711551e-f1e3-48d0-be9e-5fabd100805a
-C:\Program Files (x86)\Cypress\PSoC Creator\4.2\PSoC Creator\psoc\content\cyprimitives\CyPrimitives.cylib\CyPrimitives.cyprj|021eb75c-2f83-4c78-a888-2f32435ce50a
+C:\My\MicroControllers\SmartChess hardware\SmartChess\GRBL.cydsn\GRBL.cyprj|642c95b4-b96f-44cd-a3dc-55efed7509ad
+C:\Program Files (x86)\Cypress\PSoC Creator\4.2\PSoC Creator\psoc\content\default\CyAnnotationLibrary\CyAnnotationLibrary.cylib\CyAnnotationLibrary.cyprj|80aac090-ff12-4481-a173-25030eb98b21
+C:\Users\Kozak\Documents\PSoC Creator\4.2\Downloads ( 4.2).cylib\Downloads ( 4.2).cyprj|1d9dec8f-cbb5-4587-9eaa-7a3c167da8a8
+C:\Program Files (x86)\Cypress\PSoC Creator\4.2\PSoC Creator\psoc\content\cycomponentlibraryupdates\CyComponentLibraryUpdates.cylib\CyComponentLibraryUpdates.cyprj|afe000a6-2c1f-4e70-8dc9-4fb63f7add24
+C:\Program Files (x86)\Cypress\PSoC Creator\4.2\PSoC Creator\psoc\content\cycomponentlibrary\CyComponentLibrary.cylib\CyComponentLibrary.cyprj|f2b4d271-c60c-49a5-992b-56149dfbac66
+C:\Program Files (x86)\Cypress\PSoC Creator\4.2\PSoC Creator\psoc\content\cyprimitives\CyPrimitives.cylib\CyPrimitives.cyprj|b36f14b5-dfa3-4f7f-9fc4-bb27fdd1d983

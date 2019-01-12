@@ -118,7 +118,10 @@ uint8_t gc_execute_line(char *line)
   while (line[char_counter] != 0) { // Loop until no more g-code words in line.
     // Import the next g-code word, expecting a letter followed by a value. Otherwise, error out.
     letter = line[char_counter];
-    if((letter < 'A') || (letter > 'Z')) { FAIL(STATUS_EXPECTED_COMMAND_LETTER); } // [Expected word letter]
+    if((letter < 'A') || (letter > 'Z')) 
+    { 
+        FAIL(STATUS_EXPECTED_COMMAND_LETTER); 
+    } // [Expected word letter]
     char_counter++;
     if (!read_float(line, &char_counter, &value)) { FAIL(STATUS_BAD_NUMBER_FORMAT); } // [Expected word value]
 
@@ -297,17 +300,36 @@ uint8_t gc_execute_line(char *line)
            words (I,J,K,L,P,R) have multiple connotations and/or depend on the issued commands. */
         switch(letter){
           case 'A':
-            if(value == 1) {
-                Servo_TCPWM_Start();
-                Servo_TCPWM_WriteCompare(5);
-                Servo_TCPWM_Stop();
-            } else if(value == 0) {
-                Servo_TCPWM_Start();
-                Servo_TCPWM_WriteCompare(1);
-                Servo_TCPWM_Stop();
-            }
+            #ifdef SERVOMOTORS
+                word_bit = WORD_A;
+                if(value == 180) {   
+                    gc_block.values.ab[SERVO_A] = 5.000;
+                    Servo_TCPWM_Start();
+                    //Servo_TCPWM_WriteCompare(5);
+                    Servo_TCPWM_Stop();
+                } 
+                if(value == 0) {
+                    gc_block.values.ab[SERVO_A] = 1.000;
+                    Servo_TCPWM_Start();
+                    //Servo_TCPWM_WriteCompare(1);
+                    Servo_TCPWM_Stop();
+                }
+            #endif
             break; // Not supported
-          // case 'B': // Not supported
+          case 'B':
+            #ifdef SERVOMOTORS
+                word_bit = WORD_B;
+                if(value == 1) {
+                    Servo_TCPWM2_Start();
+                    Servo_TCPWM2_WriteCompare(5);
+                    Servo_TCPWM2_Stop();
+                } else if(value == 0) {
+                    Servo_TCPWM2_Start();
+                    Servo_TCPWM2_WriteCompare(1);
+                    Servo_TCPWM2_Stop();
+                }
+            #endif
+            break; // Not supported
           // case 'C': // Not supported
           // case 'D': // Not supported
           case 'F': word_bit = WORD_F; gc_block.values.f = value; break;
@@ -371,18 +393,6 @@ uint8_t gc_execute_line(char *line)
      new g-code block when the EOL character is received. However, this would break Grbl's startup
      lines in how it currently works and would require some refactoring to make it compatible.
   */
-
-  /***************SERVO_CONTROLLING******************/
-  /*if(gc_block.values.xyz[Z_AXIS] == 1) {
-    //BLE_Status_Pin_Write(1);
-    Servo_TCPWM_Start();
-    Servo_TCPWM_WriteCompare(5);
-  } else if (gc_block.values.xyz[Z_AXIS] == 0) {
-    Servo_TCPWM_Start();
-    Servo_TCPWM_WriteCompare(1);
-    //BLE_Status_Pin_Write(0);
-  }*/
-  /**************************************************/
 
   // [0. Non-specific/common error-checks and miscellaneous setup]:
 
@@ -855,6 +865,12 @@ uint8_t gc_execute_line(char *line)
     bit_false(value_words,(bit(WORD_N)|bit(WORD_F)|bit(WORD_S)|bit(WORD_T))); // Remove single-meaning value words.
   }
   if (axis_command) { bit_false(value_words,(bit(WORD_X)|bit(WORD_Y)|bit(WORD_Z))); } // Remove axis words.
+  /*#ifdef SERVOMOTORS
+    bit_false(value_words, (bit(WORD_A)|bit(WORD_B)));
+  #endif*/
+  #ifdef SERVOMOTORS
+    bit_false(value_words,(bit(WORD_A)|bit(WORD_B)));
+  #endif
   if (value_words) { FAIL(STATUS_GCODE_UNUSED_WORDS); } // [Unused words]
 
   /* -------------------------------------------------------------------------------------
@@ -862,7 +878,6 @@ uint8_t gc_execute_line(char *line)
      Assumes that all error-checking has been completed and no failure modes exist. We just
      need to update the state and execute the block according to the order-of-execution.
   */
-
   // Initialize planner data struct for motion blocks.
   plan_line_data_t plan_data;
   plan_line_data_t *pl_data = &plan_data;
@@ -1028,6 +1043,21 @@ uint8_t gc_execute_line(char *line)
   gc_state.modal.distance = gc_block.modal.distance;
 
   // [18. Set retract mode ]: NOT SUPPORTED
+
+/***********************SERVOMOTORS_BLOCK**********************************/
+  // [18. Set period of Servomotors]:
+  #ifdef SERVOMOTORS
+    Servo_TCPWM_Start();
+    Servo_TCPWM_Stop();
+    //if(gc_block.values.ab[SERVO_A] > 0) {  
+    gc_state.servo_a_period = gc_block.values.ab[SERVO_A];
+    pl_data->servo_a_period = gc_state.servo_a_period;
+    //pl_data->servo_a_period = gc_block.values.ab[SERVO_A];
+
+    //mc_line(gc_block.values.xyz, pl_data);
+   
+    //pl_data->servo_b_period = gc_block.values.ab[SERVO_B];
+  #endif
 
   // [19. Go to predefined position, Set G10, or Set axis offsets ]:
   switch(gc_block.non_modal_command) {

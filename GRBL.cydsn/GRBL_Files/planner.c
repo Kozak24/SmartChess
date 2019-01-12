@@ -324,6 +324,10 @@ uint8_t plan_buffer_line(float *target, plan_line_data_t *pl_data)
   #ifdef USE_LINE_NUMBERS
     block->line_number = pl_data->line_number;
   #endif
+  #ifdef SERVOMOTORS
+    block->servo_a_period = pl_data->servo_a_period;
+    block->servo_b_period = pl_data->servo_b_period;
+  #endif
 
   // Compute and store initial move distance data.
   int32_t target_steps[N_AXIS], position_steps[N_AXIS];

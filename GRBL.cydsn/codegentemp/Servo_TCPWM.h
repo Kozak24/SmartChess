@@ -138,7 +138,7 @@ extern uint8  Servo_TCPWM_initVar;
 #define Servo_TCPWM_PWM_PERIOD_VALUE               (39lu)
 #define Servo_TCPWM_PWM_PERIOD_BUF_VALUE           (65535lu)
 #define Servo_TCPWM_PWM_PERIOD_SWAP                (0lu)
-#define Servo_TCPWM_PWM_COMPARE_VALUE              (1lu)
+#define Servo_TCPWM_PWM_COMPARE_VALUE              (0lu)
 #define Servo_TCPWM_PWM_COMPARE_BUF_VALUE          (65535lu)
 #define Servo_TCPWM_PWM_COMPARE_SWAP               (0lu)
 
