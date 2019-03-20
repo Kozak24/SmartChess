@@ -1,5 +1,5 @@
 /*******************************************************************************
-* File Name: Servo_TCPWM_Int.c  
+* File Name: UART_SCB_IRQ.c  
 * Version 1.70
 *
 *  Description:
@@ -18,15 +18,15 @@
 
 #include <cydevice_trm.h>
 #include <CyLib.h>
-#include <Servo_TCPWM_Int.h>
+#include <UART_SCB_IRQ.h>
 #include "cyapicallbacks.h"
 
-#if !defined(Servo_TCPWM_Int__REMOVED) /* Check for removal by optimization */
+#if !defined(UART_SCB_IRQ__REMOVED) /* Check for removal by optimization */
 
 /*******************************************************************************
 *  Place your includes, defines and code here 
 ********************************************************************************/
-/* `#START Servo_TCPWM_Int_intc` */
+/* `#START UART_SCB_IRQ_intc` */
 
 /* `#END` */
 
@@ -37,7 +37,7 @@ CY_ISR_PROTO(IntDefaultHandler);
 
 
 /*******************************************************************************
-* Function Name: Servo_TCPWM_Int_Start
+* Function Name: UART_SCB_IRQ_Start
 ********************************************************************************
 *
 * Summary:
@@ -53,24 +53,24 @@ CY_ISR_PROTO(IntDefaultHandler);
 *   None
 *
 *******************************************************************************/
-void Servo_TCPWM_Int_Start(void)
+void UART_SCB_IRQ_Start(void)
 {
     /* For all we know the interrupt is active. */
-    Servo_TCPWM_Int_Disable();
+    UART_SCB_IRQ_Disable();
 
-    /* Set the ISR to point to the Servo_TCPWM_Int Interrupt. */
-    Servo_TCPWM_Int_SetVector(&Servo_TCPWM_Int_Interrupt);
+    /* Set the ISR to point to the UART_SCB_IRQ Interrupt. */
+    UART_SCB_IRQ_SetVector(&UART_SCB_IRQ_Interrupt);
 
     /* Set the priority. */
-    Servo_TCPWM_Int_SetPriority((uint8)Servo_TCPWM_Int_INTC_PRIOR_NUMBER);
+    UART_SCB_IRQ_SetPriority((uint8)UART_SCB_IRQ_INTC_PRIOR_NUMBER);
 
     /* Enable it. */
-    Servo_TCPWM_Int_Enable();
+    UART_SCB_IRQ_Enable();
 }
 
 
 /*******************************************************************************
-* Function Name: Servo_TCPWM_Int_StartEx
+* Function Name: UART_SCB_IRQ_StartEx
 ********************************************************************************
 *
 * Summary:
@@ -96,24 +96,24 @@ void Servo_TCPWM_Int_Start(void)
 *   None
 *
 *******************************************************************************/
-void Servo_TCPWM_Int_StartEx(cyisraddress address)
+void UART_SCB_IRQ_StartEx(cyisraddress address)
 {
     /* For all we know the interrupt is active. */
-    Servo_TCPWM_Int_Disable();
+    UART_SCB_IRQ_Disable();
 
-    /* Set the ISR to point to the Servo_TCPWM_Int Interrupt. */
-    Servo_TCPWM_Int_SetVector(address);
+    /* Set the ISR to point to the UART_SCB_IRQ Interrupt. */
+    UART_SCB_IRQ_SetVector(address);
 
     /* Set the priority. */
-    Servo_TCPWM_Int_SetPriority((uint8)Servo_TCPWM_Int_INTC_PRIOR_NUMBER);
+    UART_SCB_IRQ_SetPriority((uint8)UART_SCB_IRQ_INTC_PRIOR_NUMBER);
 
     /* Enable it. */
-    Servo_TCPWM_Int_Enable();
+    UART_SCB_IRQ_Enable();
 }
 
 
 /*******************************************************************************
-* Function Name: Servo_TCPWM_Int_Stop
+* Function Name: UART_SCB_IRQ_Stop
 ********************************************************************************
 *
 * Summary:
@@ -126,22 +126,22 @@ void Servo_TCPWM_Int_StartEx(cyisraddress address)
 *   None
 *
 *******************************************************************************/
-void Servo_TCPWM_Int_Stop(void)
+void UART_SCB_IRQ_Stop(void)
 {
     /* Disable this interrupt. */
-    Servo_TCPWM_Int_Disable();
+    UART_SCB_IRQ_Disable();
 
     /* Set the ISR to point to the passive one. */
-    Servo_TCPWM_Int_SetVector(&IntDefaultHandler);
+    UART_SCB_IRQ_SetVector(&IntDefaultHandler);
 }
 
 
 /*******************************************************************************
-* Function Name: Servo_TCPWM_Int_Interrupt
+* Function Name: UART_SCB_IRQ_Interrupt
 ********************************************************************************
 *
 * Summary:
-*   The default Interrupt Service Routine for Servo_TCPWM_Int.
+*   The default Interrupt Service Routine for UART_SCB_IRQ.
 *
 *   Add custom code between the START and END comments to keep the next version
 *   of this file from over-writing your code.
@@ -156,27 +156,27 @@ void Servo_TCPWM_Int_Stop(void)
 *   None
 *
 *******************************************************************************/
-CY_ISR(Servo_TCPWM_Int_Interrupt)
+CY_ISR(UART_SCB_IRQ_Interrupt)
 {
-    #ifdef Servo_TCPWM_Int_INTERRUPT_INTERRUPT_CALLBACK
-        Servo_TCPWM_Int_Interrupt_InterruptCallback();
-    #endif /* Servo_TCPWM_Int_INTERRUPT_INTERRUPT_CALLBACK */ 
+    #ifdef UART_SCB_IRQ_INTERRUPT_INTERRUPT_CALLBACK
+        UART_SCB_IRQ_Interrupt_InterruptCallback();
+    #endif /* UART_SCB_IRQ_INTERRUPT_INTERRUPT_CALLBACK */ 
 
     /*  Place your Interrupt code here. */
-    /* `#START Servo_TCPWM_Int_Interrupt` */
+    /* `#START UART_SCB_IRQ_Interrupt` */
 
     /* `#END` */
 }
 
 
 /*******************************************************************************
-* Function Name: Servo_TCPWM_Int_SetVector
+* Function Name: UART_SCB_IRQ_SetVector
 ********************************************************************************
 *
 * Summary:
-*   Change the ISR vector for the Interrupt. Note calling Servo_TCPWM_Int_Start
+*   Change the ISR vector for the Interrupt. Note calling UART_SCB_IRQ_Start
 *   will override any effect this method would have had. To set the vector 
-*   before the component has been started use Servo_TCPWM_Int_StartEx instead.
+*   before the component has been started use UART_SCB_IRQ_StartEx instead.
 * 
 *   When defining ISR functions, the CY_ISR and CY_ISR_PROTO macros should be 
 *   used to provide consistent definition across compilers:
@@ -196,14 +196,14 @@ CY_ISR(Servo_TCPWM_Int_Interrupt)
 *   None
 *
 *******************************************************************************/
-void Servo_TCPWM_Int_SetVector(cyisraddress address)
+void UART_SCB_IRQ_SetVector(cyisraddress address)
 {
-    CyRamVectors[CYINT_IRQ_BASE + Servo_TCPWM_Int__INTC_NUMBER] = address;
+    CyRamVectors[CYINT_IRQ_BASE + UART_SCB_IRQ__INTC_NUMBER] = address;
 }
 
 
 /*******************************************************************************
-* Function Name: Servo_TCPWM_Int_GetVector
+* Function Name: UART_SCB_IRQ_GetVector
 ********************************************************************************
 *
 * Summary:
@@ -216,22 +216,22 @@ void Servo_TCPWM_Int_SetVector(cyisraddress address)
 *   Address of the ISR in the interrupt vector table.
 *
 *******************************************************************************/
-cyisraddress Servo_TCPWM_Int_GetVector(void)
+cyisraddress UART_SCB_IRQ_GetVector(void)
 {
-    return CyRamVectors[CYINT_IRQ_BASE + Servo_TCPWM_Int__INTC_NUMBER];
+    return CyRamVectors[CYINT_IRQ_BASE + UART_SCB_IRQ__INTC_NUMBER];
 }
 
 
 /*******************************************************************************
-* Function Name: Servo_TCPWM_Int_SetPriority
+* Function Name: UART_SCB_IRQ_SetPriority
 ********************************************************************************
 *
 * Summary:
 *   Sets the Priority of the Interrupt. 
 *
-*   Note calling Servo_TCPWM_Int_Start or Servo_TCPWM_Int_StartEx will 
+*   Note calling UART_SCB_IRQ_Start or UART_SCB_IRQ_StartEx will 
 *   override any effect this API would have had. This API should only be called
-*   after Servo_TCPWM_Int_Start or Servo_TCPWM_Int_StartEx has been called. 
+*   after UART_SCB_IRQ_Start or UART_SCB_IRQ_StartEx has been called. 
 *   To set the initial priority for the component, use the Design-Wide Resources
 *   Interrupt Editor.
 *
@@ -246,20 +246,20 @@ cyisraddress Servo_TCPWM_Int_GetVector(void)
 *   None
 *
 *******************************************************************************/
-void Servo_TCPWM_Int_SetPriority(uint8 priority)
+void UART_SCB_IRQ_SetPriority(uint8 priority)
 {
 	uint8 interruptState;
-    uint32 priorityOffset = ((Servo_TCPWM_Int__INTC_NUMBER % 4u) * 8u) + 6u;
+    uint32 priorityOffset = ((UART_SCB_IRQ__INTC_NUMBER % 4u) * 8u) + 6u;
     
 	interruptState = CyEnterCriticalSection();
-    *Servo_TCPWM_Int_INTC_PRIOR = (*Servo_TCPWM_Int_INTC_PRIOR & (uint32)(~Servo_TCPWM_Int__INTC_PRIOR_MASK)) |
+    *UART_SCB_IRQ_INTC_PRIOR = (*UART_SCB_IRQ_INTC_PRIOR & (uint32)(~UART_SCB_IRQ__INTC_PRIOR_MASK)) |
                                     ((uint32)priority << priorityOffset);
 	CyExitCriticalSection(interruptState);
 }
 
 
 /*******************************************************************************
-* Function Name: Servo_TCPWM_Int_GetPriority
+* Function Name: UART_SCB_IRQ_GetPriority
 ********************************************************************************
 *
 * Summary:
@@ -274,19 +274,19 @@ void Servo_TCPWM_Int_SetPriority(uint8 priority)
 *    PSoC 4: Priority is from 0 to 3.
 *
 *******************************************************************************/
-uint8 Servo_TCPWM_Int_GetPriority(void)
+uint8 UART_SCB_IRQ_GetPriority(void)
 {
     uint32 priority;
-	uint32 priorityOffset = ((Servo_TCPWM_Int__INTC_NUMBER % 4u) * 8u) + 6u;
+	uint32 priorityOffset = ((UART_SCB_IRQ__INTC_NUMBER % 4u) * 8u) + 6u;
 
-    priority = (*Servo_TCPWM_Int_INTC_PRIOR & Servo_TCPWM_Int__INTC_PRIOR_MASK) >> priorityOffset;
+    priority = (*UART_SCB_IRQ_INTC_PRIOR & UART_SCB_IRQ__INTC_PRIOR_MASK) >> priorityOffset;
 
     return (uint8)priority;
 }
 
 
 /*******************************************************************************
-* Function Name: Servo_TCPWM_Int_Enable
+* Function Name: UART_SCB_IRQ_Enable
 ********************************************************************************
 *
 * Summary:
@@ -301,15 +301,15 @@ uint8 Servo_TCPWM_Int_GetPriority(void)
 *   None
 *
 *******************************************************************************/
-void Servo_TCPWM_Int_Enable(void)
+void UART_SCB_IRQ_Enable(void)
 {
     /* Enable the general interrupt. */
-    *Servo_TCPWM_Int_INTC_SET_EN = Servo_TCPWM_Int__INTC_MASK;
+    *UART_SCB_IRQ_INTC_SET_EN = UART_SCB_IRQ__INTC_MASK;
 }
 
 
 /*******************************************************************************
-* Function Name: Servo_TCPWM_Int_GetState
+* Function Name: UART_SCB_IRQ_GetState
 ********************************************************************************
 *
 * Summary:
@@ -322,15 +322,15 @@ void Servo_TCPWM_Int_Enable(void)
 *   1 if enabled, 0 if disabled.
 *
 *******************************************************************************/
-uint8 Servo_TCPWM_Int_GetState(void)
+uint8 UART_SCB_IRQ_GetState(void)
 {
     /* Get the state of the general interrupt. */
-    return ((*Servo_TCPWM_Int_INTC_SET_EN & (uint32)Servo_TCPWM_Int__INTC_MASK) != 0u) ? 1u:0u;
+    return ((*UART_SCB_IRQ_INTC_SET_EN & (uint32)UART_SCB_IRQ__INTC_MASK) != 0u) ? 1u:0u;
 }
 
 
 /*******************************************************************************
-* Function Name: Servo_TCPWM_Int_Disable
+* Function Name: UART_SCB_IRQ_Disable
 ********************************************************************************
 *
 * Summary:
@@ -343,15 +343,15 @@ uint8 Servo_TCPWM_Int_GetState(void)
 *   None
 *
 *******************************************************************************/
-void Servo_TCPWM_Int_Disable(void)
+void UART_SCB_IRQ_Disable(void)
 {
     /* Disable the general interrupt. */
-    *Servo_TCPWM_Int_INTC_CLR_EN = Servo_TCPWM_Int__INTC_MASK;
+    *UART_SCB_IRQ_INTC_CLR_EN = UART_SCB_IRQ__INTC_MASK;
 }
 
 
 /*******************************************************************************
-* Function Name: Servo_TCPWM_Int_SetPending
+* Function Name: UART_SCB_IRQ_SetPending
 ********************************************************************************
 *
 * Summary:
@@ -370,14 +370,14 @@ void Servo_TCPWM_Int_Disable(void)
 *   interrupts).
 *
 *******************************************************************************/
-void Servo_TCPWM_Int_SetPending(void)
+void UART_SCB_IRQ_SetPending(void)
 {
-    *Servo_TCPWM_Int_INTC_SET_PD = Servo_TCPWM_Int__INTC_MASK;
+    *UART_SCB_IRQ_INTC_SET_PD = UART_SCB_IRQ__INTC_MASK;
 }
 
 
 /*******************************************************************************
-* Function Name: Servo_TCPWM_Int_ClearPending
+* Function Name: UART_SCB_IRQ_ClearPending
 ********************************************************************************
 *
 * Summary:
@@ -395,9 +395,9 @@ void Servo_TCPWM_Int_SetPending(void)
 *   None
 *
 *******************************************************************************/
-void Servo_TCPWM_Int_ClearPending(void)
+void UART_SCB_IRQ_ClearPending(void)
 {
-    *Servo_TCPWM_Int_INTC_CLR_PD = Servo_TCPWM_Int__INTC_MASK;
+    *UART_SCB_IRQ_INTC_CLR_PD = UART_SCB_IRQ__INTC_MASK;
 }
 
 #endif /* End check for removal by optimization */

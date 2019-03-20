@@ -56,9 +56,7 @@ int validate_array()
 }
 
 void convert_command_to_gcode()
-{
-    char commandBuffer[20];
-    
+{    
     char buffer[2];
     
     CyBle_ProcessEvents();
@@ -94,6 +92,8 @@ void convert_command_to_gcode()
     
     buffer[1] = commandArray[1];
     
+    char commandBuffer[20];
+    
     sprintf(commandBuffer, "G01 X1%c Y1%c F500\r\n", buffer[0], buffer[1]);
     //sprintf(commandBuffer, "G01 X10 Y10 F500\r\n");
     
@@ -105,7 +105,7 @@ void convert_command_to_gcode()
         sprintf(commandBuffer, "G01 X11 Y11 F500\r\n");
         counter = 0;
     }*/
-    //UART_UartPutString(commandBuffer);
+    UART_UartPutString(commandBuffer);
     
     for(uint8 i = 0; i < sizeof(commandBuffer); i++) {
         process_ble_data(commandBuffer[i]);

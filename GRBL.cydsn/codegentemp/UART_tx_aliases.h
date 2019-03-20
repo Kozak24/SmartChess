@@ -1,5 +1,5 @@
 /*******************************************************************************
-* File Name: Pseudo_Direction_Z.h  
+* File Name: UART_tx.h  
 * Version 2.20
 *
 * Description:
@@ -15,8 +15,8 @@
 * the software package with which this file was provided.
 *******************************************************************************/
 
-#if !defined(CY_PINS_Pseudo_Direction_Z_ALIASES_H) /* Pins Pseudo_Direction_Z_ALIASES_H */
-#define CY_PINS_Pseudo_Direction_Z_ALIASES_H
+#if !defined(CY_PINS_UART_tx_ALIASES_H) /* Pins UART_tx_ALIASES_H */
+#define CY_PINS_UART_tx_ALIASES_H
 
 #include "cytypes.h"
 #include "cyfitter.h"
@@ -26,17 +26,17 @@
 /***************************************
 *              Constants        
 ***************************************/
-#define Pseudo_Direction_Z_0			(Pseudo_Direction_Z__0__PC)
-#define Pseudo_Direction_Z_0_PS		(Pseudo_Direction_Z__0__PS)
-#define Pseudo_Direction_Z_0_PC		(Pseudo_Direction_Z__0__PC)
-#define Pseudo_Direction_Z_0_DR		(Pseudo_Direction_Z__0__DR)
-#define Pseudo_Direction_Z_0_SHIFT	(Pseudo_Direction_Z__0__SHIFT)
-#define Pseudo_Direction_Z_0_INTR	((uint16)((uint16)0x0003u << (Pseudo_Direction_Z__0__SHIFT*2u)))
+#define UART_tx_0			(UART_tx__0__PC)
+#define UART_tx_0_PS		(UART_tx__0__PS)
+#define UART_tx_0_PC		(UART_tx__0__PC)
+#define UART_tx_0_DR		(UART_tx__0__DR)
+#define UART_tx_0_SHIFT	(UART_tx__0__SHIFT)
+#define UART_tx_0_INTR	((uint16)((uint16)0x0003u << (UART_tx__0__SHIFT*2u)))
 
-#define Pseudo_Direction_Z_INTR_ALL	 ((uint16)(Pseudo_Direction_Z_0_INTR))
+#define UART_tx_INTR_ALL	 ((uint16)(UART_tx_0_INTR))
 
 
-#endif /* End Pins Pseudo_Direction_Z_ALIASES_H */
+#endif /* End Pins UART_tx_ALIASES_H */
 
 
 /* [] END OF FILE */

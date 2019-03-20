@@ -36,9 +36,8 @@
 #define Z_AXIS 2
 // #define A_AXIS 3
     
-// Servo motors index values. Must start with 0 and be continuous.
-#define SERVO_A 0 // Servo A indexing value                             <--NEW_LINE
-#define SERVO_B 1 // Servo B indexing value                             <--NEW_LINE
+#define SERVO_A 0
+#define SERVO_B 1
 
 // CoreXY motor assignments. DO NOT ALTER.
 // NOTE: If the A and B motor axis bindings are changed, this effects the CoreXY equations.

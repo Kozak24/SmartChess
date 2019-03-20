@@ -1,257 +1,236 @@
-/*******************************************************************************
-* File Name: UART_BOOT.c
-* Version 2.50
+/***************************************************************************//**
+* \file UART_BOOT.c
+* \version 4.0
 *
-* Description:
-*  This file provides the source code of bootloader communication APIs for the
-*  UART component.
+* \brief
+*  This file provides the source code of the bootloader communication APIs
+*  for the SCB Component Unconfigured mode.
 *
 * Note:
 *
 ********************************************************************************
-* Copyright 2008-2015, Cypress Semiconductor Corporation.  All rights reserved.
+* \copyright
+* Copyright 2013-2017, Cypress Semiconductor Corporation.  All rights reserved.
 * You may use this file only in accordance with the license, terms, conditions,
 * disclaimers, and limitations in the end user license agreement accompanying
 * the software package with which this file was provided.
 *******************************************************************************/
 
-#include "UART.h"
+#include "UART_BOOT.h"
 
-#if defined(CYDEV_BOOTLOADER_IO_COMP) && (0u != ((CYDEV_BOOTLOADER_IO_COMP == CyBtldr_UART) || \
-                                          (CYDEV_BOOTLOADER_IO_COMP == CyBtldr_Custom_Interface)))
-
+#if defined(CYDEV_BOOTLOADER_IO_COMP) && (UART_BTLDR_COMM_ENABLED) && \
+                                (UART_SCB_MODE_UNCONFIG_CONST_CFG)
 
 /*******************************************************************************
 * Function Name: UART_CyBtldrCommStart
-********************************************************************************
+****************************************************************************//**
 *
-* Summary:
-*  Starts the UART communication component.
-*
-* Parameters:
-*  None
-*
-* Return:
-*  None
-*
-* Side Effects:
-*  This component automatically enables global interrupt.
+*  Starts UART component. After this function call the component is 
+*  ready for communication.
 *
 *******************************************************************************/
-void UART_CyBtldrCommStart(void) CYSMALL 
+void UART_CyBtldrCommStart(void)
 {
-    /* Start UART component and clear the Tx,Rx buffers */
-    UART_Start();
-    UART_ClearRxBuffer();
-    UART_ClearTxBuffer();
+    if (UART_SCB_MODE_I2C_RUNTM_CFG)
+    {
+        UART_I2CCyBtldrCommStart();
+    }
+    else if (UART_SCB_MODE_EZI2C_RUNTM_CFG)
+    {
+        UART_EzI2CCyBtldrCommStart();
+    }
+#if (!UART_CY_SCBIP_V1)
+    else if (UART_SCB_MODE_SPI_RUNTM_CFG)
+    {
+        UART_SpiCyBtldrCommStart();
+    }
+    else if (UART_SCB_MODE_UART_RUNTM_CFG)
+    {
+        UART_UartCyBtldrCommStart();
+    }
+#endif /* (!UART_CY_SCBIP_V1) */
+    else
+    {
+        /* Unknown mode: do nothing */
+    }
 }
 
 
 /*******************************************************************************
 * Function Name: UART_CyBtldrCommStop
-********************************************************************************
+****************************************************************************//**
 *
-* Summary:
-*  Disables the communication component and disables the interrupt.
-*
-* Parameters:
-*  None
-*
-* Return:
-*  None
+*  Stops UART component.
 *
 *******************************************************************************/
-void UART_CyBtldrCommStop(void) CYSMALL 
+void UART_CyBtldrCommStop(void)
 {
-    /* Stop UART component */
-    UART_Stop();
+    if (UART_SCB_MODE_I2C_RUNTM_CFG)
+    {
+        UART_I2CCyBtldrCommStop();
+    }
+    else if (UART_SCB_MODE_EZI2C_RUNTM_CFG)
+    {
+        UART_EzI2CCyBtldrCommStop();
+    }
+#if (!UART_CY_SCBIP_V1)
+    else if (UART_SCB_MODE_SPI_RUNTM_CFG)
+    {
+        UART_SpiCyBtldrCommStop();
+    }
+    else if (UART_SCB_MODE_UART_RUNTM_CFG)
+    {
+        UART_UartCyBtldrCommStop();
+    }
+#endif /* (!UART_CY_SCBIP_V1) */
+    else
+    {
+        /* Unknown mode: do nothing */
+    }
 }
 
 
 /*******************************************************************************
 * Function Name: UART_CyBtldrCommReset
-********************************************************************************
+****************************************************************************//**
 *
-* Summary:
-*  Resets the receive and transmit communication Buffers.
-*
-* Parameters:
-*  None
-*
-* Return:
-*  None
+*  Clears UART component buffers.
 *
 *******************************************************************************/
-void UART_CyBtldrCommReset(void) CYSMALL 
+void UART_CyBtldrCommReset(void)
 {
-    /* Clear RX and TX buffers */
-    UART_ClearRxBuffer();
-    UART_ClearTxBuffer();
-}
-
-
-/*******************************************************************************
-* Function Name: UART_CyBtldrCommWrite
-********************************************************************************
-*
-* Summary:
-*  Allows the caller to write data to the boot loader host. This function uses
-* a blocking write function for writing data using UART communication component.
-*
-* Parameters:
-*  pData:    A pointer to the block of data to send to the device
-*  size:     The number of bytes to write.
-*  count:    Pointer to an unsigned short variable to write the number of
-*             bytes actually written.
-*  timeOut:  Number of units to wait before returning because of a timeout.
-*
-* Return:
-*   cystatus: This function will return CYRET_SUCCESS if data is sent
-*             successfully.
-*
-* Side Effects:
-*  This function should be called after command was received .
-*
-*******************************************************************************/
-cystatus UART_CyBtldrCommWrite(const uint8 pData[], uint16 size, uint16 * count, uint8 timeOut) CYSMALL
-         
-{
-    uint16 bufIndex = 0u;
-
-    if(0u != timeOut)
+    if(UART_SCB_MODE_I2C_RUNTM_CFG)
     {
-        /* Suppress compiler warning */
+        UART_I2CCyBtldrCommReset();
     }
-
-    /* Clear receive buffers */
-    UART_ClearRxBuffer();
-
-    /* Write TX data using blocking function */
-    while(bufIndex < size)
+    else if(UART_SCB_MODE_EZI2C_RUNTM_CFG)
     {
-        UART_PutChar(pData[bufIndex]);
-        bufIndex++;
+        UART_EzI2CCyBtldrCommReset();
     }
-
-    /* Return success code */
-    *count = size;
-
-    return (CYRET_SUCCESS);
+#if (!UART_CY_SCBIP_V1)
+    else if(UART_SCB_MODE_SPI_RUNTM_CFG)
+    {
+        UART_SpiCyBtldrCommReset();
+    }
+    else if(UART_SCB_MODE_UART_RUNTM_CFG)
+    {
+        UART_UartCyBtldrCommReset();
+    }
+#endif /* (!UART_CY_SCBIP_V1) */
+    else
+    {
+        /* Unknown mode: do nothing */
+    }
 }
 
 
 /*******************************************************************************
 * Function Name: UART_CyBtldrCommRead
-********************************************************************************
+****************************************************************************//**
 *
-* Summary:
-*  Receives the command.
+*  Allows the caller to read data from the bootloader host (the host writes the 
+*  data). The function handles polling to allow a block of data to be completely
+*  received from the host device.
 *
-* Parameters:
-*  pData:    A pointer to the area to store the block of data received
-*             from the device.
-*  size:     Maximum size of the read buffer
-*  count:    Pointer to an unsigned short variable to write the number
-*             of bytes actually read.
-*  timeOut:  Number of units to wait before returning because of a timeOut.
-*            Time out is measured in 10s of ms.
+*  \param pData: Pointer to storage for the block of data to be read from the
+*   bootloader host.
+*  \param size: Number of bytes to be read.
+*  \param count: Pointer to the variable to write the number of bytes actually
+*   read.
+*  \param timeOut: Number of units in 10 ms to wait before returning because of a
+*   timeout.
 *
-* Return:
-*  cystatus: This function will return CYRET_SUCCESS if at least one byte is
-*            received successfully within the time out interval. If no data is
-*            received  this function will return CYRET_EMPTY.
+* \return
+*  \return
+*  cystatus: Returns CYRET_SUCCESS if no problem was encountered or returns the
+*  value that best describes the problem. For more information refer to 
+*  the “Return Codes” section of the System Reference Guide.
 *
-*  BYTE2BYTE_TIME_OUT is used for detecting time out marking end of block data
-*  from host. This has to be set to a value which is greater than the expected
-*  maximum delay between two bytes during a block/packet transmission from the
-*  host. You have to account for the delay in hardware converters while
-*  calculating this value, if you are using any USB-UART bridges.
 *******************************************************************************/
-cystatus UART_CyBtldrCommRead(uint8 pData[], uint16 size, uint16 * count, uint8 timeOut) CYSMALL
-         
+cystatus UART_CyBtldrCommRead(uint8 pData[], uint16 size, uint16 * count, uint8 timeOut)
 {
-    uint16 iCntr;
-    uint16 dataIndexCntr;
-    uint16 tempCount;
-    uint16 oldDataCount;
+    cystatus status;
 
-    cystatus status = CYRET_EMPTY;
-
-    /* Check whether data is received within the time out period.
-    *  Time out period is in units of 10ms.
-    *  If at least one byte is received within the time out interval, wait for more data */
-    for (iCntr = 0u; iCntr < ((uint16)10u * timeOut); iCntr++)
+    if(UART_SCB_MODE_I2C_RUNTM_CFG)
     {
-        /* If at least one byte is received within the timeout interval
-        *  enter the next loop waiting for more data reception
-        */
-        if(0u != UART_GetRxBufferSize())
-        {
-            /* Wait for more data until 25ms byte to byte time out interval.
-            * If no data is received during the last 25 ms(BYTE2BYTE_TIME_OUT)
-            * then it is considered as end of transmitted data block(packet)
-            * from the host and the program execution will break from the
-            * data awaiting loop with status=CYRET_SUCCESS
-            */
-            do
-            {
-                oldDataCount = UART_GetRxBufferSize();
-                CyDelay(UART_BYTE2BYTE_TIME_OUT);
-            }
-            while(UART_GetRxBufferSize() > oldDataCount);
-
-            status = CYRET_SUCCESS;
-            break;
-        }
-        /* If the data is not received, give a delay of 
-        *  UART_BL_CHK_DELAY_MS and check again until the timeOut specified.
-        */
-        else
-        {
-            CyDelay(UART_BL_CHK_DELAY_MS);
-        }
+        status = UART_I2CCyBtldrCommRead(pData, size, count, timeOut);
+    }
+    else if(UART_SCB_MODE_EZI2C_RUNTM_CFG)
+    {
+        status = UART_EzI2CCyBtldrCommRead(pData, size, count, timeOut);
+    }
+#if (!UART_CY_SCBIP_V1)
+    else if(UART_SCB_MODE_SPI_RUNTM_CFG)
+    {
+        status = UART_SpiCyBtldrCommRead(pData, size, count, timeOut);
+    }
+    else if(UART_SCB_MODE_UART_RUNTM_CFG)
+    {
+        status = UART_UartCyBtldrCommRead(pData, size, count, timeOut);
+    }
+#endif /* (!UART_CY_SCBIP_V1) */
+    else
+    {
+        status = CYRET_INVALID_STATE; /* Unknown mode: return invalid status */
     }
 
-    /* Initialize the data read indexes and Count value */
-    *count = 0u;
-    dataIndexCntr = 0u;
-
-    /* If GetRxBufferSize()>0 , move the received data to the pData buffer */
-    while(UART_GetRxBufferSize() > 0u)
-    {
-        tempCount = UART_GetRxBufferSize();
-        *count  =(*count) + tempCount;
-
-        /* Check if buffer overflow will occur before moving the data */
-        if(*count < size)
-        {
-            for (iCntr = 0u; iCntr < tempCount; iCntr++)
-            {
-                /* Read the data and move it to the pData buffer */
-                pData[dataIndexCntr] = UART_ReadRxData();
-                dataIndexCntr++;
-            }
-
-            /* Check if the last received byte is end of packet defined by bootloader
-            *  If not wait for additional UART_WAIT_EOP_DELAY ms.
-            */
-            if(pData[dataIndexCntr - 1u] != UART_PACKET_EOP)
-            {
-                CyDelay(UART_WAIT_EOP_DELAY);
-            }
-        }
-        /* If there is no space to move data, break from the loop */
-        else
-        {
-            *count = (*count) - tempCount;
-            break;
-        }
-    }
-
-    return (status);
+    return(status);
 }
 
-#endif /* end CYDEV_BOOTLOADER_IO_COMP */
+
+/*******************************************************************************
+* Function Name: UART_CyBtldrCommWrite
+****************************************************************************//**
+*
+*  Allows the caller to write data to the bootloader host (the host reads the 
+*  data). The function does not use timeout and returns after data has been copied
+*  into the slave read buffer. This data available to be read by the bootloader
+*  host until following host data write.
+*
+*  \param pData: Pointer to the block of data to be written to the bootloader host.
+*  \param size: Number of bytes to be written.
+*  \param count: Pointer to the variable to write the number of bytes actually
+*   written.
+*  \param timeOut: Number of units in 10 ms to wait before returning because of a
+*   timeout.
+*
+*  \return
+*  cystatus: Returns CYRET_SUCCESS if no problem was encountered or returns the
+*  value that best describes the problem. For more information refer to 
+*  the “Return Codes” section of the System Reference Guide.
+*
+*******************************************************************************/
+cystatus UART_CyBtldrCommWrite(const uint8 pData[], uint16 size, uint16 * count, uint8 timeOut)
+{
+    cystatus status;
+
+    if(UART_SCB_MODE_I2C_RUNTM_CFG)
+    {
+        status = UART_I2CCyBtldrCommWrite(pData, size, count, timeOut);
+    }
+    else if(UART_SCB_MODE_EZI2C_RUNTM_CFG)
+    {
+        status = UART_EzI2CCyBtldrCommWrite(pData, size, count, timeOut);
+    }
+#if (!UART_CY_SCBIP_V1)
+    else if(UART_SCB_MODE_SPI_RUNTM_CFG)
+    {
+        status = UART_SpiCyBtldrCommWrite(pData, size, count, timeOut);
+    }
+    else if(UART_SCB_MODE_UART_RUNTM_CFG)
+    {
+        status = UART_UartCyBtldrCommWrite(pData, size, count, timeOut);
+    }
+#endif /* (!UART_CY_SCBIP_V1) */
+    else
+    {
+        status = CYRET_INVALID_STATE; /* Unknown mode: return invalid status */
+    }
+
+    return(status);
+}
+
+#endif /* defined(CYDEV_BOOTLOADER_IO_COMP) && (UART_BTLDR_COMM_MODE_ENABLED) */
 
 
 /* [] END OF FILE */

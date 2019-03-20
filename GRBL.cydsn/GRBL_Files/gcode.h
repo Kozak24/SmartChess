@@ -138,6 +138,11 @@
 // Modal Group G12: Active work coordinate system
 // N/A: Stores coordinate system value (54-59) to change to.
 
+#ifdef SERVOMOTORS
+    #define ZERO_DEGREE_PERIOD  (200)
+    #define ONE_DEGREE_PERIOD   (4.444)
+#endif
+
 // Define parameter word mapping.
 #define WORD_F  0
 #define WORD_I  1
@@ -213,7 +218,7 @@ typedef struct {
   uint8_t t;       // Tool selection
   float xyz[3];    // X,Y,Z Translational axes
   #ifdef SERVOMOTORS
-    float ab[2];   // Servo A & B PWM period values                                <--NEW_LINE
+    uint16 ab[2];
   #endif
 } gc_values_t;
 
@@ -236,7 +241,6 @@ typedef struct {
 
   #ifdef SERVOMOTORS
     float servo_a_period;
-    float servo_b_period;
   #endif
 } parser_state_t;
 extern parser_state_t gc_state;

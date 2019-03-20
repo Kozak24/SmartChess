@@ -62,8 +62,10 @@ uint8_t serial_get_rx_buffer_count();
 uint8_t serial_get_tx_buffer_count();
 
 /******************************************PSoC*******************************************/
-CY_ISR( Rx_Int_Handler ); //                                                    <--NEW_LINE
-CY_ISR( Tx_Int_Handler ); //                                                    <--NEW_LINE
+//CY_ISR( Rx_Int_Handler ); //                                                    <--NEW_LINE
+//CY_ISR( Tx_Int_Handler ); //                                                    <--NEW_LINE
+//CY_ISR( Tx_Rx_Int_Handler );//                                                    <--NEW_LINE
+void Tx_Rx_Int_Handler(void);
 
 // Function to process incoming data from PSoC BLE component
 void process_ble_data(uint8_t data);

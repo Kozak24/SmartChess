@@ -1,3 +1,3 @@
-# Component constraints for C:\My\MicroControllers\SmartChess hardware\SmartChess\GRBL.cydsn\TopDesign\TopDesign.cysch
-# Project: C:\My\MicroControllers\SmartChess hardware\SmartChess\GRBL.cydsn\GRBL.cyprj
-# Date: Fri, 11 Jan 2019 14:46:00 GMT
+# Component constraints for C:\My\SmartChess\GRBL.cydsn\TopDesign\TopDesign.cysch
+# Project: C:\My\SmartChess\GRBL.cydsn\GRBL.cyprj
+# Date: Wed, 20 Mar 2019 17:24:17 GMT

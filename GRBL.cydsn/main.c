@@ -23,10 +23,10 @@
 #include "grbl.h"
 
 int counter = 0;
-CY_ISR(Servo_TCPWM_Int_Handler) {
+CY_ISR(Servo_PWM_Int_Handler) {
     counter++;
     if(counter == 15000) {
-        Servo_TCPWM_Stop();
+        Servo_PWM_Stop();
         counter = 0;
     } 
 }
@@ -70,8 +70,10 @@ int main(void)
 
   /***************Cypress components******************/
   Em_EEPROM_Init((uint32_t)Em_EEPROM_em_EepromStorage);
-  Servo_TCPWM_Start();
-  Servo_TCPWM_Int_StartEx(Servo_TCPWM_Int_Handler);
+  #ifdef SERVOMOTORS
+    Servo_PWM_Start();
+    //Servo_PWM_Int_StartEx(Servo_PWM_Int_Handler);
+  #endif
   CyBle_Start(BleCallBack);
   /***************************************************/
     

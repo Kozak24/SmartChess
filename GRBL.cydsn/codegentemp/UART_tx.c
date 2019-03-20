@@ -1,5 +1,5 @@
 /*******************************************************************************
-* File Name: Pseudo_Direction_Z.c  
+* File Name: UART_tx.c  
 * Version 2.20
 *
 * Description:
@@ -13,35 +13,35 @@
 *******************************************************************************/
 
 #include "cytypes.h"
-#include "Pseudo_Direction_Z.h"
+#include "UART_tx.h"
 
 
-#if defined(Pseudo_Direction_Z__PC)
-    #define Pseudo_Direction_Z_SetP4PinDriveMode(shift, mode)  \
+#if defined(UART_tx__PC)
+    #define UART_tx_SetP4PinDriveMode(shift, mode)  \
     do { \
-        Pseudo_Direction_Z_PC =   (Pseudo_Direction_Z_PC & \
-                                (uint32)(~(uint32)(Pseudo_Direction_Z_DRIVE_MODE_IND_MASK << \
-                                (Pseudo_Direction_Z_DRIVE_MODE_BITS * (shift))))) | \
+        UART_tx_PC =   (UART_tx_PC & \
+                                (uint32)(~(uint32)(UART_tx_DRIVE_MODE_IND_MASK << \
+                                (UART_tx_DRIVE_MODE_BITS * (shift))))) | \
                                 (uint32)((uint32)(mode) << \
-                                (Pseudo_Direction_Z_DRIVE_MODE_BITS * (shift))); \
+                                (UART_tx_DRIVE_MODE_BITS * (shift))); \
     } while (0)
 #else
     #if (CY_PSOC4_4200L)
-        #define Pseudo_Direction_Z_SetP4PinDriveMode(shift, mode)  \
+        #define UART_tx_SetP4PinDriveMode(shift, mode)  \
         do { \
-            Pseudo_Direction_Z_USBIO_CTRL_REG = (Pseudo_Direction_Z_USBIO_CTRL_REG & \
-                                    (uint32)(~(uint32)(Pseudo_Direction_Z_DRIVE_MODE_IND_MASK << \
-                                    (Pseudo_Direction_Z_DRIVE_MODE_BITS * (shift))))) | \
+            UART_tx_USBIO_CTRL_REG = (UART_tx_USBIO_CTRL_REG & \
+                                    (uint32)(~(uint32)(UART_tx_DRIVE_MODE_IND_MASK << \
+                                    (UART_tx_DRIVE_MODE_BITS * (shift))))) | \
                                     (uint32)((uint32)(mode) << \
-                                    (Pseudo_Direction_Z_DRIVE_MODE_BITS * (shift))); \
+                                    (UART_tx_DRIVE_MODE_BITS * (shift))); \
         } while (0)
     #endif
 #endif
   
 
-#if defined(Pseudo_Direction_Z__PC) || (CY_PSOC4_4200L) 
+#if defined(UART_tx__PC) || (CY_PSOC4_4200L) 
     /*******************************************************************************
-    * Function Name: Pseudo_Direction_Z_SetDriveMode
+    * Function Name: UART_tx_SetDriveMode
     ****************************************************************************//**
     *
     * \brief Sets the drive mode for each of the Pins component's pins.
@@ -67,17 +67,17 @@
     *  APIs (primary method) or disable interrupts around this function.
     *
     * \funcusage
-    *  \snippet Pseudo_Direction_Z_SUT.c usage_Pseudo_Direction_Z_SetDriveMode
+    *  \snippet UART_tx_SUT.c usage_UART_tx_SetDriveMode
     *******************************************************************************/
-    void Pseudo_Direction_Z_SetDriveMode(uint8 mode)
+    void UART_tx_SetDriveMode(uint8 mode)
     {
-		Pseudo_Direction_Z_SetP4PinDriveMode(Pseudo_Direction_Z__0__SHIFT, mode);
+		UART_tx_SetP4PinDriveMode(UART_tx__0__SHIFT, mode);
     }
 #endif
 
 
 /*******************************************************************************
-* Function Name: Pseudo_Direction_Z_Write
+* Function Name: UART_tx_Write
 ****************************************************************************//**
 *
 * \brief Writes the value to the physical port (data output register), masking
@@ -106,18 +106,18 @@
 *  this function.
 *
 * \funcusage
-*  \snippet Pseudo_Direction_Z_SUT.c usage_Pseudo_Direction_Z_Write
+*  \snippet UART_tx_SUT.c usage_UART_tx_Write
 *******************************************************************************/
-void Pseudo_Direction_Z_Write(uint8 value)
+void UART_tx_Write(uint8 value)
 {
-    uint8 drVal = (uint8)(Pseudo_Direction_Z_DR & (uint8)(~Pseudo_Direction_Z_MASK));
-    drVal = (drVal | ((uint8)(value << Pseudo_Direction_Z_SHIFT) & Pseudo_Direction_Z_MASK));
-    Pseudo_Direction_Z_DR = (uint32)drVal;
+    uint8 drVal = (uint8)(UART_tx_DR & (uint8)(~UART_tx_MASK));
+    drVal = (drVal | ((uint8)(value << UART_tx_SHIFT) & UART_tx_MASK));
+    UART_tx_DR = (uint32)drVal;
 }
 
 
 /*******************************************************************************
-* Function Name: Pseudo_Direction_Z_Read
+* Function Name: UART_tx_Read
 ****************************************************************************//**
 *
 * \brief Reads the associated physical port (pin status register) and masks 
@@ -131,16 +131,16 @@ void Pseudo_Direction_Z_Write(uint8 value)
 *  The current value for the pins in the component as a right justified number.
 *
 * \funcusage
-*  \snippet Pseudo_Direction_Z_SUT.c usage_Pseudo_Direction_Z_Read  
+*  \snippet UART_tx_SUT.c usage_UART_tx_Read  
 *******************************************************************************/
-uint8 Pseudo_Direction_Z_Read(void)
+uint8 UART_tx_Read(void)
 {
-    return (uint8)((Pseudo_Direction_Z_PS & Pseudo_Direction_Z_MASK) >> Pseudo_Direction_Z_SHIFT);
+    return (uint8)((UART_tx_PS & UART_tx_MASK) >> UART_tx_SHIFT);
 }
 
 
 /*******************************************************************************
-* Function Name: Pseudo_Direction_Z_ReadDataReg
+* Function Name: UART_tx_ReadDataReg
 ****************************************************************************//**
 *
 * \brief Reads the associated physical port's data output register and masks 
@@ -149,8 +149,8 @@ uint8 Pseudo_Direction_Z_Read(void)
 *
 * The data output register controls the signal applied to the physical pin in 
 * conjunction with the drive mode parameter. This is not the same as the 
-* preferred Pseudo_Direction_Z_Read() API because the 
-* Pseudo_Direction_Z_ReadDataReg() reads the data register instead of the status 
+* preferred UART_tx_Read() API because the 
+* UART_tx_ReadDataReg() reads the data register instead of the status 
 * register. For output pins this is a useful function to determine the value 
 * just written to the pin.
 *
@@ -159,16 +159,16 @@ uint8 Pseudo_Direction_Z_Read(void)
 *  justified number for the component instance.
 *
 * \funcusage
-*  \snippet Pseudo_Direction_Z_SUT.c usage_Pseudo_Direction_Z_ReadDataReg 
+*  \snippet UART_tx_SUT.c usage_UART_tx_ReadDataReg 
 *******************************************************************************/
-uint8 Pseudo_Direction_Z_ReadDataReg(void)
+uint8 UART_tx_ReadDataReg(void)
 {
-    return (uint8)((Pseudo_Direction_Z_DR & Pseudo_Direction_Z_MASK) >> Pseudo_Direction_Z_SHIFT);
+    return (uint8)((UART_tx_DR & UART_tx_MASK) >> UART_tx_SHIFT);
 }
 
 
 /*******************************************************************************
-* Function Name: Pseudo_Direction_Z_SetInterruptMode
+* Function Name: UART_tx_SetInterruptMode
 ****************************************************************************//**
 *
 * \brief Configures the interrupt mode for each of the Pins component's
@@ -181,12 +181,12 @@ uint8 Pseudo_Direction_Z_ReadDataReg(void)
 * \param position
 *  The pin position as listed in the Pins component. You may OR these to be 
 *  able to configure the interrupt mode of multiple pins within a Pins 
-*  component. Or you may use Pseudo_Direction_Z_INTR_ALL to configure the
+*  component. Or you may use UART_tx_INTR_ALL to configure the
 *  interrupt mode of all the pins in the Pins component.       
-*  - Pseudo_Direction_Z_0_INTR       (First pin in the list)
-*  - Pseudo_Direction_Z_1_INTR       (Second pin in the list)
+*  - UART_tx_0_INTR       (First pin in the list)
+*  - UART_tx_1_INTR       (Second pin in the list)
 *  - ...
-*  - Pseudo_Direction_Z_INTR_ALL     (All pins in Pins component)
+*  - UART_tx_INTR_ALL     (All pins in Pins component)
 *
 * \param mode
 *  Interrupt mode for the selected pins. Valid options are documented in
@@ -202,19 +202,19 @@ uint8 Pseudo_Direction_Z_ReadDataReg(void)
 *  port.
 *
 * \funcusage
-*  \snippet Pseudo_Direction_Z_SUT.c usage_Pseudo_Direction_Z_SetInterruptMode
+*  \snippet UART_tx_SUT.c usage_UART_tx_SetInterruptMode
 *******************************************************************************/
-void Pseudo_Direction_Z_SetInterruptMode(uint16 position, uint16 mode)
+void UART_tx_SetInterruptMode(uint16 position, uint16 mode)
 {
     uint32 intrCfg;
     
-    intrCfg =  Pseudo_Direction_Z_INTCFG & (uint32)(~(uint32)position);
-    Pseudo_Direction_Z_INTCFG = intrCfg | ((uint32)position & (uint32)mode);
+    intrCfg =  UART_tx_INTCFG & (uint32)(~(uint32)position);
+    UART_tx_INTCFG = intrCfg | ((uint32)position & (uint32)mode);
 }
 
 
 /*******************************************************************************
-* Function Name: Pseudo_Direction_Z_ClearInterrupt
+* Function Name: UART_tx_ClearInterrupt
 ****************************************************************************//**
 *
 * \brief Clears any active interrupts attached with the component and returns 
@@ -231,13 +231,13 @@ void Pseudo_Direction_Z_SetInterruptMode(uint16 position, uint16 mode)
 *  those associated with the Pins component.
 *
 * \funcusage
-*  \snippet Pseudo_Direction_Z_SUT.c usage_Pseudo_Direction_Z_ClearInterrupt
+*  \snippet UART_tx_SUT.c usage_UART_tx_ClearInterrupt
 *******************************************************************************/
-uint8 Pseudo_Direction_Z_ClearInterrupt(void)
+uint8 UART_tx_ClearInterrupt(void)
 {
-	uint8 maskedStatus = (uint8)(Pseudo_Direction_Z_INTSTAT & Pseudo_Direction_Z_MASK);
-	Pseudo_Direction_Z_INTSTAT = maskedStatus;
-    return maskedStatus >> Pseudo_Direction_Z_SHIFT;
+	uint8 maskedStatus = (uint8)(UART_tx_INTSTAT & UART_tx_MASK);
+	UART_tx_INTSTAT = maskedStatus;
+    return maskedStatus >> UART_tx_SHIFT;
 }
 
 

@@ -6,7 +6,7 @@
 
 #Build Date:         Dec  5 2017 15:35:27
 
-#File Generated:     Jan 11 2019 16:46:02
+#File Generated:     Mar 20 2019 19:24:19
 
 #Purpose:            
 
@@ -44,18 +44,18 @@ Phase 2
 Phase 3
 
 Design Statistics after Packing
-    Number of Combinational MCs 	:	8
-    Number of Sequential MCs    	:	16
-    Number of DPs               	:	3
+    Number of Combinational MCs 	:	1
+    Number of Sequential MCs    	:	7
+    Number of DPs               	:	2
     Number of Controls          	:	3
-    Number of Status            	:	2
+    Number of Status            	:	1
     Number of SyncCells         	:	0
-    Number of count7cells       	:	1
+    Number of count7cells       	:	0
 
 Device Utilization Summary after Packing
-    Macrocells                  :	24/32
-    UDBS                        :	4/4
-    IOs                         :	23/38
+    Macrocells                  :	8/32
+    UDBS                        :	3/4
+    IOs                         :	22/38
 
 
 D2088: Phase 3, elapsed time : 0.0 (sec)
@@ -81,10 +81,9 @@ Clock: Clock0               | Frequency: N/A       | Target:  16.0 MHz
 Clock: Clock0(FFB)          | Frequency: N/A       | Target:  16.0 MHz
 Clock: Clock1               | Frequency: N/A       | Target:  16.0 MHz
 Clock: Clock1(FFB)          | Frequency: N/A       | Target:  16.0 MHz
-Clock: Clock_2              | Frequency: N/A       | Target:   0.0 MHz
-Clock: Clock_2(FFB)         | Frequency: N/A       | Target:   0.0 MHz
+Clock: Clock_1              | Frequency:  41.7 MHz | Target:   0.4 MHz
 Clock: CyECO                | Frequency: N/A       | Target:  24.0 MHz
-Clock: CyHFClk              | Frequency:  46.2 MHz | Target:  48.0 MHz
+Clock: CyHFClk              | Frequency: N/A       | Target:  48.0 MHz
 Clock: CyILO                | Frequency: N/A       | Target:   0.0 MHz
 Clock: CyIMO                | Frequency: N/A       | Target:  48.0 MHz
 Clock: CyLFClk              | Frequency: N/A       | Target:   0.0 MHz
@@ -92,7 +91,8 @@ Clock: CyRouted1            | Frequency: N/A       | Target:  48.0 MHz
 Clock: CySysClk             | Frequency: N/A       | Target:  48.0 MHz
 Clock: CyWCO                | Frequency: N/A       | Target:   0.0 MHz
 Clock: Step_Pulse_Clock     | Frequency: N/A       | Target:   0.3 MHz
-Clock: UART_IntClock        | Frequency:  41.7 MHz | Target:   0.9 MHz
+Clock: UART_SCBCLK          | Frequency: N/A       | Target:   1.4 MHz
+Clock: UART_SCBCLK(FFB)     | Frequency: N/A       | Target:   1.4 MHz
 
 ======================================================================
                      End of Clock Summary
@@ -109,10 +109,9 @@ Clock: Clock0               | Frequency: N/A       | Target:  16.0 MHz
 Clock: Clock0(FFB)          | Frequency: N/A       | Target:  16.0 MHz
 Clock: Clock1               | Frequency: N/A       | Target:  16.0 MHz
 Clock: Clock1(FFB)          | Frequency: N/A       | Target:  16.0 MHz
-Clock: Clock_2              | Frequency: N/A       | Target:   0.0 MHz
-Clock: Clock_2(FFB)         | Frequency: N/A       | Target:   0.0 MHz
+Clock: Clock_1              | Frequency:  41.7 MHz | Target:   0.4 MHz
 Clock: CyECO                | Frequency: N/A       | Target:  24.0 MHz
-Clock: CyHFClk              | Frequency:   2.4 MHz | Target:  48.0 MHz
+Clock: CyHFClk              | Frequency: N/A       | Target:  48.0 MHz
 Clock: CyILO                | Frequency: N/A       | Target:   0.0 MHz
 Clock: CyIMO                | Frequency: N/A       | Target:  48.0 MHz
 Clock: CyLFClk              | Frequency: N/A       | Target:   0.0 MHz
@@ -120,7 +119,8 @@ Clock: CyRouted1            | Frequency: N/A       | Target:  48.0 MHz
 Clock: CySysClk             | Frequency: N/A       | Target:  48.0 MHz
 Clock: CyWCO                | Frequency: N/A       | Target:   0.0 MHz
 Clock: Step_Pulse_Clock     | Frequency: N/A       | Target:   0.3 MHz
-Clock: UART_IntClock        | Frequency:   2.4 MHz | Target:   0.9 MHz
+Clock: UART_SCBCLK          | Frequency: N/A       | Target:   1.4 MHz
+Clock: UART_SCBCLK(FFB)     | Frequency: N/A       | Target:   1.4 MHz
 
 ======================================================================
                      End of Clock Summary
@@ -128,18 +128,18 @@ Clock: UART_IntClock        | Frequency:   2.4 MHz | Target:   0.9 MHz
 D2088: Phase 7, elapsed time : 0.1 (sec)
 
 Final Design Statistics
-    Number of Combinational MCs 	:	8
-    Number of Sequential MCs    	:	16
-    Number of DPs               	:	3
+    Number of Combinational MCs 	:	1
+    Number of Sequential MCs    	:	7
+    Number of DPs               	:	2
     Number of Controls          	:	3
-    Number of Status            	:	2
+    Number of Status            	:	1
     Number of SyncCells         	:	0
-    Number of count7cells       	:	1
-    Number of IOs       	:	23
+    Number of count7cells       	:	0
+    Number of IOs       	:	22
 
 Device Utilization Summary
-    Macrocells                  :	24/32
-    IOs                         :	23/38
+    Macrocells                  :	8/32
+    IOs                         :	22/38
 
 
 
@@ -160,10 +160,9 @@ Clock: Clock0               | Frequency: N/A       | Target:  16.0 MHz
 Clock: Clock0(FFB)          | Frequency: N/A       | Target:  16.0 MHz
 Clock: Clock1               | Frequency: N/A       | Target:  16.0 MHz
 Clock: Clock1(FFB)          | Frequency: N/A       | Target:  16.0 MHz
-Clock: Clock_2              | Frequency: N/A       | Target:   0.0 MHz
-Clock: Clock_2(FFB)         | Frequency: N/A       | Target:   0.0 MHz
+Clock: Clock_1              | Frequency:  41.7 MHz | Target:   0.4 MHz
 Clock: CyECO                | Frequency: N/A       | Target:  24.0 MHz
-Clock: CyHFClk              | Frequency:   2.6 MHz | Target:  48.0 MHz
+Clock: CyHFClk              | Frequency: N/A       | Target:  48.0 MHz
 Clock: CyILO                | Frequency: N/A       | Target:   0.0 MHz
 Clock: CyIMO                | Frequency: N/A       | Target:  48.0 MHz
 Clock: CyLFClk              | Frequency: N/A       | Target:   0.0 MHz
@@ -171,7 +170,8 @@ Clock: CyRouted1            | Frequency: N/A       | Target:  48.0 MHz
 Clock: CySysClk             | Frequency: N/A       | Target:  48.0 MHz
 Clock: CyWCO                | Frequency: N/A       | Target:   0.0 MHz
 Clock: Step_Pulse_Clock     | Frequency: N/A       | Target:   0.3 MHz
-Clock: UART_IntClock        | Frequency:   2.6 MHz | Target:   0.9 MHz
+Clock: UART_SCBCLK          | Frequency: N/A       | Target:   1.4 MHz
+Clock: UART_SCBCLK(FFB)     | Frequency: N/A       | Target:   1.4 MHz
 
 ======================================================================
                      End of Clock Summary

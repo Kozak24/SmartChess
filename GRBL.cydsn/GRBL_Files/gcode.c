@@ -65,7 +65,6 @@ void gc_sync_position()
 // coordinates, respectively.
 uint8_t gc_execute_line(char *line)
 {
-  Servo_TCPWM_Stop();
   /* -------------------------------------------------------------------------------------
      STEP 1: Initialize parser block struct and copy current g-code state modes. The parser
      updates these modes and commands as the block line is parser and will only be used and
@@ -116,12 +115,12 @@ uint8_t gc_execute_line(char *line)
   else { char_counter = 0; }
 
   while (line[char_counter] != 0) { // Loop until no more g-code words in line.
+    /*#ifdef SERVOMOTORS
+        Servo_PWM_Stop();
+    #endif*/
     // Import the next g-code word, expecting a letter followed by a value. Otherwise, error out.
     letter = line[char_counter];
-    if((letter < 'A') || (letter > 'Z')) 
-    { 
-        FAIL(STATUS_EXPECTED_COMMAND_LETTER); 
-    } // [Expected word letter]
+    if((letter < 'A') || (letter > 'Z')) { FAIL(STATUS_EXPECTED_COMMAND_LETTER); } // [Expected word letter]
     char_counter++;
     if (!read_float(line, &char_counter, &value)) { FAIL(STATUS_BAD_NUMBER_FORMAT); } // [Expected word value]
 
@@ -299,37 +298,19 @@ uint8_t gc_execute_line(char *line)
            legal g-code words and stores their value. Error-checking is performed later since some
            words (I,J,K,L,P,R) have multiple connotations and/or depend on the issued commands. */
         switch(letter){
-          case 'A':
-            #ifdef SERVOMOTORS
-                word_bit = WORD_A;
-                if(value == 180) {   
-                    gc_block.values.ab[SERVO_A] = 5.000;
-                    Servo_TCPWM_Start();
-                    //Servo_TCPWM_WriteCompare(5);
-                    Servo_TCPWM_Stop();
-                } 
-                if(value == 0) {
-                    gc_block.values.ab[SERVO_A] = 1.000;
-                    Servo_TCPWM_Start();
-                    //Servo_TCPWM_WriteCompare(1);
-                    Servo_TCPWM_Stop();
-                }
-            #endif
-            break; // Not supported
-          case 'B':
-            #ifdef SERVOMOTORS
-                word_bit = WORD_B;
-                if(value == 1) {
-                    Servo_TCPWM2_Start();
-                    Servo_TCPWM2_WriteCompare(5);
-                    Servo_TCPWM2_Stop();
-                } else if(value == 0) {
-                    Servo_TCPWM2_Start();
-                    Servo_TCPWM2_WriteCompare(1);
-                    Servo_TCPWM2_Stop();
-                }
-            #endif
-            break; // Not supported
+          #ifdef SERVOMOTORS
+            case 'A':
+            word_bit = WORD_A;
+                uint16 servoPeriodA = ZERO_DEGREE_PERIOD + round(int_value * ONE_DEGREE_PERIOD);
+                gc_block.values.ab[SERVO_A] = servoPeriodA;
+            break;
+
+            case 'B':
+            word_bit = WORD_B;
+                uint16 servoPeriodB = ZERO_DEGREE_PERIOD + round(int_value * ONE_DEGREE_PERIOD);
+                gc_block.values.ab[SERVO_B] = servoPeriodB;
+            break;
+          #endif
           // case 'C': // Not supported
           // case 'D': // Not supported
           case 'F': word_bit = WORD_F; gc_block.values.f = value; break;
@@ -671,6 +652,8 @@ uint8_t gc_execute_line(char *line)
             FAIL(STATUS_GCODE_G53_INVALID_MOTION_MODE); // [G53 G0/1 not active]
           }
           break;
+        default:
+            break;
       }
   }
 
@@ -865,9 +848,6 @@ uint8_t gc_execute_line(char *line)
     bit_false(value_words,(bit(WORD_N)|bit(WORD_F)|bit(WORD_S)|bit(WORD_T))); // Remove single-meaning value words.
   }
   if (axis_command) { bit_false(value_words,(bit(WORD_X)|bit(WORD_Y)|bit(WORD_Z))); } // Remove axis words.
-  /*#ifdef SERVOMOTORS
-    bit_false(value_words, (bit(WORD_A)|bit(WORD_B)));
-  #endif*/
   #ifdef SERVOMOTORS
     bit_false(value_words,(bit(WORD_A)|bit(WORD_B)));
   #endif
@@ -878,6 +858,7 @@ uint8_t gc_execute_line(char *line)
      Assumes that all error-checking has been completed and no failure modes exist. We just
      need to update the state and execute the block according to the order-of-execution.
   */
+
   // Initialize planner data struct for motion blocks.
   plan_line_data_t plan_data;
   plan_line_data_t *pl_data = &plan_data;
@@ -894,10 +875,10 @@ uint8_t gc_execute_line(char *line)
     if (!(gc_block.non_modal_command == NON_MODAL_ABSOLUTE_OVERRIDE || gc_block.non_modal_command == NON_MODAL_NO_ACTION)) { FAIL(STATUS_INVALID_JOG_COMMAND); }
 
     // Initialize planner data to current spindle and coolant modal state.
-    pl_data->spindle_speed = gc_state.spindle_speed;
-    plan_data.condition = (gc_state.modal.spindle | gc_state.modal.coolant);
+    plan_data.condition = 0;
 
-    uint8_t status = jog_execute(&plan_data, &gc_block);
+    //uint8_t status = jog_execute(&plan_data, &gc_block);
+    uint8_t status = 0;
     if (status == STATUS_OK) { memcpy(gc_state.position, gc_block.values.xyz, sizeof(gc_block.values.xyz)); }
     return(status);
   }
@@ -907,29 +888,6 @@ uint8_t gc_execute_line(char *line)
     if ( !((gc_block.modal.motion == MOTION_MODE_LINEAR) || (gc_block.modal.motion == MOTION_MODE_CW_ARC) 
         || (gc_block.modal.motion == MOTION_MODE_CCW_ARC)) ) {
       gc_parser_flags |= GC_PARSER_LASER_DISABLE;
-    }
-
-    // Any motion mode with axis words is allowed to be passed from a spindle speed update. 
-    // NOTE: G1 and G0 without axis words sets axis_command to none. G28/30 are intentionally omitted.
-    // TODO: Check sync conditions for M3 enabled motions that don't enter the planner. (zero length).
-    if (axis_words && (axis_command == AXIS_COMMAND_MOTION_MODE)) { 
-      gc_parser_flags |= GC_PARSER_LASER_ISMOTION; 
-    } else {
-      // M3 constant power laser requires planner syncs to update the laser when changing between
-      // a G1/2/3 motion mode state and vice versa when there is no motion in the line.
-      if (gc_state.modal.spindle == SPINDLE_ENABLE_CW) {
-        if ((gc_state.modal.motion == MOTION_MODE_LINEAR) || (gc_state.modal.motion == MOTION_MODE_CW_ARC) 
-            || (gc_state.modal.motion == MOTION_MODE_CCW_ARC)) {
-          if (bit_istrue(gc_parser_flags,GC_PARSER_LASER_DISABLE)) { 
-            gc_parser_flags |= GC_PARSER_LASER_FORCE_SYNC; // Change from G1/2/3 motion mode.
-          }
-        } else {
-          // When changing to a G1 motion mode without axis words from a non-G1/2/3 motion mode.
-          if (bit_isfalse(gc_parser_flags,GC_PARSER_LASER_DISABLE)) { 
-            gc_parser_flags |= GC_PARSER_LASER_FORCE_SYNC;
-          }
-        } 
-      }
     }
   }
 
@@ -943,56 +901,23 @@ uint8_t gc_execute_line(char *line)
   // [1. Comments feedback ]:  NOT SUPPORTED
 
   // [2. Set feed rate mode ]:
-  gc_state.modal.feed_rate = gc_block.modal.feed_rate;
-  if (gc_state.modal.feed_rate) { pl_data->condition |= PL_COND_FLAG_INVERSE_TIME; } // Set condition flag for planner use.
+  //gc_state.modal.feed_rate = gc_block.modal.feed_rate;
+  //if (gc_state.modal.feed_rate) { pl_data->condition |= PL_COND_FLAG_INVERSE_TIME; } // Set condition flag for planner use.
 
   // [3. Set feed rate ]:
   gc_state.feed_rate = gc_block.values.f; // Always copy this value. See feed rate error-checking.
   pl_data->feed_rate = gc_state.feed_rate; // Record data for planner use.
-  // [4. Set spindle speed ]:
-  if ((gc_state.spindle_speed != gc_block.values.s) || bit_istrue(gc_parser_flags,GC_PARSER_LASER_FORCE_SYNC)) {
-    if (gc_state.modal.spindle != SPINDLE_DISABLE) { 
-      #ifdef VARIABLE_SPINDLE
-        if (bit_isfalse(gc_parser_flags,GC_PARSER_LASER_ISMOTION)) {
-          if (bit_istrue(gc_parser_flags,GC_PARSER_LASER_DISABLE)) {
-             spindle_sync(gc_state.modal.spindle, 0.0);
-          } else { spindle_sync(gc_state.modal.spindle, gc_block.values.s); }
-        }
-      #else
-        //spindle_sync(gc_state.modal.spindle, 0.0);                                                                <-----SPINDLE_COMMENTED
-      #endif
-    }
-    gc_state.spindle_speed = gc_block.values.s; // Update spindle speed state.
-  }
-  // NOTE: Pass zero spindle speed for all restricted laser motions.
-  if (bit_isfalse(gc_parser_flags,GC_PARSER_LASER_DISABLE)) {
-    pl_data->spindle_speed = gc_state.spindle_speed; // Record data for planner use. 
-  } // else { pl_data->spindle_speed = 0.0; } // Initialized as zero already.
+
+  /*#ifdef SERVOMOTORS
+    Servo_PWM_Start();
+    Servo_PWM_Stop();
+    gc_state.servo_a_period = gc_block.values.ab[SERVO_A];
+    //pl_data->servo_a_period = gc_state.servo_a_period;
+    pl_data->servo_a_period = gc_block.values.ab[SERVO_A];
+  #endif*/
   
   // [5. Select tool ]: NOT SUPPORTED. Only tracks tool value.
   gc_state.tool = gc_block.values.t;
-
-  // [6. Change tool ]: NOT SUPPORTED
-
-  // [7. Spindle control ]:
-  if (gc_state.modal.spindle != gc_block.modal.spindle) {
-    // Update spindle control and apply spindle speed when enabling it in this block.
-    // NOTE: All spindle state changes are synced, even in laser mode. Also, pl_data,
-    // rather than gc_state, is used to manage laser state for non-laser motions.
-    //spindle_sync(gc_block.modal.spindle, pl_data->spindle_speed);                                                 <-----SPINDLE_COMMENTED
-    gc_state.modal.spindle = gc_block.modal.spindle;
-  }
-  pl_data->condition |= gc_state.modal.spindle; // Set condition flag for planner use.
-
-  // [8. Coolant control ]:
-  if (gc_state.modal.coolant != gc_block.modal.coolant) {
-    // NOTE: Coolant M-codes are modal. Only one command per line is allowed. But, multiple states
-    // can exist at the same time, while coolant disable clears all states.
-    coolant_sync(gc_block.modal.coolant);
-    if (gc_block.modal.coolant == COOLANT_DISABLE) { gc_state.modal.coolant = COOLANT_DISABLE; }
-    else { gc_state.modal.coolant |= gc_block.modal.coolant; }
-  }
-  pl_data->condition |= gc_state.modal.coolant; // Set condition flag for planner use.
 
   // [9. Override control ]: NOT SUPPORTED. Always enabled. Except for a Grbl-only parking control.
   #ifdef ENABLE_PARKING_OVERRIDE_CONTROL
@@ -1006,10 +931,10 @@ uint8_t gc_execute_line(char *line)
   if (gc_block.non_modal_command == NON_MODAL_DWELL) { mc_dwell(gc_block.values.p); }
 
   // [11. Set active plane ]:
-  gc_state.modal.plane_select = gc_block.modal.plane_select;
+  //gc_state.modal.plane_select = gc_block.modal.plane_select;   <--MAYBE NEED TO UNCOMMENT
 
   // [12. Set length units ]:
-  gc_state.modal.units = gc_block.modal.units;
+  //gc_state.modal.units = gc_block.modal.units;
 
   // [13. Cutter radius compensation ]: G41/42 NOT SUPPORTED
   // gc_state.modal.cutter_comp = gc_block.modal.cutter_comp; // NOTE: Not needed since always disabled.
@@ -1031,7 +956,7 @@ uint8_t gc_execute_line(char *line)
 
   // [15. Coordinate system selection ]:
   if (gc_state.modal.coord_select != gc_block.modal.coord_select) {
-    gc_state.modal.coord_select = gc_block.modal.coord_select;
+    //gc_state.modal.coord_select = gc_block.modal.coord_select;
     memcpy(gc_state.coord_system,block_coord_system,N_AXIS*sizeof(float));
     system_flag_wco_change();
   }
@@ -1040,24 +965,9 @@ uint8_t gc_execute_line(char *line)
   // gc_state.modal.control = gc_block.modal.control; // NOTE: Always default.
 
   // [17. Set distance mode ]:
-  gc_state.modal.distance = gc_block.modal.distance;
+  //gc_state.modal.distance = gc_block.modal.distance;
 
   // [18. Set retract mode ]: NOT SUPPORTED
-
-/***********************SERVOMOTORS_BLOCK**********************************/
-  // [18. Set period of Servomotors]:
-  #ifdef SERVOMOTORS
-    Servo_TCPWM_Start();
-    Servo_TCPWM_Stop();
-    //if(gc_block.values.ab[SERVO_A] > 0) {  
-    gc_state.servo_a_period = gc_block.values.ab[SERVO_A];
-    pl_data->servo_a_period = gc_state.servo_a_period;
-    //pl_data->servo_a_period = gc_block.values.ab[SERVO_A];
-
-    //mc_line(gc_block.values.xyz, pl_data);
-   
-    //pl_data->servo_b_period = gc_block.values.ab[SERVO_B];
-  #endif
 
   // [19. Go to predefined position, Set G10, or Set axis offsets ]:
   switch(gc_block.non_modal_command) {
@@ -1097,16 +1007,21 @@ uint8_t gc_execute_line(char *line)
   // [20. Motion modes ]:
   // NOTE: Commands G10,G28,G30,G92 lock out and prevent axis words from use in motion modes.
   // Enter motion modes only if there are axis words or a motion mode command word in the block.
-  gc_state.modal.motion = gc_block.modal.motion;
-  if (gc_state.modal.motion != MOTION_MODE_NONE) {
+  //gc_state.modal.motion = gc_block.modal.motion;
+  //if (gc_state.modal.motion != MOTION_MODE_NONE) {
+  if(gc_block.modal.motion != MOTION_MODE_NONE) {
     if (axis_command == AXIS_COMMAND_MOTION_MODE) {
       uint8_t gc_update_pos = GC_UPDATE_POS_TARGET;
-      if (gc_state.modal.motion == MOTION_MODE_LINEAR) {
-        mc_line(gc_block.values.xyz, pl_data);
-      } else if (gc_state.modal.motion == MOTION_MODE_SEEK) {
+      if (gc_block.modal.motion == MOTION_MODE_LINEAR) {
+        #ifdef SERVOMOTORS
+            mc_line_with_servomotors(gc_block.values.xyz, gc_block.values.ab, pl_data);
+        #else
+            mc_line(gc_block.values.xyz, pl_data);
+        #endif
+      } else if (gc_block.modal.motion == MOTION_MODE_SEEK) {
         pl_data->condition |= PL_COND_FLAG_RAPID_MOTION; // Set rapid motion condition flag.
         mc_line(gc_block.values.xyz, pl_data);
-      } else if ((gc_state.modal.motion == MOTION_MODE_CW_ARC) || (gc_state.modal.motion == MOTION_MODE_CCW_ARC)) {
+      } else if ((gc_block.modal.motion == MOTION_MODE_CW_ARC) || (gc_state.modal.motion == MOTION_MODE_CCW_ARC)) {
         mc_arc(gc_block.values.xyz, pl_data, gc_state.position, gc_block.values.ijk, gc_block.values.r,
             axis_0, axis_1, axis_linear, bit_istrue(gc_parser_flags,GC_PARSER_ARC_IS_CLOCKWISE));
       } else {
@@ -1132,8 +1047,8 @@ uint8_t gc_execute_line(char *line)
   // [21. Program flow ]:
   // M0,M1,M2,M30: Perform non-running program flow actions. During a program pause, the buffer may
   // refill and can only be resumed by the cycle start run-time command.
-  gc_state.modal.program_flow = gc_block.modal.program_flow;
-  if (gc_state.modal.program_flow) {
+  //gc_state.modal.program_flow = gc_block.modal.program_flow;
+  /*if (gc_state.modal.program_flow) {
     protocol_buffer_synchronize(); // Sync and finish all remaining buffered motions before moving on.
     if (gc_state.modal.program_flow == PROGRAM_FLOW_PAUSED) {
       if (sys.state != STATE_CHECK_MODE) {
@@ -1177,7 +1092,7 @@ uint8_t gc_execute_line(char *line)
       report_feedback_message(MESSAGE_PROGRAM_END);
     }
     gc_state.modal.program_flow = PROGRAM_FLOW_RUNNING; // Reset program flow.
-  }
+  }*/
 
   // TODO: % to denote start of program.
 

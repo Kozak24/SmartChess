@@ -66,4 +66,6 @@ void mc_parking_motion(float *parking_target, plan_line_data_t *pl_data);
 // Performs system reset. If in motion state, kills all motion and sets system alarm.
 void mc_reset();
 
+void mc_line_with_servomotors(float *target, uint16 *servo, plan_line_data_t *pl_data);
+
 #endif

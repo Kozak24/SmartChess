@@ -29,7 +29,9 @@
 #endif
 
 /***********CYPRESS_INTERRUPTS*************/
+#ifdef STEP_PULSE_DELAY
 CY_ISR( Timer0_Comp_Int_Handler );
+#endif
 CY_ISR( Timer0_Ovf_Int_Handler );
 CY_ISR( Timer1_Ovf_Int_Handler );
 

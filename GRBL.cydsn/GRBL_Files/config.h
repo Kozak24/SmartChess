@@ -331,12 +331,9 @@
 // the selected axis with the tool oriented toward the negative direction. In other words, a positive
 // tool length offset value is subtracted from the current location.
 #define TOOL_LENGTH_OFFSET_AXIS Z_AXIS // Default z-axis. Valid values are X_AXIS, Y_AXIS, or Z_AXIS.
-
-// Define Servomotors that managed by PWM signals. Period is 39(40) it's equal to 20 ms.
-// Servomotor angle depends on PWM signal. If compare value is 1, then servomotor angle
-// will be ~= 0 else if compare value is 5, then servomotor angle will be ~= 180
-#define SERVOMOTORS
     
+#define SERVOMOTORS
+
 // Enables variable spindle output voltage for different RPM values. On the Arduino Uno, the spindle
 // enable pin will output 5V for maximum RPM with 256 intermediate levels and 0V when disabled.
 // NOTE: IMPORTANT for Arduino Unos! When enabled, the Z-limit pin D11 and spindle enable pin D12 switch!

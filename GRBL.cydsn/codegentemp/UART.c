@@ -1,85 +1,218 @@
-/*******************************************************************************
-* File Name: UART.c
-* Version 2.50
+/***************************************************************************//**
+* \file UART.c
+* \version 4.0
 *
-* Description:
-*  This file provides all API functionality of the UART component
+* \brief
+*  This file provides the source code to the API for the SCB Component.
 *
 * Note:
 *
-********************************************************************************
-* Copyright 2008-2015, Cypress Semiconductor Corporation.  All rights reserved.
+*******************************************************************************
+* \copyright
+* Copyright 2013-2017, Cypress Semiconductor Corporation.  All rights reserved.
 * You may use this file only in accordance with the license, terms, conditions,
 * disclaimers, and limitations in the end user license agreement accompanying
 * the software package with which this file was provided.
 *******************************************************************************/
 
-#include "UART.h"
-#if (UART_INTERNAL_CLOCK_USED)
-    #include "UART_IntClock.h"
-#endif /* End UART_INTERNAL_CLOCK_USED */
+#include "UART_PVT.h"
+
+#if (UART_SCB_MODE_I2C_INC)
+    #include "UART_I2C_PVT.h"
+#endif /* (UART_SCB_MODE_I2C_INC) */
+
+#if (UART_SCB_MODE_EZI2C_INC)
+    #include "UART_EZI2C_PVT.h"
+#endif /* (UART_SCB_MODE_EZI2C_INC) */
+
+#if (UART_SCB_MODE_SPI_INC || UART_SCB_MODE_UART_INC)
+    #include "UART_SPI_UART_PVT.h"
+#endif /* (UART_SCB_MODE_SPI_INC || UART_SCB_MODE_UART_INC) */
 
 
 /***************************************
-* Global data allocation
+*    Run Time Configuration Vars
 ***************************************/
 
+/* Stores internal component configuration for Unconfigured mode */
+#if (UART_SCB_MODE_UNCONFIG_CONST_CFG)
+    /* Common configuration variables */
+    uint8 UART_scbMode = UART_SCB_MODE_UNCONFIG;
+    uint8 UART_scbEnableWake;
+    uint8 UART_scbEnableIntr;
+
+    /* I2C configuration variables */
+    uint8 UART_mode;
+    uint8 UART_acceptAddr;
+
+    /* SPI/UART configuration variables */
+    volatile uint8 * UART_rxBuffer;
+    uint8  UART_rxDataBits;
+    uint32 UART_rxBufferSize;
+
+    volatile uint8 * UART_txBuffer;
+    uint8  UART_txDataBits;
+    uint32 UART_txBufferSize;
+
+    /* EZI2C configuration variables */
+    uint8 UART_numberOfAddr;
+    uint8 UART_subAddrSize;
+#endif /* (UART_SCB_MODE_UNCONFIG_CONST_CFG) */
+
+
+/***************************************
+*     Common SCB Vars
+***************************************/
+/**
+* \addtogroup group_general
+* \{
+*/
+
+/** UART_initVar indicates whether the UART 
+*  component has been initialized. The variable is initialized to 0 
+*  and set to 1 the first time SCB_Start() is called. This allows 
+*  the component to restart without reinitialization after the first 
+*  call to the UART_Start() routine.
+*
+*  If re-initialization of the component is required, then the 
+*  UART_Init() function can be called before the 
+*  UART_Start() or UART_Enable() function.
+*/
 uint8 UART_initVar = 0u;
 
-#if (UART_TX_INTERRUPT_ENABLED && UART_TX_ENABLED)
-    volatile uint8 UART_txBuffer[UART_TX_BUFFER_SIZE];
-    volatile uint8 UART_txBufferRead = 0u;
-    uint8 UART_txBufferWrite = 0u;
-#endif /* (UART_TX_INTERRUPT_ENABLED && UART_TX_ENABLED) */
 
-#if (UART_RX_INTERRUPT_ENABLED && (UART_RX_ENABLED || UART_HD_ENABLED))
-    uint8 UART_errorStatus = 0u;
-    volatile uint8 UART_rxBuffer[UART_RX_BUFFER_SIZE];
-    volatile uint8 UART_rxBufferRead  = 0u;
-    volatile uint8 UART_rxBufferWrite = 0u;
-    volatile uint8 UART_rxBufferLoopDetect = 0u;
-    volatile uint8 UART_rxBufferOverflow   = 0u;
-    #if (UART_RXHW_ADDRESS_ENABLED)
-        volatile uint8 UART_rxAddressMode = UART_RX_ADDRESS_MODE;
-        volatile uint8 UART_rxAddressDetected = 0u;
-    #endif /* (UART_RXHW_ADDRESS_ENABLED) */
-#endif /* (UART_RX_INTERRUPT_ENABLED && (UART_RX_ENABLED || UART_HD_ENABLED)) */
+#if (! (UART_SCB_MODE_I2C_CONST_CFG || \
+        UART_SCB_MODE_EZI2C_CONST_CFG))
+    /** This global variable stores TX interrupt sources after 
+    * UART_Stop() is called. Only these TX interrupt sources 
+    * will be restored on a subsequent UART_Enable() call.
+    */
+    uint16 UART_IntrTxMask = 0u;
+#endif /* (! (UART_SCB_MODE_I2C_CONST_CFG || \
+              UART_SCB_MODE_EZI2C_CONST_CFG)) */
+/** \} globals */
+
+#if (UART_SCB_IRQ_INTERNAL)
+#if !defined (CY_REMOVE_UART_CUSTOM_INTR_HANDLER)
+    void (*UART_customIntrHandler)(void) = NULL;
+#endif /* !defined (CY_REMOVE_UART_CUSTOM_INTR_HANDLER) */
+#endif /* (UART_SCB_IRQ_INTERNAL) */
+
+
+/***************************************
+*    Private Function Prototypes
+***************************************/
+
+static void UART_ScbEnableIntr(void);
+static void UART_ScbModeStop(void);
+static void UART_ScbModePostEnable(void);
+
+
+/*******************************************************************************
+* Function Name: UART_Init
+****************************************************************************//**
+*
+*  Initializes the UART component to operate in one of the selected
+*  configurations: I2C, SPI, UART or EZI2C.
+*  When the configuration is set to "Unconfigured SCB", this function does
+*  not do any initialization. Use mode-specific initialization APIs instead:
+*  UART_I2CInit, UART_SpiInit, 
+*  UART_UartInit or UART_EzI2CInit.
+*
+*******************************************************************************/
+void UART_Init(void)
+{
+#if (UART_SCB_MODE_UNCONFIG_CONST_CFG)
+    if (UART_SCB_MODE_UNCONFIG_RUNTM_CFG)
+    {
+        UART_initVar = 0u;
+    }
+    else
+    {
+        /* Initialization was done before this function call */
+    }
+
+#elif (UART_SCB_MODE_I2C_CONST_CFG)
+    UART_I2CInit();
+
+#elif (UART_SCB_MODE_SPI_CONST_CFG)
+    UART_SpiInit();
+
+#elif (UART_SCB_MODE_UART_CONST_CFG)
+    UART_UartInit();
+
+#elif (UART_SCB_MODE_EZI2C_CONST_CFG)
+    UART_EzI2CInit();
+
+#endif /* (UART_SCB_MODE_UNCONFIG_CONST_CFG) */
+}
+
+
+/*******************************************************************************
+* Function Name: UART_Enable
+****************************************************************************//**
+*
+*  Enables UART component operation: activates the hardware and 
+*  internal interrupt. It also restores TX interrupt sources disabled after the 
+*  UART_Stop() function was called (note that level-triggered TX 
+*  interrupt sources remain disabled to not cause code lock-up).
+*  For I2C and EZI2C modes the interrupt is internal and mandatory for 
+*  operation. For SPI and UART modes the interrupt can be configured as none, 
+*  internal or external.
+*  The UART configuration should be not changed when the component
+*  is enabled. Any configuration changes should be made after disabling the 
+*  component.
+*  When configuration is set to “Unconfigured UART”, the component 
+*  must first be initialized to operate in one of the following configurations: 
+*  I2C, SPI, UART or EZ I2C, using the mode-specific initialization API. 
+*  Otherwise this function does not enable the component.
+*
+*******************************************************************************/
+void UART_Enable(void)
+{
+#if (UART_SCB_MODE_UNCONFIG_CONST_CFG)
+    /* Enable SCB block, only if it is already configured */
+    if (!UART_SCB_MODE_UNCONFIG_RUNTM_CFG)
+    {
+        UART_CTRL_REG |= UART_CTRL_ENABLED;
+
+        UART_ScbEnableIntr();
+
+        /* Call PostEnable function specific to current operation mode */
+        UART_ScbModePostEnable();
+    }
+#else
+    UART_CTRL_REG |= UART_CTRL_ENABLED;
+
+    UART_ScbEnableIntr();
+
+    /* Call PostEnable function specific to current operation mode */
+    UART_ScbModePostEnable();
+#endif /* (UART_SCB_MODE_UNCONFIG_CONST_CFG) */
+}
 
 
 /*******************************************************************************
 * Function Name: UART_Start
-********************************************************************************
+****************************************************************************//**
 *
-* Summary:
-*  This is the preferred method to begin component operation.
-*  UART_Start() sets the initVar variable, calls the
-*  UART_Init() function, and then calls the
-*  UART_Enable() function.
+*  Invokes UART_Init() and UART_Enable().
+*  After this function call, the component is enabled and ready for operation.
+*  When configuration is set to "Unconfigured SCB", the component must first be
+*  initialized to operate in one of the following configurations: I2C, SPI, UART
+*  or EZI2C. Otherwise this function does not enable the component.
 *
-* Parameters:
-*  None.
-*
-* Return:
-*  None.
-*
-* Global variables:
-*  The UART_intiVar variable is used to indicate initial
-*  configuration of this component. The variable is initialized to zero (0u)
-*  and set to one (1u) the first time UART_Start() is called. This
-*  allows for component initialization without re-initialization in all
-*  subsequent calls to the UART_Start() routine.
-*
-* Reentrant:
-*  No.
+* \globalvars
+*  UART_initVar - used to check initial configuration, modified
+*  on first function call.
 *
 *******************************************************************************/
-void UART_Start(void) 
+void UART_Start(void)
 {
-    /* If not initialized then initialize all required hardware and software */
-    if(UART_initVar == 0u)
+    if (0u == UART_initVar)
     {
         UART_Init();
-        UART_initVar = 1u;
+        UART_initVar = 1u; /* Component was initialized */
     }
 
     UART_Enable();
@@ -87,1576 +220,599 @@ void UART_Start(void)
 
 
 /*******************************************************************************
-* Function Name: UART_Init
-********************************************************************************
-*
-* Summary:
-*  Initializes or restores the component according to the customizer Configure
-*  dialog settings. It is not necessary to call UART_Init() because
-*  the UART_Start() API calls this function and is the preferred
-*  method to begin component operation.
-*
-* Parameters:
-*  None.
-*
-* Return:
-*  None.
-*
-*******************************************************************************/
-void UART_Init(void) 
-{
-    #if(UART_RX_ENABLED || UART_HD_ENABLED)
-
-        #if (UART_RX_INTERRUPT_ENABLED)
-            /* Set RX interrupt vector and priority */
-            (void) CyIntSetVector(UART_RX_VECT_NUM, &UART_RXISR);
-            CyIntSetPriority(UART_RX_VECT_NUM, UART_RX_PRIOR_NUM);
-            UART_errorStatus = 0u;
-        #endif /* (UART_RX_INTERRUPT_ENABLED) */
-
-        #if (UART_RXHW_ADDRESS_ENABLED)
-            UART_SetRxAddressMode(UART_RX_ADDRESS_MODE);
-            UART_SetRxAddress1(UART_RX_HW_ADDRESS1);
-            UART_SetRxAddress2(UART_RX_HW_ADDRESS2);
-        #endif /* End UART_RXHW_ADDRESS_ENABLED */
-
-        /* Init Count7 period */
-        UART_RXBITCTR_PERIOD_REG = UART_RXBITCTR_INIT;
-        /* Configure the Initial RX interrupt mask */
-        UART_RXSTATUS_MASK_REG  = UART_INIT_RX_INTERRUPTS_MASK;
-    #endif /* End UART_RX_ENABLED || UART_HD_ENABLED*/
-
-    #if(UART_TX_ENABLED)
-        #if (UART_TX_INTERRUPT_ENABLED)
-            /* Set TX interrupt vector and priority */
-            (void) CyIntSetVector(UART_TX_VECT_NUM, &UART_TXISR);
-            CyIntSetPriority(UART_TX_VECT_NUM, UART_TX_PRIOR_NUM);
-        #endif /* (UART_TX_INTERRUPT_ENABLED) */
-
-        /* Write Counter Value for TX Bit Clk Generator*/
-        #if (UART_TXCLKGEN_DP)
-            UART_TXBITCLKGEN_CTR_REG = UART_BIT_CENTER;
-            UART_TXBITCLKTX_COMPLETE_REG = ((UART_NUMBER_OF_DATA_BITS +
-                        UART_NUMBER_OF_START_BIT) * UART_OVER_SAMPLE_COUNT) - 1u;
-        #else
-            UART_TXBITCTR_PERIOD_REG = ((UART_NUMBER_OF_DATA_BITS +
-                        UART_NUMBER_OF_START_BIT) * UART_OVER_SAMPLE_8) - 1u;
-        #endif /* End UART_TXCLKGEN_DP */
-
-        /* Configure the Initial TX interrupt mask */
-        #if (UART_TX_INTERRUPT_ENABLED)
-            UART_TXSTATUS_MASK_REG = UART_TX_STS_FIFO_EMPTY;
-        #else
-            UART_TXSTATUS_MASK_REG = UART_INIT_TX_INTERRUPTS_MASK;
-        #endif /*End UART_TX_INTERRUPT_ENABLED*/
-
-    #endif /* End UART_TX_ENABLED */
-
-    #if(UART_PARITY_TYPE_SW)  /* Write Parity to Control Register */
-        UART_WriteControlRegister( \
-            (UART_ReadControlRegister() & (uint8)~UART_CTRL_PARITY_TYPE_MASK) | \
-            (uint8)(UART_PARITY_TYPE << UART_CTRL_PARITY_TYPE0_SHIFT) );
-    #endif /* End UART_PARITY_TYPE_SW */
-}
-
-
-/*******************************************************************************
-* Function Name: UART_Enable
-********************************************************************************
-*
-* Summary:
-*  Activates the hardware and begins component operation. It is not necessary
-*  to call UART_Enable() because the UART_Start() API
-*  calls this function, which is the preferred method to begin component
-*  operation.
-
-* Parameters:
-*  None.
-*
-* Return:
-*  None.
-*
-* Global Variables:
-*  UART_rxAddressDetected - set to initial state (0).
-*
-*******************************************************************************/
-void UART_Enable(void) 
-{
-    uint8 enableInterrupts;
-    enableInterrupts = CyEnterCriticalSection();
-
-    #if (UART_RX_ENABLED || UART_HD_ENABLED)
-        /* RX Counter (Count7) Enable */
-        UART_RXBITCTR_CONTROL_REG |= UART_CNTR_ENABLE;
-
-        /* Enable the RX Interrupt */
-        UART_RXSTATUS_ACTL_REG  |= UART_INT_ENABLE;
-
-        #if (UART_RX_INTERRUPT_ENABLED)
-            UART_EnableRxInt();
-
-            #if (UART_RXHW_ADDRESS_ENABLED)
-                UART_rxAddressDetected = 0u;
-            #endif /* (UART_RXHW_ADDRESS_ENABLED) */
-        #endif /* (UART_RX_INTERRUPT_ENABLED) */
-    #endif /* (UART_RX_ENABLED || UART_HD_ENABLED) */
-
-    #if(UART_TX_ENABLED)
-        /* TX Counter (DP/Count7) Enable */
-        #if(!UART_TXCLKGEN_DP)
-            UART_TXBITCTR_CONTROL_REG |= UART_CNTR_ENABLE;
-        #endif /* End UART_TXCLKGEN_DP */
-
-        /* Enable the TX Interrupt */
-        UART_TXSTATUS_ACTL_REG |= UART_INT_ENABLE;
-        #if (UART_TX_INTERRUPT_ENABLED)
-            UART_ClearPendingTxInt(); /* Clear history of TX_NOT_EMPTY */
-            UART_EnableTxInt();
-        #endif /* (UART_TX_INTERRUPT_ENABLED) */
-     #endif /* (UART_TX_INTERRUPT_ENABLED) */
-
-    #if (UART_INTERNAL_CLOCK_USED)
-        UART_IntClock_Start();  /* Enable the clock */
-    #endif /* (UART_INTERNAL_CLOCK_USED) */
-
-    CyExitCriticalSection(enableInterrupts);
-}
-
-
-/*******************************************************************************
 * Function Name: UART_Stop
-********************************************************************************
+****************************************************************************//**
 *
-* Summary:
-*  Disables the UART operation.
-*
-* Parameters:
-*  None.
-*
-* Return:
-*  None.
+*  Disables the UART component: disable the hardware and internal 
+*  interrupt. It also disables all TX interrupt sources so as not to cause an 
+*  unexpected interrupt trigger because after the component is enabled, the 
+*  TX FIFO is empty.
+*  Refer to the function UART_Enable() for the interrupt 
+*  configuration details.
+*  This function disables the SCB component without checking to see if 
+*  communication is in progress. Before calling this function it may be 
+*  necessary to check the status of communication to make sure communication 
+*  is complete. If this is not done then communication could be stopped mid 
+*  byte and corrupted data could result.
 *
 *******************************************************************************/
-void UART_Stop(void) 
+void UART_Stop(void)
 {
-    uint8 enableInterrupts;
-    enableInterrupts = CyEnterCriticalSection();
+#if (UART_SCB_IRQ_INTERNAL)
+    UART_DisableInt();
+#endif /* (UART_SCB_IRQ_INTERNAL) */
 
-    /* Write Bit Counter Disable */
-    #if (UART_RX_ENABLED || UART_HD_ENABLED)
-        UART_RXBITCTR_CONTROL_REG &= (uint8) ~UART_CNTR_ENABLE;
-    #endif /* (UART_RX_ENABLED || UART_HD_ENABLED) */
+    /* Call Stop function specific to current operation mode */
+    UART_ScbModeStop();
 
-    #if (UART_TX_ENABLED)
-        #if(!UART_TXCLKGEN_DP)
-            UART_TXBITCTR_CONTROL_REG &= (uint8) ~UART_CNTR_ENABLE;
-        #endif /* (!UART_TXCLKGEN_DP) */
-    #endif /* (UART_TX_ENABLED) */
+    /* Disable SCB IP */
+    UART_CTRL_REG &= (uint32) ~UART_CTRL_ENABLED;
 
-    #if (UART_INTERNAL_CLOCK_USED)
-        UART_IntClock_Stop();   /* Disable the clock */
-    #endif /* (UART_INTERNAL_CLOCK_USED) */
+    /* Disable all TX interrupt sources so as not to cause an unexpected
+    * interrupt trigger after the component will be enabled because the 
+    * TX FIFO is empty.
+    * For SCB IP v0, it is critical as it does not mask-out interrupt
+    * sources when it is disabled. This can cause a code lock-up in the
+    * interrupt handler because TX FIFO cannot be loaded after the block
+    * is disabled.
+    */
+    UART_SetTxInterruptMode(UART_NO_INTR_SOURCES);
 
-    /* Disable internal interrupt component */
-    #if (UART_RX_ENABLED || UART_HD_ENABLED)
-        UART_RXSTATUS_ACTL_REG  &= (uint8) ~UART_INT_ENABLE;
-
-        #if (UART_RX_INTERRUPT_ENABLED)
-            UART_DisableRxInt();
-        #endif /* (UART_RX_INTERRUPT_ENABLED) */
-    #endif /* (UART_RX_ENABLED || UART_HD_ENABLED) */
-
-    #if (UART_TX_ENABLED)
-        UART_TXSTATUS_ACTL_REG &= (uint8) ~UART_INT_ENABLE;
-
-        #if (UART_TX_INTERRUPT_ENABLED)
-            UART_DisableTxInt();
-        #endif /* (UART_TX_INTERRUPT_ENABLED) */
-    #endif /* (UART_TX_ENABLED) */
-
-    CyExitCriticalSection(enableInterrupts);
+#if (UART_SCB_IRQ_INTERNAL)
+    UART_ClearPendingInt();
+#endif /* (UART_SCB_IRQ_INTERNAL) */
 }
 
 
 /*******************************************************************************
-* Function Name: UART_ReadControlRegister
-********************************************************************************
+* Function Name: UART_SetRxFifoLevel
+****************************************************************************//**
 *
-* Summary:
-*  Returns the current value of the control register.
+*  Sets level in the RX FIFO to generate a RX level interrupt.
+*  When the RX FIFO has more entries than the RX FIFO level an RX level
+*  interrupt request is generated.
 *
-* Parameters:
-*  None.
-*
-* Return:
-*  Contents of the control register.
+*  \param level: Level in the RX FIFO to generate RX level interrupt.
+*   The range of valid level values is between 0 and RX FIFO depth - 1.
 *
 *******************************************************************************/
-uint8 UART_ReadControlRegister(void) 
+void UART_SetRxFifoLevel(uint32 level)
 {
-    #if (UART_CONTROL_REG_REMOVED)
-        return(0u);
+    uint32 rxFifoCtrl;
+
+    rxFifoCtrl = UART_RX_FIFO_CTRL_REG;
+
+    rxFifoCtrl &= ((uint32) ~UART_RX_FIFO_CTRL_TRIGGER_LEVEL_MASK); /* Clear level mask bits */
+    rxFifoCtrl |= ((uint32) (UART_RX_FIFO_CTRL_TRIGGER_LEVEL_MASK & level));
+
+    UART_RX_FIFO_CTRL_REG = rxFifoCtrl;
+}
+
+
+/*******************************************************************************
+* Function Name: UART_SetTxFifoLevel
+****************************************************************************//**
+*
+*  Sets level in the TX FIFO to generate a TX level interrupt.
+*  When the TX FIFO has less entries than the TX FIFO level an TX level
+*  interrupt request is generated.
+*
+*  \param level: Level in the TX FIFO to generate TX level interrupt.
+*   The range of valid level values is between 0 and TX FIFO depth - 1.
+*
+*******************************************************************************/
+void UART_SetTxFifoLevel(uint32 level)
+{
+    uint32 txFifoCtrl;
+
+    txFifoCtrl = UART_TX_FIFO_CTRL_REG;
+
+    txFifoCtrl &= ((uint32) ~UART_TX_FIFO_CTRL_TRIGGER_LEVEL_MASK); /* Clear level mask bits */
+    txFifoCtrl |= ((uint32) (UART_TX_FIFO_CTRL_TRIGGER_LEVEL_MASK & level));
+
+    UART_TX_FIFO_CTRL_REG = txFifoCtrl;
+}
+
+
+#if (UART_SCB_IRQ_INTERNAL)
+    /*******************************************************************************
+    * Function Name: UART_SetCustomInterruptHandler
+    ****************************************************************************//**
+    *
+    *  Registers a function to be called by the internal interrupt handler.
+    *  First the function that is registered is called, then the internal interrupt
+    *  handler performs any operation such as software buffer management functions
+    *  before the interrupt returns.  It is the user's responsibility not to break
+    *  the software buffer operations. Only one custom handler is supported, which
+    *  is the function provided by the most recent call.
+    *  At the initialization time no custom handler is registered.
+    *
+    *  \param func: Pointer to the function to register.
+    *        The value NULL indicates to remove the current custom interrupt
+    *        handler.
+    *
+    *******************************************************************************/
+    void UART_SetCustomInterruptHandler(void (*func)(void))
+    {
+    #if !defined (CY_REMOVE_UART_CUSTOM_INTR_HANDLER)
+        UART_customIntrHandler = func; /* Register interrupt handler */
     #else
-        return(UART_CONTROL_REG);
-    #endif /* (UART_CONTROL_REG_REMOVED) */
-}
-
-
-/*******************************************************************************
-* Function Name: UART_WriteControlRegister
-********************************************************************************
-*
-* Summary:
-*  Writes an 8-bit value into the control register
-*
-* Parameters:
-*  control:  control register value
-*
-* Return:
-*  None.
-*
-*******************************************************************************/
-void  UART_WriteControlRegister(uint8 control) 
-{
-    #if (UART_CONTROL_REG_REMOVED)
-        if(0u != control)
+        if (NULL != func)
         {
             /* Suppress compiler warning */
         }
+    #endif /* !defined (CY_REMOVE_UART_CUSTOM_INTR_HANDLER) */
+    }
+#endif /* (UART_SCB_IRQ_INTERNAL) */
+
+
+/*******************************************************************************
+* Function Name: UART_ScbModeEnableIntr
+****************************************************************************//**
+*
+*  Enables an interrupt for a specific mode.
+*
+*******************************************************************************/
+static void UART_ScbEnableIntr(void)
+{
+#if (UART_SCB_IRQ_INTERNAL)
+    /* Enable interrupt in NVIC */
+    #if (UART_SCB_MODE_UNCONFIG_CONST_CFG)
+        if (0u != UART_scbEnableIntr)
+        {
+            UART_EnableInt();
+        }
+
     #else
-       UART_CONTROL_REG = control;
-    #endif /* (UART_CONTROL_REG_REMOVED) */
+        UART_EnableInt();
+
+    #endif /* (UART_SCB_MODE_UNCONFIG_CONST_CFG) */
+#endif /* (UART_SCB_IRQ_INTERNAL) */
 }
 
 
-#if(UART_RX_ENABLED || UART_HD_ENABLED)
-    /*******************************************************************************
-    * Function Name: UART_SetRxInterruptMode
-    ********************************************************************************
-    *
-    * Summary:
-    *  Configures the RX interrupt sources enabled.
-    *
-    * Parameters:
-    *  IntSrc:  Bit field containing the RX interrupts to enable. Based on the 
-    *  bit-field arrangement of the status register. This value must be a 
-    *  combination of status register bit-masks shown below:
-    *      UART_RX_STS_FIFO_NOTEMPTY    Interrupt on byte received.
-    *      UART_RX_STS_PAR_ERROR        Interrupt on parity error.
-    *      UART_RX_STS_STOP_ERROR       Interrupt on stop error.
-    *      UART_RX_STS_BREAK            Interrupt on break.
-    *      UART_RX_STS_OVERRUN          Interrupt on overrun error.
-    *      UART_RX_STS_ADDR_MATCH       Interrupt on address match.
-    *      UART_RX_STS_MRKSPC           Interrupt on address detect.
-    *
-    * Return:
-    *  None.
-    *
-    * Theory:
-    *  Enables the output of specific status bits to the interrupt controller
-    *
-    *******************************************************************************/
-    void UART_SetRxInterruptMode(uint8 intSrc) 
+/*******************************************************************************
+* Function Name: UART_ScbModePostEnable
+****************************************************************************//**
+*
+*  Calls the PostEnable function for a specific operation mode.
+*
+*******************************************************************************/
+static void UART_ScbModePostEnable(void)
+{
+#if (UART_SCB_MODE_UNCONFIG_CONST_CFG)
+#if (!UART_CY_SCBIP_V1)
+    if (UART_SCB_MODE_SPI_RUNTM_CFG)
     {
-        UART_RXSTATUS_MASK_REG  = intSrc;
+        UART_SpiPostEnable();
     }
-
-
-    /*******************************************************************************
-    * Function Name: UART_ReadRxData
-    ********************************************************************************
-    *
-    * Summary:
-    *  Returns the next byte of received data. This function returns data without
-    *  checking the status. You must check the status separately.
-    *
-    * Parameters:
-    *  None.
-    *
-    * Return:
-    *  Received data from RX register
-    *
-    * Global Variables:
-    *  UART_rxBuffer - RAM buffer pointer for save received data.
-    *  UART_rxBufferWrite - cyclic index for write to rxBuffer,
-    *     checked to identify new data.
-    *  UART_rxBufferRead - cyclic index for read from rxBuffer,
-    *     incremented after each byte has been read from buffer.
-    *  UART_rxBufferLoopDetect - cleared if loop condition was detected
-    *     in RX ISR.
-    *
-    * Reentrant:
-    *  No.
-    *
-    *******************************************************************************/
-    uint8 UART_ReadRxData(void) 
+    else if (UART_SCB_MODE_UART_RUNTM_CFG)
     {
-        uint8 rxData;
-
-    #if (UART_RX_INTERRUPT_ENABLED)
-
-        uint8 locRxBufferRead;
-        uint8 locRxBufferWrite;
-
-        /* Protect variables that could change on interrupt */
-        UART_DisableRxInt();
-
-        locRxBufferRead  = UART_rxBufferRead;
-        locRxBufferWrite = UART_rxBufferWrite;
-
-        if( (UART_rxBufferLoopDetect != 0u) || (locRxBufferRead != locRxBufferWrite) )
-        {
-            rxData = UART_rxBuffer[locRxBufferRead];
-            locRxBufferRead++;
-
-            if(locRxBufferRead >= UART_RX_BUFFER_SIZE)
-            {
-                locRxBufferRead = 0u;
-            }
-            /* Update the real pointer */
-            UART_rxBufferRead = locRxBufferRead;
-
-            if(UART_rxBufferLoopDetect != 0u)
-            {
-                UART_rxBufferLoopDetect = 0u;
-                #if ((UART_RX_INTERRUPT_ENABLED) && (UART_FLOW_CONTROL != 0u))
-                    /* When Hardware Flow Control selected - return RX mask */
-                    #if( UART_HD_ENABLED )
-                        if((UART_CONTROL_REG & UART_CTRL_HD_SEND) == 0u)
-                        {   /* In Half duplex mode return RX mask only in RX
-                            *  configuration set, otherwise
-                            *  mask will be returned in LoadRxConfig() API.
-                            */
-                            UART_RXSTATUS_MASK_REG  |= UART_RX_STS_FIFO_NOTEMPTY;
-                        }
-                    #else
-                        UART_RXSTATUS_MASK_REG  |= UART_RX_STS_FIFO_NOTEMPTY;
-                    #endif /* end UART_HD_ENABLED */
-                #endif /* ((UART_RX_INTERRUPT_ENABLED) && (UART_FLOW_CONTROL != 0u)) */
-            }
-        }
-        else
-        {   /* Needs to check status for RX_STS_FIFO_NOTEMPTY bit */
-            rxData = UART_RXDATA_REG;
-        }
-
-        UART_EnableRxInt();
-
-    #else
-
-        /* Needs to check status for RX_STS_FIFO_NOTEMPTY bit */
-        rxData = UART_RXDATA_REG;
-
-    #endif /* (UART_RX_INTERRUPT_ENABLED) */
-
-        return(rxData);
+        UART_UartPostEnable();
     }
-
-
-    /*******************************************************************************
-    * Function Name: UART_ReadRxStatus
-    ********************************************************************************
-    *
-    * Summary:
-    *  Returns the current state of the receiver status register and the software
-    *  buffer overflow status.
-    *
-    * Parameters:
-    *  None.
-    *
-    * Return:
-    *  Current state of the status register.
-    *
-    * Side Effect:
-    *  All status register bits are clear-on-read except
-    *  UART_RX_STS_FIFO_NOTEMPTY.
-    *  UART_RX_STS_FIFO_NOTEMPTY clears immediately after RX data
-    *  register read.
-    *
-    * Global Variables:
-    *  UART_rxBufferOverflow - used to indicate overload condition.
-    *   It set to one in RX interrupt when there isn't free space in
-    *   UART_rxBufferRead to write new data. This condition returned
-    *   and cleared to zero by this API as an
-    *   UART_RX_STS_SOFT_BUFF_OVER bit along with RX Status register
-    *   bits.
-    *
-    *******************************************************************************/
-    uint8 UART_ReadRxStatus(void) 
+    else
     {
-        uint8 status;
-
-        status = UART_RXSTATUS_REG & UART_RX_HW_MASK;
-
-    #if (UART_RX_INTERRUPT_ENABLED)
-        if(UART_rxBufferOverflow != 0u)
-        {
-            status |= UART_RX_STS_SOFT_BUFF_OVER;
-            UART_rxBufferOverflow = 0u;
-        }
-    #endif /* (UART_RX_INTERRUPT_ENABLED) */
-
-        return(status);
+        /* Unknown mode: do nothing */
     }
+#endif /* (!UART_CY_SCBIP_V1) */
+
+#elif (UART_SCB_MODE_SPI_CONST_CFG)
+    UART_SpiPostEnable();
+
+#elif (UART_SCB_MODE_UART_CONST_CFG)
+    UART_UartPostEnable();
+
+#else
+    /* Unknown mode: do nothing */
+#endif /* (UART_SCB_MODE_UNCONFIG_CONST_CFG) */
+}
 
 
-    /*******************************************************************************
-    * Function Name: UART_GetChar
-    ********************************************************************************
-    *
-    * Summary:
-    *  Returns the last received byte of data. UART_GetChar() is
-    *  designed for ASCII characters and returns a uint8 where 1 to 255 are values
-    *  for valid characters and 0 indicates an error occurred or no data is present.
-    *
-    * Parameters:
-    *  None.
-    *
-    * Return:
-    *  Character read from UART RX buffer. ASCII characters from 1 to 255 are valid.
-    *  A returned zero signifies an error condition or no data available.
-    *
-    * Global Variables:
-    *  UART_rxBuffer - RAM buffer pointer for save received data.
-    *  UART_rxBufferWrite - cyclic index for write to rxBuffer,
-    *     checked to identify new data.
-    *  UART_rxBufferRead - cyclic index for read from rxBuffer,
-    *     incremented after each byte has been read from buffer.
-    *  UART_rxBufferLoopDetect - cleared if loop condition was detected
-    *     in RX ISR.
-    *
-    * Reentrant:
-    *  No.
-    *
-    *******************************************************************************/
-    uint8 UART_GetChar(void) 
+/*******************************************************************************
+* Function Name: UART_ScbModeStop
+****************************************************************************//**
+*
+*  Calls the Stop function for a specific operation mode.
+*
+*******************************************************************************/
+static void UART_ScbModeStop(void)
+{
+#if (UART_SCB_MODE_UNCONFIG_CONST_CFG)
+    if (UART_SCB_MODE_I2C_RUNTM_CFG)
     {
-        uint8 rxData = 0u;
-        uint8 rxStatus;
-
-    #if (UART_RX_INTERRUPT_ENABLED)
-        uint8 locRxBufferRead;
-        uint8 locRxBufferWrite;
-
-        /* Protect variables that could change on interrupt */
-        UART_DisableRxInt();
-
-        locRxBufferRead  = UART_rxBufferRead;
-        locRxBufferWrite = UART_rxBufferWrite;
-
-        if( (UART_rxBufferLoopDetect != 0u) || (locRxBufferRead != locRxBufferWrite) )
-        {
-            rxData = UART_rxBuffer[locRxBufferRead];
-            locRxBufferRead++;
-            if(locRxBufferRead >= UART_RX_BUFFER_SIZE)
-            {
-                locRxBufferRead = 0u;
-            }
-            /* Update the real pointer */
-            UART_rxBufferRead = locRxBufferRead;
-
-            if(UART_rxBufferLoopDetect != 0u)
-            {
-                UART_rxBufferLoopDetect = 0u;
-                #if( (UART_RX_INTERRUPT_ENABLED) && (UART_FLOW_CONTROL != 0u) )
-                    /* When Hardware Flow Control selected - return RX mask */
-                    #if( UART_HD_ENABLED )
-                        if((UART_CONTROL_REG & UART_CTRL_HD_SEND) == 0u)
-                        {   /* In Half duplex mode return RX mask only if
-                            *  RX configuration set, otherwise
-                            *  mask will be returned in LoadRxConfig() API.
-                            */
-                            UART_RXSTATUS_MASK_REG |= UART_RX_STS_FIFO_NOTEMPTY;
-                        }
-                    #else
-                        UART_RXSTATUS_MASK_REG |= UART_RX_STS_FIFO_NOTEMPTY;
-                    #endif /* end UART_HD_ENABLED */
-                #endif /* UART_RX_INTERRUPT_ENABLED and Hardware flow control*/
-            }
-
-        }
-        else
-        {   rxStatus = UART_RXSTATUS_REG;
-            if((rxStatus & UART_RX_STS_FIFO_NOTEMPTY) != 0u)
-            {   /* Read received data from FIFO */
-                rxData = UART_RXDATA_REG;
-                /*Check status on error*/
-                if((rxStatus & (UART_RX_STS_BREAK | UART_RX_STS_PAR_ERROR |
-                                UART_RX_STS_STOP_ERROR | UART_RX_STS_OVERRUN)) != 0u)
-                {
-                    rxData = 0u;
-                }
-            }
-        }
-
-        UART_EnableRxInt();
-
-    #else
-
-        rxStatus =UART_RXSTATUS_REG;
-        if((rxStatus & UART_RX_STS_FIFO_NOTEMPTY) != 0u)
-        {
-            /* Read received data from FIFO */
-            rxData = UART_RXDATA_REG;
-
-            /*Check status on error*/
-            if((rxStatus & (UART_RX_STS_BREAK | UART_RX_STS_PAR_ERROR |
-                            UART_RX_STS_STOP_ERROR | UART_RX_STS_OVERRUN)) != 0u)
-            {
-                rxData = 0u;
-            }
-        }
-    #endif /* (UART_RX_INTERRUPT_ENABLED) */
-
-        return(rxData);
+        UART_I2CStop();
     }
+    else if (UART_SCB_MODE_EZI2C_RUNTM_CFG)
+    {
+        UART_EzI2CStop();
+    }
+#if (!UART_CY_SCBIP_V1)
+    else if (UART_SCB_MODE_SPI_RUNTM_CFG)
+    {
+        UART_SpiStop();
+    }
+    else if (UART_SCB_MODE_UART_RUNTM_CFG)
+    {
+        UART_UartStop();
+    }
+#endif /* (!UART_CY_SCBIP_V1) */
+    else
+    {
+        /* Unknown mode: do nothing */
+    }
+#elif (UART_SCB_MODE_I2C_CONST_CFG)
+    UART_I2CStop();
+
+#elif (UART_SCB_MODE_EZI2C_CONST_CFG)
+    UART_EzI2CStop();
+
+#elif (UART_SCB_MODE_SPI_CONST_CFG)
+    UART_SpiStop();
+
+#elif (UART_SCB_MODE_UART_CONST_CFG)
+    UART_UartStop();
+
+#else
+    /* Unknown mode: do nothing */
+#endif /* (UART_SCB_MODE_UNCONFIG_CONST_CFG) */
+}
 
 
+#if (UART_SCB_MODE_UNCONFIG_CONST_CFG)
     /*******************************************************************************
-    * Function Name: UART_GetByte
-    ********************************************************************************
+    * Function Name: UART_SetPins
+    ****************************************************************************//**
     *
-    * Summary:
-    *  Reads UART RX buffer immediately, returns received character and error
-    *  condition.
+    *  Sets the pins settings accordingly to the selected operation mode.
+    *  Only available in the Unconfigured operation mode. The mode specific
+    *  initialization function calls it.
+    *  Pins configuration is set by PSoC Creator when a specific mode of operation
+    *  is selected in design time.
     *
-    * Parameters:
-    *  None.
-    *
-    * Return:
-    *  MSB contains status and LSB contains UART RX data. If the MSB is nonzero,
-    *  an error has occurred.
-    *
-    * Reentrant:
-    *  No.
+    *  \param mode:      Mode of SCB operation.
+    *  \param subMode:   Sub-mode of SCB operation. It is only required for SPI and UART
+    *             modes.
+    *  \param uartEnableMask: enables TX or RX direction and RTS and CTS signals.
     *
     *******************************************************************************/
-    uint16 UART_GetByte(void) 
+    void UART_SetPins(uint32 mode, uint32 subMode, uint32 uartEnableMask)
     {
+        uint32 pinsDm[UART_SCB_PINS_NUMBER];
+        uint32 i;
         
-    #if (UART_RX_INTERRUPT_ENABLED)
-        uint16 locErrorStatus;
-        /* Protect variables that could change on interrupt */
-        UART_DisableRxInt();
-        locErrorStatus = (uint16)UART_errorStatus;
-        UART_errorStatus = 0u;
-        UART_EnableRxInt();
-        return ( (uint16)(locErrorStatus << 8u) | UART_ReadRxData() );
-    #else
-        return ( ((uint16)UART_ReadRxStatus() << 8u) | UART_ReadRxData() );
-    #endif /* UART_RX_INTERRUPT_ENABLED */
+    #if (!UART_CY_SCBIP_V1)
+        uint32 pinsInBuf = 0u;
+    #endif /* (!UART_CY_SCBIP_V1) */
         
-    }
-
-
-    /*******************************************************************************
-    * Function Name: UART_GetRxBufferSize
-    ********************************************************************************
-    *
-    * Summary:
-    *  Returns the number of received bytes available in the RX buffer.
-    *  * RX software buffer is disabled (RX Buffer Size parameter is equal to 4): 
-    *    returns 0 for empty RX FIFO or 1 for not empty RX FIFO.
-    *  * RX software buffer is enabled: returns the number of bytes available in 
-    *    the RX software buffer. Bytes available in the RX FIFO do not take to 
-    *    account.
-    *
-    * Parameters:
-    *  None.
-    *
-    * Return:
-    *  uint8: Number of bytes in the RX buffer. 
-    *    Return value type depends on RX Buffer Size parameter.
-    *
-    * Global Variables:
-    *  UART_rxBufferWrite - used to calculate left bytes.
-    *  UART_rxBufferRead - used to calculate left bytes.
-    *  UART_rxBufferLoopDetect - checked to decide left bytes amount.
-    *
-    * Reentrant:
-    *  No.
-    *
-    * Theory:
-    *  Allows the user to find out how full the RX Buffer is.
-    *
-    *******************************************************************************/
-    uint8 UART_GetRxBufferSize(void)
-                                                            
-    {
-        uint8 size;
-
-    #if (UART_RX_INTERRUPT_ENABLED)
-
-        /* Protect variables that could change on interrupt */
-        UART_DisableRxInt();
-
-        if(UART_rxBufferRead == UART_rxBufferWrite)
+        uint32 hsiomSel[UART_SCB_PINS_NUMBER] = 
         {
-            if(UART_rxBufferLoopDetect != 0u)
-            {
-                size = UART_RX_BUFFER_SIZE;
-            }
-            else
-            {
-                size = 0u;
-            }
+            UART_RX_SDA_MOSI_HSIOM_SEL_GPIO,
+            UART_TX_SCL_MISO_HSIOM_SEL_GPIO,
+            0u,
+            0u,
+            0u,
+            0u,
+            0u,
+        };
+
+    #if (UART_CY_SCBIP_V1)
+        /* Supress compiler warning. */
+        if ((0u == subMode) || (0u == uartEnableMask))
+        {
         }
-        else if(UART_rxBufferRead < UART_rxBufferWrite)
+    #endif /* (UART_CY_SCBIP_V1) */
+
+        /* Set default HSIOM to GPIO and Drive Mode to Analog Hi-Z */
+        for (i = 0u; i < UART_SCB_PINS_NUMBER; i++)
         {
-            size = (UART_rxBufferWrite - UART_rxBufferRead);
-        }
-        else
-        {
-            size = (UART_RX_BUFFER_SIZE - UART_rxBufferRead) + UART_rxBufferWrite;
+            pinsDm[i] = UART_PIN_DM_ALG_HIZ;
         }
 
-        UART_EnableRxInt();
-
-    #else
-
-        /* We can only know if there is data in the fifo. */
-        size = ((UART_RXSTATUS_REG & UART_RX_STS_FIFO_NOTEMPTY) != 0u) ? 1u : 0u;
-
-    #endif /* (UART_RX_INTERRUPT_ENABLED) */
-
-        return(size);
-    }
-
-
-    /*******************************************************************************
-    * Function Name: UART_ClearRxBuffer
-    ********************************************************************************
-    *
-    * Summary:
-    *  Clears the receiver memory buffer and hardware RX FIFO of all received data.
-    *
-    * Parameters:
-    *  None.
-    *
-    * Return:
-    *  None.
-    *
-    * Global Variables:
-    *  UART_rxBufferWrite - cleared to zero.
-    *  UART_rxBufferRead - cleared to zero.
-    *  UART_rxBufferLoopDetect - cleared to zero.
-    *  UART_rxBufferOverflow - cleared to zero.
-    *
-    * Reentrant:
-    *  No.
-    *
-    * Theory:
-    *  Setting the pointers to zero makes the system believe there is no data to
-    *  read and writing will resume at address 0 overwriting any data that may
-    *  have remained in the RAM.
-    *
-    * Side Effects:
-    *  Any received data not read from the RAM or FIFO buffer will be lost.
-    *
-    *******************************************************************************/
-    void UART_ClearRxBuffer(void) 
-    {
-        uint8 enableInterrupts;
-
-        /* Clear the HW FIFO */
-        enableInterrupts = CyEnterCriticalSection();
-        UART_RXDATA_AUX_CTL_REG |= (uint8)  UART_RX_FIFO_CLR;
-        UART_RXDATA_AUX_CTL_REG &= (uint8) ~UART_RX_FIFO_CLR;
-        CyExitCriticalSection(enableInterrupts);
-
-    #if (UART_RX_INTERRUPT_ENABLED)
-
-        /* Protect variables that could change on interrupt. */
-        UART_DisableRxInt();
-
-        UART_rxBufferRead = 0u;
-        UART_rxBufferWrite = 0u;
-        UART_rxBufferLoopDetect = 0u;
-        UART_rxBufferOverflow = 0u;
-
-        UART_EnableRxInt();
-
-    #endif /* (UART_RX_INTERRUPT_ENABLED) */
-
-    }
-
-
-    /*******************************************************************************
-    * Function Name: UART_SetRxAddressMode
-    ********************************************************************************
-    *
-    * Summary:
-    *  Sets the software controlled Addressing mode used by the RX portion of the
-    *  UART.
-    *
-    * Parameters:
-    *  addressMode: Enumerated value indicating the mode of RX addressing
-    *  UART__B_UART__AM_SW_BYTE_BYTE -  Software Byte-by-Byte address
-    *                                               detection
-    *  UART__B_UART__AM_SW_DETECT_TO_BUFFER - Software Detect to Buffer
-    *                                               address detection
-    *  UART__B_UART__AM_HW_BYTE_BY_BYTE - Hardware Byte-by-Byte address
-    *                                               detection
-    *  UART__B_UART__AM_HW_DETECT_TO_BUFFER - Hardware Detect to Buffer
-    *                                               address detection
-    *  UART__B_UART__AM_NONE - No address detection
-    *
-    * Return:
-    *  None.
-    *
-    * Global Variables:
-    *  UART_rxAddressMode - the parameter stored in this variable for
-    *   the farther usage in RX ISR.
-    *  UART_rxAddressDetected - set to initial state (0).
-    *
-    *******************************************************************************/
-    void UART_SetRxAddressMode(uint8 addressMode)
-                                                        
-    {
-        #if(UART_RXHW_ADDRESS_ENABLED)
-            #if(UART_CONTROL_REG_REMOVED)
-                if(0u != addressMode)
-                {
-                    /* Suppress compiler warning */
-                }
-            #else /* UART_CONTROL_REG_REMOVED */
-                uint8 tmpCtrl;
-                tmpCtrl = UART_CONTROL_REG & (uint8)~UART_CTRL_RXADDR_MODE_MASK;
-                tmpCtrl |= (uint8)(addressMode << UART_CTRL_RXADDR_MODE0_SHIFT);
-                UART_CONTROL_REG = tmpCtrl;
-
-                #if(UART_RX_INTERRUPT_ENABLED && \
-                   (UART_RXBUFFERSIZE > UART_FIFO_LENGTH) )
-                    UART_rxAddressMode = addressMode;
-                    UART_rxAddressDetected = 0u;
-                #endif /* End UART_RXBUFFERSIZE > UART_FIFO_LENGTH*/
-            #endif /* End UART_CONTROL_REG_REMOVED */
-        #else /* UART_RXHW_ADDRESS_ENABLED */
-            if(0u != addressMode)
-            {
-                /* Suppress compiler warning */
-            }
-        #endif /* End UART_RXHW_ADDRESS_ENABLED */
-    }
-
-
-    /*******************************************************************************
-    * Function Name: UART_SetRxAddress1
-    ********************************************************************************
-    *
-    * Summary:
-    *  Sets the first of two hardware-detectable receiver addresses.
-    *
-    * Parameters:
-    *  address: Address #1 for hardware address detection.
-    *
-    * Return:
-    *  None.
-    *
-    *******************************************************************************/
-    void UART_SetRxAddress1(uint8 address) 
-    {
-        UART_RXADDRESS1_REG = address;
-    }
-
-
-    /*******************************************************************************
-    * Function Name: UART_SetRxAddress2
-    ********************************************************************************
-    *
-    * Summary:
-    *  Sets the second of two hardware-detectable receiver addresses.
-    *
-    * Parameters:
-    *  address: Address #2 for hardware address detection.
-    *
-    * Return:
-    *  None.
-    *
-    *******************************************************************************/
-    void UART_SetRxAddress2(uint8 address) 
-    {
-        UART_RXADDRESS2_REG = address;
-    }
-
-#endif  /* UART_RX_ENABLED || UART_HD_ENABLED*/
-
-
-#if( (UART_TX_ENABLED) || (UART_HD_ENABLED) )
-    /*******************************************************************************
-    * Function Name: UART_SetTxInterruptMode
-    ********************************************************************************
-    *
-    * Summary:
-    *  Configures the TX interrupt sources to be enabled, but does not enable the
-    *  interrupt.
-    *
-    * Parameters:
-    *  intSrc: Bit field containing the TX interrupt sources to enable
-    *   UART_TX_STS_COMPLETE        Interrupt on TX byte complete
-    *   UART_TX_STS_FIFO_EMPTY      Interrupt when TX FIFO is empty
-    *   UART_TX_STS_FIFO_FULL       Interrupt when TX FIFO is full
-    *   UART_TX_STS_FIFO_NOT_FULL   Interrupt when TX FIFO is not full
-    *
-    * Return:
-    *  None.
-    *
-    * Theory:
-    *  Enables the output of specific status bits to the interrupt controller
-    *
-    *******************************************************************************/
-    void UART_SetTxInterruptMode(uint8 intSrc) 
-    {
-        UART_TXSTATUS_MASK_REG = intSrc;
-    }
-
-
-    /*******************************************************************************
-    * Function Name: UART_WriteTxData
-    ********************************************************************************
-    *
-    * Summary:
-    *  Places a byte of data into the transmit buffer to be sent when the bus is
-    *  available without checking the TX status register. You must check status
-    *  separately.
-    *
-    * Parameters:
-    *  txDataByte: data byte
-    *
-    * Return:
-    * None.
-    *
-    * Global Variables:
-    *  UART_txBuffer - RAM buffer pointer for save data for transmission
-    *  UART_txBufferWrite - cyclic index for write to txBuffer,
-    *    incremented after each byte saved to buffer.
-    *  UART_txBufferRead - cyclic index for read from txBuffer,
-    *    checked to identify the condition to write to FIFO directly or to TX buffer
-    *  UART_initVar - checked to identify that the component has been
-    *    initialized.
-    *
-    * Reentrant:
-    *  No.
-    *
-    *******************************************************************************/
-    void UART_WriteTxData(uint8 txDataByte) 
-    {
-        /* If not Initialized then skip this function*/
-        if(UART_initVar != 0u)
+        if ((UART_SCB_MODE_I2C   == mode) ||
+            (UART_SCB_MODE_EZI2C == mode))
         {
-        #if (UART_TX_INTERRUPT_ENABLED)
-
-            /* Protect variables that could change on interrupt. */
-            UART_DisableTxInt();
-
-            if( (UART_txBufferRead == UART_txBufferWrite) &&
-                ((UART_TXSTATUS_REG & UART_TX_STS_FIFO_FULL) == 0u) )
-            {
-                /* Add directly to the FIFO. */
-                UART_TXDATA_REG = txDataByte;
-            }
-            else
-            {
-                if(UART_txBufferWrite >= UART_TX_BUFFER_SIZE)
-                {
-                    UART_txBufferWrite = 0u;
-                }
-
-                UART_txBuffer[UART_txBufferWrite] = txDataByte;
-
-                /* Add to the software buffer. */
-                UART_txBufferWrite++;
-            }
-
-            UART_EnableTxInt();
-
+        #if (UART_RX_SDA_MOSI_PIN)
+            hsiomSel[UART_RX_SDA_MOSI_PIN_INDEX] = UART_RX_SDA_MOSI_HSIOM_SEL_I2C;
+            pinsDm  [UART_RX_SDA_MOSI_PIN_INDEX] = UART_PIN_DM_OD_LO;
+        #elif (UART_RX_WAKE_SDA_MOSI_PIN)
+            hsiomSel[UART_RX_WAKE_SDA_MOSI_PIN_INDEX] = UART_RX_WAKE_SDA_MOSI_HSIOM_SEL_I2C;
+            pinsDm  [UART_RX_WAKE_SDA_MOSI_PIN_INDEX] = UART_PIN_DM_OD_LO;
         #else
-
-            /* Add directly to the FIFO. */
-            UART_TXDATA_REG = txDataByte;
-
-        #endif /*(UART_TX_INTERRUPT_ENABLED) */
+        #endif /* (UART_RX_SDA_MOSI_PIN) */
+        
+        #if (UART_TX_SCL_MISO_PIN)
+            hsiomSel[UART_TX_SCL_MISO_PIN_INDEX] = UART_TX_SCL_MISO_HSIOM_SEL_I2C;
+            pinsDm  [UART_TX_SCL_MISO_PIN_INDEX] = UART_PIN_DM_OD_LO;
+        #endif /* (UART_TX_SCL_MISO_PIN) */
         }
-    }
-
-
-    /*******************************************************************************
-    * Function Name: UART_ReadTxStatus
-    ********************************************************************************
-    *
-    * Summary:
-    *  Reads the status register for the TX portion of the UART.
-    *
-    * Parameters:
-    *  None.
-    *
-    * Return:
-    *  Contents of the status register
-    *
-    * Theory:
-    *  This function reads the TX status register, which is cleared on read.
-    *  It is up to the user to handle all bits in this return value accordingly,
-    *  even if the bit was not enabled as an interrupt source the event happened
-    *  and must be handled accordingly.
-    *
-    *******************************************************************************/
-    uint8 UART_ReadTxStatus(void) 
-    {
-        return(UART_TXSTATUS_REG);
-    }
-
-
-    /*******************************************************************************
-    * Function Name: UART_PutChar
-    ********************************************************************************
-    *
-    * Summary:
-    *  Puts a byte of data into the transmit buffer to be sent when the bus is
-    *  available. This is a blocking API that waits until the TX buffer has room to
-    *  hold the data.
-    *
-    * Parameters:
-    *  txDataByte: Byte containing the data to transmit
-    *
-    * Return:
-    *  None.
-    *
-    * Global Variables:
-    *  UART_txBuffer - RAM buffer pointer for save data for transmission
-    *  UART_txBufferWrite - cyclic index for write to txBuffer,
-    *     checked to identify free space in txBuffer and incremented after each byte
-    *     saved to buffer.
-    *  UART_txBufferRead - cyclic index for read from txBuffer,
-    *     checked to identify free space in txBuffer.
-    *  UART_initVar - checked to identify that the component has been
-    *     initialized.
-    *
-    * Reentrant:
-    *  No.
-    *
-    * Theory:
-    *  Allows the user to transmit any byte of data in a single transfer
-    *
-    *******************************************************************************/
-    void UART_PutChar(uint8 txDataByte) 
-    {
-    #if (UART_TX_INTERRUPT_ENABLED)
-        /* The temporary output pointer is used since it takes two instructions
-        *  to increment with a wrap, and we can't risk doing that with the real
-        *  pointer and getting an interrupt in between instructions.
-        */
-        uint8 locTxBufferWrite;
-        uint8 locTxBufferRead;
-
-        do
-        { /* Block if software buffer is full, so we don't overwrite. */
-
-        #if ((UART_TX_BUFFER_SIZE > UART_MAX_BYTE_VALUE) && (CY_PSOC3))
-            /* Disable TX interrupt to protect variables from modification */
-            UART_DisableTxInt();
-        #endif /* (UART_TX_BUFFER_SIZE > UART_MAX_BYTE_VALUE) && (CY_PSOC3) */
-
-            locTxBufferWrite = UART_txBufferWrite;
-            locTxBufferRead  = UART_txBufferRead;
-
-        #if ((UART_TX_BUFFER_SIZE > UART_MAX_BYTE_VALUE) && (CY_PSOC3))
-            /* Enable interrupt to continue transmission */
-            UART_EnableTxInt();
-        #endif /* (UART_TX_BUFFER_SIZE > UART_MAX_BYTE_VALUE) && (CY_PSOC3) */
-        }
-        while( (locTxBufferWrite < locTxBufferRead) ? (locTxBufferWrite == (locTxBufferRead - 1u)) :
-                                ((locTxBufferWrite - locTxBufferRead) ==
-                                (uint8)(UART_TX_BUFFER_SIZE - 1u)) );
-
-        if( (locTxBufferRead == locTxBufferWrite) &&
-            ((UART_TXSTATUS_REG & UART_TX_STS_FIFO_FULL) == 0u) )
+    #if (!UART_CY_SCBIP_V1)
+        else if (UART_SCB_MODE_SPI == mode)
         {
-            /* Add directly to the FIFO */
-            UART_TXDATA_REG = txDataByte;
-        }
-        else
-        {
-            if(locTxBufferWrite >= UART_TX_BUFFER_SIZE)
+        #if (UART_RX_SDA_MOSI_PIN)
+            hsiomSel[UART_RX_SDA_MOSI_PIN_INDEX] = UART_RX_SDA_MOSI_HSIOM_SEL_SPI;
+        #elif (UART_RX_WAKE_SDA_MOSI_PIN)
+            hsiomSel[UART_RX_WAKE_SDA_MOSI_PIN_INDEX] = UART_RX_WAKE_SDA_MOSI_HSIOM_SEL_SPI;
+        #else
+        #endif /* (UART_RX_SDA_MOSI_PIN) */
+        
+        #if (UART_TX_SCL_MISO_PIN)
+            hsiomSel[UART_TX_SCL_MISO_PIN_INDEX] = UART_TX_SCL_MISO_HSIOM_SEL_SPI;
+        #endif /* (UART_TX_SCL_MISO_PIN) */
+        
+        #if (UART_CTS_SCLK_PIN)
+            hsiomSel[UART_CTS_SCLK_PIN_INDEX] = UART_CTS_SCLK_HSIOM_SEL_SPI;
+        #endif /* (UART_CTS_SCLK_PIN) */
+
+            if (UART_SPI_SLAVE == subMode)
             {
-                locTxBufferWrite = 0u;
+                /* Slave */
+                pinsDm[UART_RX_SDA_MOSI_PIN_INDEX] = UART_PIN_DM_DIG_HIZ;
+                pinsDm[UART_TX_SCL_MISO_PIN_INDEX] = UART_PIN_DM_STRONG;
+                pinsDm[UART_CTS_SCLK_PIN_INDEX] = UART_PIN_DM_DIG_HIZ;
+
+            #if (UART_RTS_SS0_PIN)
+                /* Only SS0 is valid choice for Slave */
+                hsiomSel[UART_RTS_SS0_PIN_INDEX] = UART_RTS_SS0_HSIOM_SEL_SPI;
+                pinsDm  [UART_RTS_SS0_PIN_INDEX] = UART_PIN_DM_DIG_HIZ;
+            #endif /* (UART_RTS_SS0_PIN) */
+
+            #if (UART_TX_SCL_MISO_PIN)
+                /* Disable input buffer */
+                 pinsInBuf |= UART_TX_SCL_MISO_PIN_MASK;
+            #endif /* (UART_TX_SCL_MISO_PIN) */
             }
-            /* Add to the software buffer. */
-            UART_txBuffer[locTxBufferWrite] = txDataByte;
-            locTxBufferWrite++;
-
-            /* Finally, update the real output pointer */
-        #if ((UART_TX_BUFFER_SIZE > UART_MAX_BYTE_VALUE) && (CY_PSOC3))
-            UART_DisableTxInt();
-        #endif /* (UART_TX_BUFFER_SIZE > UART_MAX_BYTE_VALUE) && (CY_PSOC3) */
-
-            UART_txBufferWrite = locTxBufferWrite;
-
-        #if ((UART_TX_BUFFER_SIZE > UART_MAX_BYTE_VALUE) && (CY_PSOC3))
-            UART_EnableTxInt();
-        #endif /* (UART_TX_BUFFER_SIZE > UART_MAX_BYTE_VALUE) && (CY_PSOC3) */
-
-            if(0u != (UART_TXSTATUS_REG & UART_TX_STS_FIFO_EMPTY))
+            else 
             {
-                /* Trigger TX interrupt to send software buffer */
-                UART_SetPendingTxInt();
-            }
-        }
+                /* (Master) */
+                pinsDm[UART_RX_SDA_MOSI_PIN_INDEX] = UART_PIN_DM_STRONG;
+                pinsDm[UART_TX_SCL_MISO_PIN_INDEX] = UART_PIN_DM_DIG_HIZ;
+                pinsDm[UART_CTS_SCLK_PIN_INDEX] = UART_PIN_DM_STRONG;
 
-    #else
+            #if (UART_RTS_SS0_PIN)
+                hsiomSel [UART_RTS_SS0_PIN_INDEX] = UART_RTS_SS0_HSIOM_SEL_SPI;
+                pinsDm   [UART_RTS_SS0_PIN_INDEX] = UART_PIN_DM_STRONG;
+                pinsInBuf |= UART_RTS_SS0_PIN_MASK;
+            #endif /* (UART_RTS_SS0_PIN) */
 
-        while((UART_TXSTATUS_REG & UART_TX_STS_FIFO_FULL) != 0u)
-        {
-            /* Wait for room in the FIFO */
-        }
+            #if (UART_SS1_PIN)
+                hsiomSel [UART_SS1_PIN_INDEX] = UART_SS1_HSIOM_SEL_SPI;
+                pinsDm   [UART_SS1_PIN_INDEX] = UART_PIN_DM_STRONG;
+                pinsInBuf |= UART_SS1_PIN_MASK;
+            #endif /* (UART_SS1_PIN) */
 
-        /* Add directly to the FIFO */
-        UART_TXDATA_REG = txDataByte;
+            #if (UART_SS2_PIN)
+                hsiomSel [UART_SS2_PIN_INDEX] = UART_SS2_HSIOM_SEL_SPI;
+                pinsDm   [UART_SS2_PIN_INDEX] = UART_PIN_DM_STRONG;
+                pinsInBuf |= UART_SS2_PIN_MASK;
+            #endif /* (UART_SS2_PIN) */
 
-    #endif /* UART_TX_INTERRUPT_ENABLED */
-    }
+            #if (UART_SS3_PIN)
+                hsiomSel [UART_SS3_PIN_INDEX] = UART_SS3_HSIOM_SEL_SPI;
+                pinsDm   [UART_SS3_PIN_INDEX] = UART_PIN_DM_STRONG;
+                pinsInBuf |= UART_SS3_PIN_MASK;
+            #endif /* (UART_SS3_PIN) */
 
-
-    /*******************************************************************************
-    * Function Name: UART_PutString
-    ********************************************************************************
-    *
-    * Summary:
-    *  Sends a NULL terminated string to the TX buffer for transmission.
-    *
-    * Parameters:
-    *  string[]: Pointer to the null terminated string array residing in RAM or ROM
-    *
-    * Return:
-    *  None.
-    *
-    * Global Variables:
-    *  UART_initVar - checked to identify that the component has been
-    *     initialized.
-    *
-    * Reentrant:
-    *  No.
-    *
-    * Theory:
-    *  If there is not enough memory in the TX buffer for the entire string, this
-    *  function blocks until the last character of the string is loaded into the
-    *  TX buffer.
-    *
-    *******************************************************************************/
-    void UART_PutString(const char8 string[]) 
-    {
-        uint16 bufIndex = 0u;
-
-        /* If not Initialized then skip this function */
-        if(UART_initVar != 0u)
-        {
-            /* This is a blocking function, it will not exit until all data is sent */
-            while(string[bufIndex] != (char8) 0)
-            {
-                UART_PutChar((uint8)string[bufIndex]);
-                bufIndex++;
-            }
-        }
-    }
-
-
-    /*******************************************************************************
-    * Function Name: UART_PutArray
-    ********************************************************************************
-    *
-    * Summary:
-    *  Places N bytes of data from a memory array into the TX buffer for
-    *  transmission.
-    *
-    * Parameters:
-    *  string[]: Address of the memory array residing in RAM or ROM.
-    *  byteCount: Number of bytes to be transmitted. The type depends on TX Buffer
-    *             Size parameter.
-    *
-    * Return:
-    *  None.
-    *
-    * Global Variables:
-    *  UART_initVar - checked to identify that the component has been
-    *     initialized.
-    *
-    * Reentrant:
-    *  No.
-    *
-    * Theory:
-    *  If there is not enough memory in the TX buffer for the entire string, this
-    *  function blocks until the last character of the string is loaded into the
-    *  TX buffer.
-    *
-    *******************************************************************************/
-    void UART_PutArray(const uint8 string[], uint8 byteCount)
-                                                                    
-    {
-        uint8 bufIndex = 0u;
-
-        /* If not Initialized then skip this function */
-        if(UART_initVar != 0u)
-        {
-            while(bufIndex < byteCount)
-            {
-                UART_PutChar(string[bufIndex]);
-                bufIndex++;
-            }
-        }
-    }
-
-
-    /*******************************************************************************
-    * Function Name: UART_PutCRLF
-    ********************************************************************************
-    *
-    * Summary:
-    *  Writes a byte of data followed by a carriage return (0x0D) and line feed
-    *  (0x0A) to the transmit buffer.
-    *
-    * Parameters:
-    *  txDataByte: Data byte to transmit before the carriage return and line feed.
-    *
-    * Return:
-    *  None.
-    *
-    * Global Variables:
-    *  UART_initVar - checked to identify that the component has been
-    *     initialized.
-    *
-    * Reentrant:
-    *  No.
-    *
-    *******************************************************************************/
-    void UART_PutCRLF(uint8 txDataByte) 
-    {
-        /* If not Initialized then skip this function */
-        if(UART_initVar != 0u)
-        {
-            UART_PutChar(txDataByte);
-            UART_PutChar(0x0Du);
-            UART_PutChar(0x0Au);
-        }
-    }
-
-
-    /*******************************************************************************
-    * Function Name: UART_GetTxBufferSize
-    ********************************************************************************
-    *
-    * Summary:
-    *  Returns the number of bytes in the TX buffer which are waiting to be 
-    *  transmitted.
-    *  * TX software buffer is disabled (TX Buffer Size parameter is equal to 4): 
-    *    returns 0 for empty TX FIFO, 1 for not full TX FIFO or 4 for full TX FIFO.
-    *  * TX software buffer is enabled: returns the number of bytes in the TX 
-    *    software buffer which are waiting to be transmitted. Bytes available in the
-    *    TX FIFO do not count.
-    *
-    * Parameters:
-    *  None.
-    *
-    * Return:
-    *  Number of bytes used in the TX buffer. Return value type depends on the TX 
-    *  Buffer Size parameter.
-    *
-    * Global Variables:
-    *  UART_txBufferWrite - used to calculate left space.
-    *  UART_txBufferRead - used to calculate left space.
-    *
-    * Reentrant:
-    *  No.
-    *
-    * Theory:
-    *  Allows the user to find out how full the TX Buffer is.
-    *
-    *******************************************************************************/
-    uint8 UART_GetTxBufferSize(void)
-                                                            
-    {
-        uint8 size;
-
-    #if (UART_TX_INTERRUPT_ENABLED)
-
-        /* Protect variables that could change on interrupt. */
-        UART_DisableTxInt();
-
-        if(UART_txBufferRead == UART_txBufferWrite)
-        {
-            size = 0u;
-        }
-        else if(UART_txBufferRead < UART_txBufferWrite)
-        {
-            size = (UART_txBufferWrite - UART_txBufferRead);
-        }
-        else
-        {
-            size = (UART_TX_BUFFER_SIZE - UART_txBufferRead) +
-                    UART_txBufferWrite;
-        }
-
-        UART_EnableTxInt();
-
-    #else
-
-        size = UART_TXSTATUS_REG;
-
-        /* Is the fifo is full. */
-        if((size & UART_TX_STS_FIFO_FULL) != 0u)
-        {
-            size = UART_FIFO_LENGTH;
-        }
-        else if((size & UART_TX_STS_FIFO_EMPTY) != 0u)
-        {
-            size = 0u;
-        }
-        else
-        {
-            /* We only know there is data in the fifo. */
-            size = 1u;
-        }
-
-    #endif /* (UART_TX_INTERRUPT_ENABLED) */
-
-    return(size);
-    }
-
-
-    /*******************************************************************************
-    * Function Name: UART_ClearTxBuffer
-    ********************************************************************************
-    *
-    * Summary:
-    *  Clears all data from the TX buffer and hardware TX FIFO.
-    *
-    * Parameters:
-    *  None.
-    *
-    * Return:
-    *  None.
-    *
-    * Global Variables:
-    *  UART_txBufferWrite - cleared to zero.
-    *  UART_txBufferRead - cleared to zero.
-    *
-    * Reentrant:
-    *  No.
-    *
-    * Theory:
-    *  Setting the pointers to zero makes the system believe there is no data to
-    *  read and writing will resume at address 0 overwriting any data that may have
-    *  remained in the RAM.
-    *
-    * Side Effects:
-    *  Data waiting in the transmit buffer is not sent; a byte that is currently
-    *  transmitting finishes transmitting.
-    *
-    *******************************************************************************/
-    void UART_ClearTxBuffer(void) 
-    {
-        uint8 enableInterrupts;
-
-        enableInterrupts = CyEnterCriticalSection();
-        /* Clear the HW FIFO */
-        UART_TXDATA_AUX_CTL_REG |= (uint8)  UART_TX_FIFO_CLR;
-        UART_TXDATA_AUX_CTL_REG &= (uint8) ~UART_TX_FIFO_CLR;
-        CyExitCriticalSection(enableInterrupts);
-
-    #if (UART_TX_INTERRUPT_ENABLED)
-
-        /* Protect variables that could change on interrupt. */
-        UART_DisableTxInt();
-
-        UART_txBufferRead = 0u;
-        UART_txBufferWrite = 0u;
-
-        /* Enable Tx interrupt. */
-        UART_EnableTxInt();
-
-    #endif /* (UART_TX_INTERRUPT_ENABLED) */
-    }
-
-
-    /*******************************************************************************
-    * Function Name: UART_SendBreak
-    ********************************************************************************
-    *
-    * Summary:
-    *  Transmits a break signal on the bus.
-    *
-    * Parameters:
-    *  uint8 retMode:  Send Break return mode. See the following table for options.
-    *   UART_SEND_BREAK - Initialize registers for break, send the Break
-    *       signal and return immediately.
-    *   UART_WAIT_FOR_COMPLETE_REINIT - Wait until break transmission is
-    *       complete, reinitialize registers to normal transmission mode then return
-    *   UART_REINIT - Reinitialize registers to normal transmission mode
-    *       then return.
-    *   UART_SEND_WAIT_REINIT - Performs both options: 
-    *      UART_SEND_BREAK and UART_WAIT_FOR_COMPLETE_REINIT.
-    *      This option is recommended for most cases.
-    *
-    * Return:
-    *  None.
-    *
-    * Global Variables:
-    *  UART_initVar - checked to identify that the component has been
-    *     initialized.
-    *  txPeriod - static variable, used for keeping TX period configuration.
-    *
-    * Reentrant:
-    *  No.
-    *
-    * Theory:
-    *  SendBreak function initializes registers to send 13-bit break signal. It is
-    *  important to return the registers configuration to normal for continue 8-bit
-    *  operation.
-    *  There are 3 variants for this API usage:
-    *  1) SendBreak(3) - function will send the Break signal and take care on the
-    *     configuration returning. Function will block CPU until transmission
-    *     complete.
-    *  2) User may want to use blocking time if UART configured to the low speed
-    *     operation
-    *     Example for this case:
-    *     SendBreak(0);     - initialize Break signal transmission
-    *         Add your code here to use CPU time
-    *     SendBreak(1);     - complete Break operation
-    *  3) Same to 2) but user may want to initialize and use the interrupt to
-    *     complete break operation.
-    *     Example for this case:
-    *     Initialize TX interrupt with "TX - On TX Complete" parameter
-    *     SendBreak(0);     - initialize Break signal transmission
-    *         Add your code here to use CPU time
-    *     When interrupt appear with UART_TX_STS_COMPLETE status:
-    *     SendBreak(2);     - complete Break operation
-    *
-    * Side Effects:
-    *  The UART_SendBreak() function initializes registers to send a
-    *  break signal.
-    *  Break signal length depends on the break signal bits configuration.
-    *  The register configuration should be reinitialized before normal 8-bit
-    *  communication can continue.
-    *
-    *******************************************************************************/
-    void UART_SendBreak(uint8 retMode) 
-    {
-
-        /* If not Initialized then skip this function*/
-        if(UART_initVar != 0u)
-        {
-            /* Set the Counter to 13-bits and transmit a 00 byte */
-            /* When that is done then reset the counter value back */
-            uint8 tmpStat;
-
-        #if(UART_HD_ENABLED) /* Half Duplex mode*/
-
-            if( (retMode == UART_SEND_BREAK) ||
-                (retMode == UART_SEND_WAIT_REINIT ) )
-            {
-                /* CTRL_HD_SEND_BREAK - sends break bits in HD mode */
-                UART_WriteControlRegister(UART_ReadControlRegister() |
-                                                      UART_CTRL_HD_SEND_BREAK);
-                /* Send zeros */
-                UART_TXDATA_REG = 0u;
-
-                do /* Wait until transmit starts */
-                {
-                    tmpStat = UART_TXSTATUS_REG;
-                }
-                while((tmpStat & UART_TX_STS_FIFO_EMPTY) != 0u);
-            }
-
-            if( (retMode == UART_WAIT_FOR_COMPLETE_REINIT) ||
-                (retMode == UART_SEND_WAIT_REINIT) )
-            {
-                do /* Wait until transmit complete */
-                {
-                    tmpStat = UART_TXSTATUS_REG;
-                }
-                while(((uint8)~tmpStat & UART_TX_STS_COMPLETE) != 0u);
-            }
-
-            if( (retMode == UART_WAIT_FOR_COMPLETE_REINIT) ||
-                (retMode == UART_REINIT) ||
-                (retMode == UART_SEND_WAIT_REINIT) )
-            {
-                UART_WriteControlRegister(UART_ReadControlRegister() &
-                                              (uint8)~UART_CTRL_HD_SEND_BREAK);
-            }
-
-        #else /* UART_HD_ENABLED Full Duplex mode */
-
-            static uint8 txPeriod;
-
-            if( (retMode == UART_SEND_BREAK) ||
-                (retMode == UART_SEND_WAIT_REINIT) )
-            {
-                /* CTRL_HD_SEND_BREAK - skip to send parity bit at Break signal in Full Duplex mode */
-                #if( (UART_PARITY_TYPE != UART__B_UART__NONE_REVB) || \
-                                    (UART_PARITY_TYPE_SW != 0u) )
-                    UART_WriteControlRegister(UART_ReadControlRegister() |
-                                                          UART_CTRL_HD_SEND_BREAK);
-                #endif /* End UART_PARITY_TYPE != UART__B_UART__NONE_REVB  */
-
-                #if(UART_TXCLKGEN_DP)
-                    txPeriod = UART_TXBITCLKTX_COMPLETE_REG;
-                    UART_TXBITCLKTX_COMPLETE_REG = UART_TXBITCTR_BREAKBITS;
-                #else
-                    txPeriod = UART_TXBITCTR_PERIOD_REG;
-                    UART_TXBITCTR_PERIOD_REG = UART_TXBITCTR_BREAKBITS8X;
-                #endif /* End UART_TXCLKGEN_DP */
-
-                /* Send zeros */
-                UART_TXDATA_REG = 0u;
-
-                do /* Wait until transmit starts */
-                {
-                    tmpStat = UART_TXSTATUS_REG;
-                }
-                while((tmpStat & UART_TX_STS_FIFO_EMPTY) != 0u);
-            }
-
-            if( (retMode == UART_WAIT_FOR_COMPLETE_REINIT) ||
-                (retMode == UART_SEND_WAIT_REINIT) )
-            {
-                do /* Wait until transmit complete */
-                {
-                    tmpStat = UART_TXSTATUS_REG;
-                }
-                while(((uint8)~tmpStat & UART_TX_STS_COMPLETE) != 0u);
-            }
-
-            if( (retMode == UART_WAIT_FOR_COMPLETE_REINIT) ||
-                (retMode == UART_REINIT) ||
-                (retMode == UART_SEND_WAIT_REINIT) )
-            {
-
-            #if(UART_TXCLKGEN_DP)
-                UART_TXBITCLKTX_COMPLETE_REG = txPeriod;
+                /* Disable input buffers */
+            #if (UART_RX_SDA_MOSI_PIN)
+                pinsInBuf |= UART_RX_SDA_MOSI_PIN_MASK;
+            #elif (UART_RX_WAKE_SDA_MOSI_PIN)
+                pinsInBuf |= UART_RX_WAKE_SDA_MOSI_PIN_MASK;
             #else
-                UART_TXBITCTR_PERIOD_REG = txPeriod;
-            #endif /* End UART_TXCLKGEN_DP */
+            #endif /* (UART_RX_SDA_MOSI_PIN) */
 
-            #if( (UART_PARITY_TYPE != UART__B_UART__NONE_REVB) || \
-                 (UART_PARITY_TYPE_SW != 0u) )
-                UART_WriteControlRegister(UART_ReadControlRegister() &
-                                                      (uint8) ~UART_CTRL_HD_SEND_BREAK);
-            #endif /* End UART_PARITY_TYPE != NONE */
+            #if (UART_CTS_SCLK_PIN)
+                pinsInBuf |= UART_CTS_SCLK_PIN_MASK;
+            #endif /* (UART_CTS_SCLK_PIN) */
             }
-        #endif    /* End UART_HD_ENABLED */
         }
-    }
-
-
-    /*******************************************************************************
-    * Function Name: UART_SetTxAddressMode
-    ********************************************************************************
-    *
-    * Summary:
-    *  Configures the transmitter to signal the next bytes is address or data.
-    *
-    * Parameters:
-    *  addressMode: 
-    *       UART_SET_SPACE - Configure the transmitter to send the next
-    *                                    byte as a data.
-    *       UART_SET_MARK  - Configure the transmitter to send the next
-    *                                    byte as an address.
-    *
-    * Return:
-    *  None.
-    *
-    * Side Effects:
-    *  This function sets and clears UART_CTRL_MARK bit in the Control
-    *  register.
-    *
-    *******************************************************************************/
-    void UART_SetTxAddressMode(uint8 addressMode) 
-    {
-        /* Mark/Space sending enable */
-        if(addressMode != 0u)
+        else /* UART */
         {
-        #if( UART_CONTROL_REG_REMOVED == 0u )
-            UART_WriteControlRegister(UART_ReadControlRegister() |
-                                                  UART_CTRL_MARK);
-        #endif /* End UART_CONTROL_REG_REMOVED == 0u */
+            if (UART_UART_MODE_SMARTCARD == subMode)
+            {
+                /* SmartCard */
+            #if (UART_TX_SCL_MISO_PIN)
+                hsiomSel[UART_TX_SCL_MISO_PIN_INDEX] = UART_TX_SCL_MISO_HSIOM_SEL_UART;
+                pinsDm  [UART_TX_SCL_MISO_PIN_INDEX] = UART_PIN_DM_OD_LO;
+            #endif /* (UART_TX_SCL_MISO_PIN) */
+            }
+            else /* Standard or IrDA */
+            {
+                if (0u != (UART_UART_RX_PIN_ENABLE & uartEnableMask))
+                {
+                #if (UART_RX_SDA_MOSI_PIN)
+                    hsiomSel[UART_RX_SDA_MOSI_PIN_INDEX] = UART_RX_SDA_MOSI_HSIOM_SEL_UART;
+                    pinsDm  [UART_RX_SDA_MOSI_PIN_INDEX] = UART_PIN_DM_DIG_HIZ;
+                #elif (UART_RX_WAKE_SDA_MOSI_PIN)
+                    hsiomSel[UART_RX_WAKE_SDA_MOSI_PIN_INDEX] = UART_RX_WAKE_SDA_MOSI_HSIOM_SEL_UART;
+                    pinsDm  [UART_RX_WAKE_SDA_MOSI_PIN_INDEX] = UART_PIN_DM_DIG_HIZ;
+                #else
+                #endif /* (UART_RX_SDA_MOSI_PIN) */
+                }
+
+                if (0u != (UART_UART_TX_PIN_ENABLE & uartEnableMask))
+                {
+                #if (UART_TX_SCL_MISO_PIN)
+                    hsiomSel[UART_TX_SCL_MISO_PIN_INDEX] = UART_TX_SCL_MISO_HSIOM_SEL_UART;
+                    pinsDm  [UART_TX_SCL_MISO_PIN_INDEX] = UART_PIN_DM_STRONG;
+                    
+                    /* Disable input buffer */
+                    pinsInBuf |= UART_TX_SCL_MISO_PIN_MASK;
+                #endif /* (UART_TX_SCL_MISO_PIN) */
+                }
+
+            #if !(UART_CY_SCBIP_V0 || UART_CY_SCBIP_V1)
+                if (UART_UART_MODE_STD == subMode)
+                {
+                    if (0u != (UART_UART_CTS_PIN_ENABLE & uartEnableMask))
+                    {
+                        /* CTS input is multiplexed with SCLK */
+                    #if (UART_CTS_SCLK_PIN)
+                        hsiomSel[UART_CTS_SCLK_PIN_INDEX] = UART_CTS_SCLK_HSIOM_SEL_UART;
+                        pinsDm  [UART_CTS_SCLK_PIN_INDEX] = UART_PIN_DM_DIG_HIZ;
+                    #endif /* (UART_CTS_SCLK_PIN) */
+                    }
+
+                    if (0u != (UART_UART_RTS_PIN_ENABLE & uartEnableMask))
+                    {
+                        /* RTS output is multiplexed with SS0 */
+                    #if (UART_RTS_SS0_PIN)
+                        hsiomSel[UART_RTS_SS0_PIN_INDEX] = UART_RTS_SS0_HSIOM_SEL_UART;
+                        pinsDm  [UART_RTS_SS0_PIN_INDEX] = UART_PIN_DM_STRONG;
+                        
+                        /* Disable input buffer */
+                        pinsInBuf |= UART_RTS_SS0_PIN_MASK;
+                    #endif /* (UART_RTS_SS0_PIN) */
+                    }
+                }
+            #endif /* !(UART_CY_SCBIP_V0 || UART_CY_SCBIP_V1) */
+            }
         }
-        else
+    #endif /* (!UART_CY_SCBIP_V1) */
+
+    /* Configure pins: set HSIOM, DM and InputBufEnable */
+    /* Note: the DR register settings do not effect the pin output if HSIOM is other than GPIO */
+
+    #if (UART_RX_SDA_MOSI_PIN)
+        UART_SET_HSIOM_SEL(UART_RX_SDA_MOSI_HSIOM_REG,
+                                       UART_RX_SDA_MOSI_HSIOM_MASK,
+                                       UART_RX_SDA_MOSI_HSIOM_POS,
+                                        hsiomSel[UART_RX_SDA_MOSI_PIN_INDEX]);
+
+        UART_uart_rx_i2c_sda_spi_mosi_SetDriveMode((uint8) pinsDm[UART_RX_SDA_MOSI_PIN_INDEX]);
+
+        #if (!UART_CY_SCBIP_V1)
+            UART_SET_INP_DIS(UART_uart_rx_i2c_sda_spi_mosi_INP_DIS,
+                                         UART_uart_rx_i2c_sda_spi_mosi_MASK,
+                                         (0u != (pinsInBuf & UART_RX_SDA_MOSI_PIN_MASK)));
+        #endif /* (!UART_CY_SCBIP_V1) */
+    
+    #elif (UART_RX_WAKE_SDA_MOSI_PIN)
+        UART_SET_HSIOM_SEL(UART_RX_WAKE_SDA_MOSI_HSIOM_REG,
+                                       UART_RX_WAKE_SDA_MOSI_HSIOM_MASK,
+                                       UART_RX_WAKE_SDA_MOSI_HSIOM_POS,
+                                       hsiomSel[UART_RX_WAKE_SDA_MOSI_PIN_INDEX]);
+
+        UART_uart_rx_wake_i2c_sda_spi_mosi_SetDriveMode((uint8)
+                                                               pinsDm[UART_RX_WAKE_SDA_MOSI_PIN_INDEX]);
+
+        UART_SET_INP_DIS(UART_uart_rx_wake_i2c_sda_spi_mosi_INP_DIS,
+                                     UART_uart_rx_wake_i2c_sda_spi_mosi_MASK,
+                                     (0u != (pinsInBuf & UART_RX_WAKE_SDA_MOSI_PIN_MASK)));
+
+         /* Set interrupt on falling edge */
+        UART_SET_INCFG_TYPE(UART_RX_WAKE_SDA_MOSI_INTCFG_REG,
+                                        UART_RX_WAKE_SDA_MOSI_INTCFG_TYPE_MASK,
+                                        UART_RX_WAKE_SDA_MOSI_INTCFG_TYPE_POS,
+                                        UART_INTCFG_TYPE_FALLING_EDGE);
+    #else
+    #endif /* (UART_RX_WAKE_SDA_MOSI_PIN) */
+
+    #if (UART_TX_SCL_MISO_PIN)
+        UART_SET_HSIOM_SEL(UART_TX_SCL_MISO_HSIOM_REG,
+                                       UART_TX_SCL_MISO_HSIOM_MASK,
+                                       UART_TX_SCL_MISO_HSIOM_POS,
+                                        hsiomSel[UART_TX_SCL_MISO_PIN_INDEX]);
+
+        UART_uart_tx_i2c_scl_spi_miso_SetDriveMode((uint8) pinsDm[UART_TX_SCL_MISO_PIN_INDEX]);
+
+    #if (!UART_CY_SCBIP_V1)
+        UART_SET_INP_DIS(UART_uart_tx_i2c_scl_spi_miso_INP_DIS,
+                                     UART_uart_tx_i2c_scl_spi_miso_MASK,
+                                    (0u != (pinsInBuf & UART_TX_SCL_MISO_PIN_MASK)));
+    #endif /* (!UART_CY_SCBIP_V1) */
+    #endif /* (UART_RX_SDA_MOSI_PIN) */
+
+    #if (UART_CTS_SCLK_PIN)
+        UART_SET_HSIOM_SEL(UART_CTS_SCLK_HSIOM_REG,
+                                       UART_CTS_SCLK_HSIOM_MASK,
+                                       UART_CTS_SCLK_HSIOM_POS,
+                                       hsiomSel[UART_CTS_SCLK_PIN_INDEX]);
+
+        UART_uart_cts_spi_sclk_SetDriveMode((uint8) pinsDm[UART_CTS_SCLK_PIN_INDEX]);
+
+        UART_SET_INP_DIS(UART_uart_cts_spi_sclk_INP_DIS,
+                                     UART_uart_cts_spi_sclk_MASK,
+                                     (0u != (pinsInBuf & UART_CTS_SCLK_PIN_MASK)));
+    #endif /* (UART_CTS_SCLK_PIN) */
+
+    #if (UART_RTS_SS0_PIN)
+        UART_SET_HSIOM_SEL(UART_RTS_SS0_HSIOM_REG,
+                                       UART_RTS_SS0_HSIOM_MASK,
+                                       UART_RTS_SS0_HSIOM_POS,
+                                       hsiomSel[UART_RTS_SS0_PIN_INDEX]);
+
+        UART_uart_rts_spi_ss0_SetDriveMode((uint8) pinsDm[UART_RTS_SS0_PIN_INDEX]);
+
+        UART_SET_INP_DIS(UART_uart_rts_spi_ss0_INP_DIS,
+                                     UART_uart_rts_spi_ss0_MASK,
+                                     (0u != (pinsInBuf & UART_RTS_SS0_PIN_MASK)));
+    #endif /* (UART_RTS_SS0_PIN) */
+
+    #if (UART_SS1_PIN)
+        UART_SET_HSIOM_SEL(UART_SS1_HSIOM_REG,
+                                       UART_SS1_HSIOM_MASK,
+                                       UART_SS1_HSIOM_POS,
+                                       hsiomSel[UART_SS1_PIN_INDEX]);
+
+        UART_spi_ss1_SetDriveMode((uint8) pinsDm[UART_SS1_PIN_INDEX]);
+
+        UART_SET_INP_DIS(UART_spi_ss1_INP_DIS,
+                                     UART_spi_ss1_MASK,
+                                     (0u != (pinsInBuf & UART_SS1_PIN_MASK)));
+    #endif /* (UART_SS1_PIN) */
+
+    #if (UART_SS2_PIN)
+        UART_SET_HSIOM_SEL(UART_SS2_HSIOM_REG,
+                                       UART_SS2_HSIOM_MASK,
+                                       UART_SS2_HSIOM_POS,
+                                       hsiomSel[UART_SS2_PIN_INDEX]);
+
+        UART_spi_ss2_SetDriveMode((uint8) pinsDm[UART_SS2_PIN_INDEX]);
+
+        UART_SET_INP_DIS(UART_spi_ss2_INP_DIS,
+                                     UART_spi_ss2_MASK,
+                                     (0u != (pinsInBuf & UART_SS2_PIN_MASK)));
+    #endif /* (UART_SS2_PIN) */
+
+    #if (UART_SS3_PIN)
+        UART_SET_HSIOM_SEL(UART_SS3_HSIOM_REG,
+                                       UART_SS3_HSIOM_MASK,
+                                       UART_SS3_HSIOM_POS,
+                                       hsiomSel[UART_SS3_PIN_INDEX]);
+
+        UART_spi_ss3_SetDriveMode((uint8) pinsDm[UART_SS3_PIN_INDEX]);
+
+        UART_SET_INP_DIS(UART_spi_ss3_INP_DIS,
+                                     UART_spi_ss3_MASK,
+                                     (0u != (pinsInBuf & UART_SS3_PIN_MASK)));
+    #endif /* (UART_SS3_PIN) */
+    }
+
+#endif /* (UART_SCB_MODE_UNCONFIG_CONST_CFG) */
+
+
+#if (UART_CY_SCBIP_V0 || UART_CY_SCBIP_V1)
+    /*******************************************************************************
+    * Function Name: UART_I2CSlaveNackGeneration
+    ****************************************************************************//**
+    *
+    *  Sets command to generate NACK to the address or data.
+    *
+    *******************************************************************************/
+    void UART_I2CSlaveNackGeneration(void)
+    {
+        /* Check for EC_AM toggle condition: EC_AM and clock stretching for address are enabled */
+        if ((0u != (UART_CTRL_REG & UART_CTRL_EC_AM_MODE)) &&
+            (0u == (UART_I2C_CTRL_REG & UART_I2C_CTRL_S_NOT_READY_ADDR_NACK)))
         {
-        #if( UART_CONTROL_REG_REMOVED == 0u )
-            UART_WriteControlRegister(UART_ReadControlRegister() &
-                                                  (uint8) ~UART_CTRL_MARK);
-        #endif /* End UART_CONTROL_REG_REMOVED == 0u */
+            /* Toggle EC_AM before NACK generation */
+            UART_CTRL_REG &= ~UART_CTRL_EC_AM_MODE;
+            UART_CTRL_REG |=  UART_CTRL_EC_AM_MODE;
         }
+
+        UART_I2C_SLAVE_CMD_REG = UART_I2C_SLAVE_CMD_S_NACK;
     }
-
-#endif  /* EndUART_TX_ENABLED */
-
-#if(UART_HD_ENABLED)
-
-
-    /*******************************************************************************
-    * Function Name: UART_LoadRxConfig
-    ********************************************************************************
-    *
-    * Summary:
-    *  Loads the receiver configuration in half duplex mode. After calling this
-    *  function, the UART is ready to receive data.
-    *
-    * Parameters:
-    *  None.
-    *
-    * Return:
-    *  None.
-    *
-    * Side Effects:
-    *  Valid only in half duplex mode. You must make sure that the previous
-    *  transaction is complete and it is safe to unload the transmitter
-    *  configuration.
-    *
-    *******************************************************************************/
-    void UART_LoadRxConfig(void) 
-    {
-        UART_WriteControlRegister(UART_ReadControlRegister() &
-                                                (uint8)~UART_CTRL_HD_SEND);
-        UART_RXBITCTR_PERIOD_REG = UART_HD_RXBITCTR_INIT;
-
-    #if (UART_RX_INTERRUPT_ENABLED)
-        /* Enable RX interrupt after set RX configuration */
-        UART_SetRxInterruptMode(UART_INIT_RX_INTERRUPTS_MASK);
-    #endif /* (UART_RX_INTERRUPT_ENABLED) */
-    }
-
-
-    /*******************************************************************************
-    * Function Name: UART_LoadTxConfig
-    ********************************************************************************
-    *
-    * Summary:
-    *  Loads the transmitter configuration in half duplex mode. After calling this
-    *  function, the UART is ready to transmit data.
-    *
-    * Parameters:
-    *  None.
-    *
-    * Return:
-    *  None.
-    *
-    * Side Effects:
-    *  Valid only in half duplex mode. You must make sure that the previous
-    *  transaction is complete and it is safe to unload the receiver configuration.
-    *
-    *******************************************************************************/
-    void UART_LoadTxConfig(void) 
-    {
-    #if (UART_RX_INTERRUPT_ENABLED)
-        /* Disable RX interrupts before set TX configuration */
-        UART_SetRxInterruptMode(0u);
-    #endif /* (UART_RX_INTERRUPT_ENABLED) */
-
-        UART_WriteControlRegister(UART_ReadControlRegister() | UART_CTRL_HD_SEND);
-        UART_RXBITCTR_PERIOD_REG = UART_HD_TXBITCTR_INIT;
-    }
-
-#endif  /* UART_HD_ENABLED */
+#endif /* (UART_CY_SCBIP_V0 || UART_CY_SCBIP_V1) */
 
 
 /* [] END OF FILE */

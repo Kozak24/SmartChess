@@ -38,10 +38,8 @@
 #include <stdint.h>
 #include <stdbool.h>
     
-// Define Smart Chess system include files.
+// Define PSoC system include files.
 #include "ble_control.h"
-// Define PSoC Generated Source
-#include "project.h"
 
 // Define the Grbl system include files. NOTE: Do not alter organization.
 #include "config.h"

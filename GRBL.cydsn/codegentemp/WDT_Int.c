@@ -1,5 +1,5 @@
 /*******************************************************************************
-* File Name: Tx_Rx_Int.c  
+* File Name: WDT_Int.c  
 * Version 1.70
 *
 *  Description:
@@ -18,15 +18,15 @@
 
 #include <cydevice_trm.h>
 #include <CyLib.h>
-#include <Tx_Rx_Int.h>
+#include <WDT_Int.h>
 #include "cyapicallbacks.h"
 
-#if !defined(Tx_Rx_Int__REMOVED) /* Check for removal by optimization */
+#if !defined(WDT_Int__REMOVED) /* Check for removal by optimization */
 
 /*******************************************************************************
 *  Place your includes, defines and code here 
 ********************************************************************************/
-/* `#START Tx_Rx_Int_intc` */
+/* `#START WDT_Int_intc` */
 
 /* `#END` */
 
@@ -37,7 +37,7 @@ CY_ISR_PROTO(IntDefaultHandler);
 
 
 /*******************************************************************************
-* Function Name: Tx_Rx_Int_Start
+* Function Name: WDT_Int_Start
 ********************************************************************************
 *
 * Summary:
@@ -53,24 +53,24 @@ CY_ISR_PROTO(IntDefaultHandler);
 *   None
 *
 *******************************************************************************/
-void Tx_Rx_Int_Start(void)
+void WDT_Int_Start(void)
 {
     /* For all we know the interrupt is active. */
-    Tx_Rx_Int_Disable();
+    WDT_Int_Disable();
 
-    /* Set the ISR to point to the Tx_Rx_Int Interrupt. */
-    Tx_Rx_Int_SetVector(&Tx_Rx_Int_Interrupt);
+    /* Set the ISR to point to the WDT_Int Interrupt. */
+    WDT_Int_SetVector(&WDT_Int_Interrupt);
 
     /* Set the priority. */
-    Tx_Rx_Int_SetPriority((uint8)Tx_Rx_Int_INTC_PRIOR_NUMBER);
+    WDT_Int_SetPriority((uint8)WDT_Int_INTC_PRIOR_NUMBER);
 
     /* Enable it. */
-    Tx_Rx_Int_Enable();
+    WDT_Int_Enable();
 }
 
 
 /*******************************************************************************
-* Function Name: Tx_Rx_Int_StartEx
+* Function Name: WDT_Int_StartEx
 ********************************************************************************
 *
 * Summary:
@@ -96,24 +96,24 @@ void Tx_Rx_Int_Start(void)
 *   None
 *
 *******************************************************************************/
-void Tx_Rx_Int_StartEx(cyisraddress address)
+void WDT_Int_StartEx(cyisraddress address)
 {
     /* For all we know the interrupt is active. */
-    Tx_Rx_Int_Disable();
+    WDT_Int_Disable();
 
-    /* Set the ISR to point to the Tx_Rx_Int Interrupt. */
-    Tx_Rx_Int_SetVector(address);
+    /* Set the ISR to point to the WDT_Int Interrupt. */
+    WDT_Int_SetVector(address);
 
     /* Set the priority. */
-    Tx_Rx_Int_SetPriority((uint8)Tx_Rx_Int_INTC_PRIOR_NUMBER);
+    WDT_Int_SetPriority((uint8)WDT_Int_INTC_PRIOR_NUMBER);
 
     /* Enable it. */
-    Tx_Rx_Int_Enable();
+    WDT_Int_Enable();
 }
 
 
 /*******************************************************************************
-* Function Name: Tx_Rx_Int_Stop
+* Function Name: WDT_Int_Stop
 ********************************************************************************
 *
 * Summary:
@@ -126,22 +126,22 @@ void Tx_Rx_Int_StartEx(cyisraddress address)
 *   None
 *
 *******************************************************************************/
-void Tx_Rx_Int_Stop(void)
+void WDT_Int_Stop(void)
 {
     /* Disable this interrupt. */
-    Tx_Rx_Int_Disable();
+    WDT_Int_Disable();
 
     /* Set the ISR to point to the passive one. */
-    Tx_Rx_Int_SetVector(&IntDefaultHandler);
+    WDT_Int_SetVector(&IntDefaultHandler);
 }
 
 
 /*******************************************************************************
-* Function Name: Tx_Rx_Int_Interrupt
+* Function Name: WDT_Int_Interrupt
 ********************************************************************************
 *
 * Summary:
-*   The default Interrupt Service Routine for Tx_Rx_Int.
+*   The default Interrupt Service Routine for WDT_Int.
 *
 *   Add custom code between the START and END comments to keep the next version
 *   of this file from over-writing your code.
@@ -156,27 +156,27 @@ void Tx_Rx_Int_Stop(void)
 *   None
 *
 *******************************************************************************/
-CY_ISR(Tx_Rx_Int_Interrupt)
+CY_ISR(WDT_Int_Interrupt)
 {
-    #ifdef Tx_Rx_Int_INTERRUPT_INTERRUPT_CALLBACK
-        Tx_Rx_Int_Interrupt_InterruptCallback();
-    #endif /* Tx_Rx_Int_INTERRUPT_INTERRUPT_CALLBACK */ 
+    #ifdef WDT_Int_INTERRUPT_INTERRUPT_CALLBACK
+        WDT_Int_Interrupt_InterruptCallback();
+    #endif /* WDT_Int_INTERRUPT_INTERRUPT_CALLBACK */ 
 
     /*  Place your Interrupt code here. */
-    /* `#START Tx_Rx_Int_Interrupt` */
+    /* `#START WDT_Int_Interrupt` */
 
     /* `#END` */
 }
 
 
 /*******************************************************************************
-* Function Name: Tx_Rx_Int_SetVector
+* Function Name: WDT_Int_SetVector
 ********************************************************************************
 *
 * Summary:
-*   Change the ISR vector for the Interrupt. Note calling Tx_Rx_Int_Start
+*   Change the ISR vector for the Interrupt. Note calling WDT_Int_Start
 *   will override any effect this method would have had. To set the vector 
-*   before the component has been started use Tx_Rx_Int_StartEx instead.
+*   before the component has been started use WDT_Int_StartEx instead.
 * 
 *   When defining ISR functions, the CY_ISR and CY_ISR_PROTO macros should be 
 *   used to provide consistent definition across compilers:
@@ -196,14 +196,14 @@ CY_ISR(Tx_Rx_Int_Interrupt)
 *   None
 *
 *******************************************************************************/
-void Tx_Rx_Int_SetVector(cyisraddress address)
+void WDT_Int_SetVector(cyisraddress address)
 {
-    CyRamVectors[CYINT_IRQ_BASE + Tx_Rx_Int__INTC_NUMBER] = address;
+    CyRamVectors[CYINT_IRQ_BASE + WDT_Int__INTC_NUMBER] = address;
 }
 
 
 /*******************************************************************************
-* Function Name: Tx_Rx_Int_GetVector
+* Function Name: WDT_Int_GetVector
 ********************************************************************************
 *
 * Summary:
@@ -216,22 +216,22 @@ void Tx_Rx_Int_SetVector(cyisraddress address)
 *   Address of the ISR in the interrupt vector table.
 *
 *******************************************************************************/
-cyisraddress Tx_Rx_Int_GetVector(void)
+cyisraddress WDT_Int_GetVector(void)
 {
-    return CyRamVectors[CYINT_IRQ_BASE + Tx_Rx_Int__INTC_NUMBER];
+    return CyRamVectors[CYINT_IRQ_BASE + WDT_Int__INTC_NUMBER];
 }
 
 
 /*******************************************************************************
-* Function Name: Tx_Rx_Int_SetPriority
+* Function Name: WDT_Int_SetPriority
 ********************************************************************************
 *
 * Summary:
 *   Sets the Priority of the Interrupt. 
 *
-*   Note calling Tx_Rx_Int_Start or Tx_Rx_Int_StartEx will 
+*   Note calling WDT_Int_Start or WDT_Int_StartEx will 
 *   override any effect this API would have had. This API should only be called
-*   after Tx_Rx_Int_Start or Tx_Rx_Int_StartEx has been called. 
+*   after WDT_Int_Start or WDT_Int_StartEx has been called. 
 *   To set the initial priority for the component, use the Design-Wide Resources
 *   Interrupt Editor.
 *
@@ -246,20 +246,20 @@ cyisraddress Tx_Rx_Int_GetVector(void)
 *   None
 *
 *******************************************************************************/
-void Tx_Rx_Int_SetPriority(uint8 priority)
+void WDT_Int_SetPriority(uint8 priority)
 {
 	uint8 interruptState;
-    uint32 priorityOffset = ((Tx_Rx_Int__INTC_NUMBER % 4u) * 8u) + 6u;
+    uint32 priorityOffset = ((WDT_Int__INTC_NUMBER % 4u) * 8u) + 6u;
     
 	interruptState = CyEnterCriticalSection();
-    *Tx_Rx_Int_INTC_PRIOR = (*Tx_Rx_Int_INTC_PRIOR & (uint32)(~Tx_Rx_Int__INTC_PRIOR_MASK)) |
+    *WDT_Int_INTC_PRIOR = (*WDT_Int_INTC_PRIOR & (uint32)(~WDT_Int__INTC_PRIOR_MASK)) |
                                     ((uint32)priority << priorityOffset);
 	CyExitCriticalSection(interruptState);
 }
 
 
 /*******************************************************************************
-* Function Name: Tx_Rx_Int_GetPriority
+* Function Name: WDT_Int_GetPriority
 ********************************************************************************
 *
 * Summary:
@@ -274,19 +274,19 @@ void Tx_Rx_Int_SetPriority(uint8 priority)
 *    PSoC 4: Priority is from 0 to 3.
 *
 *******************************************************************************/
-uint8 Tx_Rx_Int_GetPriority(void)
+uint8 WDT_Int_GetPriority(void)
 {
     uint32 priority;
-	uint32 priorityOffset = ((Tx_Rx_Int__INTC_NUMBER % 4u) * 8u) + 6u;
+	uint32 priorityOffset = ((WDT_Int__INTC_NUMBER % 4u) * 8u) + 6u;
 
-    priority = (*Tx_Rx_Int_INTC_PRIOR & Tx_Rx_Int__INTC_PRIOR_MASK) >> priorityOffset;
+    priority = (*WDT_Int_INTC_PRIOR & WDT_Int__INTC_PRIOR_MASK) >> priorityOffset;
 
     return (uint8)priority;
 }
 
 
 /*******************************************************************************
-* Function Name: Tx_Rx_Int_Enable
+* Function Name: WDT_Int_Enable
 ********************************************************************************
 *
 * Summary:
@@ -301,15 +301,15 @@ uint8 Tx_Rx_Int_GetPriority(void)
 *   None
 *
 *******************************************************************************/
-void Tx_Rx_Int_Enable(void)
+void WDT_Int_Enable(void)
 {
     /* Enable the general interrupt. */
-    *Tx_Rx_Int_INTC_SET_EN = Tx_Rx_Int__INTC_MASK;
+    *WDT_Int_INTC_SET_EN = WDT_Int__INTC_MASK;
 }
 
 
 /*******************************************************************************
-* Function Name: Tx_Rx_Int_GetState
+* Function Name: WDT_Int_GetState
 ********************************************************************************
 *
 * Summary:
@@ -322,15 +322,15 @@ void Tx_Rx_Int_Enable(void)
 *   1 if enabled, 0 if disabled.
 *
 *******************************************************************************/
-uint8 Tx_Rx_Int_GetState(void)
+uint8 WDT_Int_GetState(void)
 {
     /* Get the state of the general interrupt. */
-    return ((*Tx_Rx_Int_INTC_SET_EN & (uint32)Tx_Rx_Int__INTC_MASK) != 0u) ? 1u:0u;
+    return ((*WDT_Int_INTC_SET_EN & (uint32)WDT_Int__INTC_MASK) != 0u) ? 1u:0u;
 }
 
 
 /*******************************************************************************
-* Function Name: Tx_Rx_Int_Disable
+* Function Name: WDT_Int_Disable
 ********************************************************************************
 *
 * Summary:
@@ -343,15 +343,15 @@ uint8 Tx_Rx_Int_GetState(void)
 *   None
 *
 *******************************************************************************/
-void Tx_Rx_Int_Disable(void)
+void WDT_Int_Disable(void)
 {
     /* Disable the general interrupt. */
-    *Tx_Rx_Int_INTC_CLR_EN = Tx_Rx_Int__INTC_MASK;
+    *WDT_Int_INTC_CLR_EN = WDT_Int__INTC_MASK;
 }
 
 
 /*******************************************************************************
-* Function Name: Tx_Rx_Int_SetPending
+* Function Name: WDT_Int_SetPending
 ********************************************************************************
 *
 * Summary:
@@ -370,14 +370,14 @@ void Tx_Rx_Int_Disable(void)
 *   interrupts).
 *
 *******************************************************************************/
-void Tx_Rx_Int_SetPending(void)
+void WDT_Int_SetPending(void)
 {
-    *Tx_Rx_Int_INTC_SET_PD = Tx_Rx_Int__INTC_MASK;
+    *WDT_Int_INTC_SET_PD = WDT_Int__INTC_MASK;
 }
 
 
 /*******************************************************************************
-* Function Name: Tx_Rx_Int_ClearPending
+* Function Name: WDT_Int_ClearPending
 ********************************************************************************
 *
 * Summary:
@@ -395,9 +395,9 @@ void Tx_Rx_Int_SetPending(void)
 *   None
 *
 *******************************************************************************/
-void Tx_Rx_Int_ClearPending(void)
+void WDT_Int_ClearPending(void)
 {
-    *Tx_Rx_Int_INTC_CLR_PD = Tx_Rx_Int__INTC_MASK;
+    *WDT_Int_INTC_CLR_PD = WDT_Int__INTC_MASK;
 }
 
 #endif /* End check for removal by optimization */

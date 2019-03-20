@@ -86,9 +86,10 @@ typedef struct {
     // Stored spindle speed data used by spindle overrides and resuming methods.
     float spindle_speed;    // Block spindle speed. Copied from pl_line_data.
   #endif
+
   #ifdef SERVOMOTORS
-    float servo_a_period; // PWM Period of the A Servomotor                       <--NEW_LINE
-    float servo_b_period; // PWM Period of the B Servomotor                       <--NEW_LINE
+    uint16 servo_a_period;
+    uint16 servo_b_period;
   #endif
 } plan_block_t;
 
@@ -100,9 +101,9 @@ typedef struct {
   #ifdef USE_LINE_NUMBERS
     int32_t line_number;    // Desired line number to report when executing.
   #endif
+
   #ifdef SERVOMOTORS
-    float servo_a_period; // PWM Period of the A Servomotor                       <--NEW_LINE
-    float servo_b_period; // PWM Period of the B Servomotor                       <--NEW_LINE
+    float servo_a_period;
   #endif
 } plan_line_data_t;
 
@@ -156,5 +157,9 @@ uint8_t plan_check_full_buffer();
 
 void plan_get_planner_mpos(float *target);
 
+#ifdef SERVOMOTORS
+    void plan_servomotors(float *target);
+    uint8_t plan_buffer_line_with_servomotors(float *target, uint16 *servo, plan_line_data_t *pl_data);
+#endif
 
 #endif
