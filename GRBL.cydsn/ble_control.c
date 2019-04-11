@@ -1,23 +1,6 @@
-/* ========================================
- *
- * Copyright YOUR COMPANY, THE YEAR
- * All Rights Reserved
- * UNPUBLISHED, LICENSED SOFTWARE.
- *
- * CONFIDENTIAL AND PROPRIETARY INFORMATION
- * WHICH IS THE PROPERTY OF your company.
- *
- * ========================================
-*/
+#include "smart_chess.h"
 
-#include "project.h"
-#include "grbl.h"
-#include "stdio.h"
-
-uint8 commandArrayLength = 5;
-uint8 commandArray[5];
-
-uint8 counter;
+uint8 inputCommand[5];
 
 void readCommand()
 {
@@ -29,86 +12,48 @@ void readCommand()
     CYBLE_GATTS_HANDLE_VALUE_NTF_T tempHandle;
     
     tempHandle.attrHandle = CYBLE_SMARTCHESS_COMMAND_CHAR_HANDLE;
-    tempHandle.value.val = (uint8 *) &commandArray;
+    tempHandle.value.val = (uint8 *) &inputCommand;
     tempHandle.value.len = 5;
     CyBle_GattsReadAttributeValue(&tempHandle, &cyBle_connHandle, CYBLE_GATT_DB_LOCALLY_INITIATED);
 }
 
+void updateCommandStatus(void) {
+    if(CyBle_GetState() != CYBLE_STATE_CONNECTED)
+    {
+        return;
+    }
 
-int validate_array()
-{
-    int status = 0;
-    if(commandArray[0] >= 65 && commandArray[0] <= 72
-       && commandArray[3] >= 65 && commandArray[3] <= 72) {
-        status = 1;
-    } else {
-        status = 0;
-    }
+    CYBLE_GATTS_HANDLE_VALUE_NTF_T tempHandle;
     
-    if(commandArray[1] >= 49 && commandArray[1] <= 56
-       && commandArray[4] >= 49 && commandArray[4] <= 56) {
-        status = 1;
-    } else {
-        status = 0;
-    }
-       
-    return status;    
+    tempHandle.attrHandle = CYBLE_SMARTCHESS_COMMANDSTATUS_CHAR_HANDLE;
+    tempHandle.value.val = (uint8 *) &game_info.commandStatus;
+    tempHandle.value.len = 1;
+    CyBle_GattsWriteAttributeValue(&tempHandle, 0, &cyBle_connHandle, CYBLE_GATT_DB_LOCALLY_INITIATED);
 }
 
-void convert_command_to_gcode()
-{    
-    char buffer[2];
-    
-    CyBle_ProcessEvents();
-    switch(commandArray[0]) {
-        case 'a':
-            buffer[0] = '1';
-            break;
-        case 'b':
-            buffer[0] = '2';
-            break;
-        case 'c':
-            buffer[0] = '3';
-            break;
-        case 'd':
-            buffer[0] = '4';
-            break;
-        case 'e':
-            buffer[0] = '5';
-            break;
-        case 'f':
-            buffer[0] = '6';
-            break;
-        case 'g':
-            buffer[0] = '7';
-            break;
-        case 'h':
-            buffer[0] = '8';
-            break;
-        default:
-            buffer[0] = '0';
-            break;
+void updataPlayer(void) {
+    if(CyBle_GetState() != CYBLE_STATE_CONNECTED)
+    {
+        return;
     }
+
+    CYBLE_GATTS_HANDLE_VALUE_NTF_T tempHandle;
     
-    buffer[1] = commandArray[1];
-    
-    char commandBuffer[20];
-    
-    sprintf(commandBuffer, "G01 X1%c Y1%c F500\r\n", buffer[0], buffer[1]);
-    //sprintf(commandBuffer, "G01 X10 Y10 F500\r\n");
-    
-    counter++;
-    
-    /*if(counter == 1) {
-        sprintf(commandBuffer, "G01 X10 Y10 F500\r\n");
-    } else if(counter == 2) {
-        sprintf(commandBuffer, "G01 X11 Y11 F500\r\n");
-        counter = 0;
-    }*/
-    UART_UartPutString(commandBuffer);
-    
-    for(uint8 i = 0; i < sizeof(commandBuffer); i++) {
-        process_ble_data(commandBuffer[i]);
+    tempHandle.attrHandle = CYBLE_SMARTCHESS_PLAYER_CHAR_HANDLE;
+    tempHandle.value.val = (uint8 *) &game_info.player;
+    tempHandle.value.len = 1;
+    CyBle_GattsWriteAttributeValue(&tempHandle, 0, &cyBle_connHandle, CYBLE_GATT_DB_LOCALLY_INITIATED);
+}
+
+void updateGameInformation(void) {
+    updateCommandStatus();
+    updataPlayer();
+}
+
+void send_command_to_grbl(char * buffer) {
+    uint8 length = strlen(buffer);
+    for(uint8 i = 0; i < length; i++) {
+        process_ble_data(buffer[i]);
     }
 }
 
@@ -129,8 +74,8 @@ void BleCallBack(uint32 event, void* eventParam)
         /* when a connection is made, update the LED and Capsense
         states in the GATT database*/
         case CYBLE_EVT_GATT_CONNECT_IND:
-            //readCommand();
             BLE_Status_Pin_Write(1);
+            updateGameInformation();
         break;
         
         /*handle a write request */
@@ -143,16 +88,28 @@ void BleCallBack(uint32 event, void* eventParam)
                 if(CYBLE_GATT_ERR_NONE == CyBle_GattsWriteAttributeValue(&wrReqParam->handleValPair, 0, &cyBle_connHandle, CYBLE_GATT_DB_PEER_INITIATED))
                 {
                     uint8 length = wrReqParam->handleValPair.value.len;
-                    //readCommand();
                     for(uint8 i = 0; i < length; i++) {
-                        if(i < (sizeof(commandArray)/sizeof(uint8) ) )
-                            commandArray[i] = wrReqParam->handleValPair.value.val[i];
-                        else if(i > (sizeof(commandArray)/sizeof(uint8)) )
-                            break;
+                        inputCommand[i] = wrReqParam->handleValPair.value.val[i];
                     }
                     CyBle_GattsWriteRsp(cyBle_connHandle);
+                    char command[4];
+                    sprintf(command, "%c%c%c", inputCommand[0], inputCommand[1], inputCommand[2]);
+                    validate_command(command);
+                    updateGameInformation();
+                }
+            }
+            
+            if(wrReqParam->handleValPair.attrHandle == CYBLE_SMARTCHESS_STARTGAME_CHAR_HANDLE)
+            {
+                /*only update the value and write the response if the requested write is allowed*/
+                if(CYBLE_GATT_ERR_NONE == CyBle_GattsWriteAttributeValue(&wrReqParam->handleValPair, 0, &cyBle_connHandle, CYBLE_GATT_DB_PEER_INITIATED))
+                {
+                    if(wrReqParam->handleValPair.value.val[0] == START_GAME) {
+                        start_game();
+                    }
                     
-                    convert_command_to_gcode();
+                    CyBle_GattsWriteRsp(cyBle_connHandle);
+                    updateGameInformation();
                 }
             }
             break;

@@ -118,7 +118,7 @@ CYBLE_STATE_T cyBle_state;
     0x000Fu,    /* Handle of the Client Characteristic Configuration descriptor */
 };
     
-    static uint8 cyBle_attValues[0x56u] = {
+    static uint8 cyBle_attValues[0xC5u] = {
     /* Device Name */
     (uint8)'C', (uint8)'h', (uint8)'e', (uint8)'s', (uint8)'s',
 
@@ -154,6 +154,29 @@ CYBLE_STATE_T cyBle_state;
     (uint8)'m', (uint8)'a', (uint8)'n', (uint8)'d', (uint8)' ', (uint8)'s', (uint8)'t', (uint8)'a', (uint8)'t',
     (uint8)'u', (uint8)'s', (uint8)' ', (uint8)'v', (uint8)'a', (uint8)'l', (uint8)'u', (uint8)'e',
 
+    /* Player */
+    0x00u,
+
+    /* Characteristic User Description */
+    (uint8)'C', (uint8)'h', (uint8)'a', (uint8)'r', (uint8)'a', (uint8)'c', (uint8)'t', (uint8)'e', (uint8)'r',
+    (uint8)'i', (uint8)'s', (uint8)'t', (uint8)'i', (uint8)'c', (uint8)' ', (uint8)'t', (uint8)'h', (uint8)'a',
+    (uint8)'t', (uint8)' ', (uint8)'s', (uint8)'a', (uint8)'v', (uint8)'e', (uint8)' ', (uint8)'i', (uint8)'n',
+    (uint8)'f', (uint8)'o', (uint8)'r', (uint8)'m', (uint8)'a', (uint8)'t', (uint8)'i', (uint8)'o', (uint8)'n',
+    (uint8)' ', (uint8)'a', (uint8)'b', (uint8)'o', (uint8)'u', (uint8)'t', (uint8)' ', (uint8)'c', (uint8)'u',
+    (uint8)'r', (uint8)'r', (uint8)'e', (uint8)'n', (uint8)'t', (uint8)' ', (uint8)'p', (uint8)'l', (uint8)'a',
+    (uint8)'y', (uint8)'e', (uint8)'r',
+
+    /* StartGame */
+    0x00u,
+
+    /* Characteristic User Description */
+    (uint8)'O', (uint8)'n', (uint8)'l', (uint8)'y', (uint8)' ', (uint8)'W', (uint8)' ', (uint8)'m', (uint8)'o',
+    (uint8)'d', (uint8)'e', (uint8)'.', (uint8)' ', (uint8)'T', (uint8)'a', (uint8)'k', (uint8)'e', (uint8)' ',
+    (uint8)'a', (uint8)'r', (uint8)'g', (uint8)'u', (uint8)'m', (uint8)'e', (uint8)'n', (uint8)'t', (uint8)'s',
+    (uint8)' ', (uint8)'t', (uint8)'o', (uint8)' ', (uint8)'S', (uint8)'t', (uint8)'a', (uint8)'r', (uint8)'t',
+    (uint8)' ', (uint8)'o', (uint8)'r', (uint8)' ', (uint8)'R', (uint8)'e', (uint8)'s', (uint8)'t', (uint8)'a',
+    (uint8)'r', (uint8)'t', (uint8)' ', (uint8)'g', (uint8)'a', (uint8)'m', (uint8)'e',
+
 };
 #if(CYBLE_GATT_DB_CCCD_COUNT != 0u)
 uint8 cyBle_attValuesCCCD[CYBLE_GATT_DB_CCCD_COUNT];
@@ -166,6 +189,10 @@ const uint8 cyBle_attUuid128[][16u] = {
     { 0xC1u, 0xCFu, 0x3Bu, 0x1Cu, 0x85u, 0x96u, 0x9Du, 0x83u, 0x61u, 0x4Au, 0xB8u, 0x63u, 0xF6u, 0xC2u, 0xF3u, 0x7Eu },
     /* CommandStatus */
     { 0xC2u, 0xCFu, 0x3Bu, 0x1Cu, 0x85u, 0x96u, 0x9Du, 0x83u, 0x61u, 0x4Au, 0xB8u, 0x63u, 0xF6u, 0xC2u, 0xF3u, 0x7Eu },
+    /* Player */
+    { 0xC3u, 0xCFu, 0x3Bu, 0x1Cu, 0x85u, 0x96u, 0x9Du, 0x83u, 0x61u, 0x4Au, 0xB8u, 0x63u, 0xF6u, 0xC2u, 0xF3u, 0x7Eu },
+    /* StartGame */
+    { 0xC4u, 0xCFu, 0x3Bu, 0x1Cu, 0x85u, 0x96u, 0x9Du, 0x83u, 0x61u, 0x4Au, 0xB8u, 0x63u, 0xF6u, 0xC2u, 0xF3u, 0x7Eu },
 };
 
 CYBLE_GATTS_ATT_GEN_VAL_LEN_T cyBle_attValuesLen[CYBLE_GATT_DB_ATT_VAL_COUNT] = {
@@ -184,9 +211,15 @@ CYBLE_GATTS_ATT_GEN_VAL_LEN_T cyBle_attValuesLen[CYBLE_GATT_DB_ATT_VAL_COUNT] = 
     { 0x0001u, (void *)&cyBle_attValues[59] }, /* CommandStatus */
     { 0x0002u, (void *)&cyBle_attValuesCCCD[2] }, /* CommandStatusNotification */
     { 0x001Au, (void *)&cyBle_attValues[60] }, /* CommandStatusDescription */
+    { 0x0010u, (void *)&cyBle_attUuid128[3] }, /* Player UUID */
+    { 0x0001u, (void *)&cyBle_attValues[86] }, /* Player */
+    { 0x0039u, (void *)&cyBle_attValues[87] }, /* Characteristic User Description */
+    { 0x0010u, (void *)&cyBle_attUuid128[4] }, /* StartGame UUID */
+    { 0x0001u, (void *)&cyBle_attValues[144] }, /* StartGame */
+    { 0x0034u, (void *)&cyBle_attValues[145] }, /* Characteristic User Description */
 };
 
-const CYBLE_GATTS_DB_T cyBle_gattDB[0x17u] = {
+const CYBLE_GATTS_DB_T cyBle_gattDB[0x1Du] = {
     { 0x0001u, 0x2800u /* Primary service                     */, 0x00000001u /*        */, 0x000Bu, {{0x1800u, NULL}}                           },
     { 0x0002u, 0x2803u /* Characteristic                      */, 0x00020001u /* rd     */, 0x0003u, {{0x2A00u, NULL}}                           },
     { 0x0003u, 0x2A00u /* Device Name                         */, 0x01020001u /* rd     */, 0x0003u, {{0x0005u, (void *)&cyBle_attValuesLen[0]}} },
@@ -202,7 +235,7 @@ const CYBLE_GATTS_DB_T cyBle_gattDB[0x17u] = {
     { 0x000Du, 0x2803u /* Characteristic                      */, 0x00200001u /* ind    */, 0x000Fu, {{0x2A05u, NULL}}                           },
     { 0x000Eu, 0x2A05u /* Service Changed                     */, 0x01200000u /* ind    */, 0x000Fu, {{0x0004u, (void *)&cyBle_attValuesLen[5]}} },
     { 0x000Fu, 0x2902u /* Client Characteristic Configuration */, 0x010A0101u /* rd,wr  */, 0x000Fu, {{0x0002u, (void *)&cyBle_attValuesLen[6]}} },
-    { 0x0010u, 0x2800u /* Primary service                     */, 0x08000001u /*        */, 0x0017u, {{0x0010u, (void *)&cyBle_attValuesLen[7]}} },
+    { 0x0010u, 0x2800u /* Primary service                     */, 0x08000001u /*        */, 0x001Du, {{0x0010u, (void *)&cyBle_attValuesLen[7]}} },
     { 0x0011u, 0x2803u /* Characteristic                      */, 0x000A0001u /* rd,wr  */, 0x0013u, {{0x0010u, (void *)&cyBle_attValuesLen[8]}} },
     { 0x0012u, 0xC2F6u /* Command                             */, 0x090A0101u /* rd,wr  */, 0x0013u, {{0x0005u, (void *)&cyBle_attValuesLen[9]}} },
     { 0x0013u, 0x2901u /* CommandDescription                  */, 0x01020001u /* rd     */, 0x0013u, {{0x0021u, (void *)&cyBle_attValuesLen[10]}} },
@@ -210,6 +243,12 @@ const CYBLE_GATTS_DB_T cyBle_gattDB[0x17u] = {
     { 0x0015u, 0xC2F6u /* CommandStatus                       */, 0x09120001u /* rd,ntf */, 0x0017u, {{0x0001u, (void *)&cyBle_attValuesLen[12]}} },
     { 0x0016u, 0x2902u /* CommandStatusNotification           */, 0x090A0101u /* rd,wr  */, 0x0016u, {{0x0002u, (void *)&cyBle_attValuesLen[13]}} },
     { 0x0017u, 0x2901u /* CommandStatusDescription            */, 0x01020001u /* rd     */, 0x0017u, {{0x001Au, (void *)&cyBle_attValuesLen[14]}} },
+    { 0x0018u, 0x2803u /* Characteristic                      */, 0x00020001u /* rd     */, 0x001Au, {{0x0010u, (void *)&cyBle_attValuesLen[15]}} },
+    { 0x0019u, 0xC2F6u /* Player                              */, 0x09020001u /* rd     */, 0x001Au, {{0x0001u, (void *)&cyBle_attValuesLen[16]}} },
+    { 0x001Au, 0x2901u /* Characteristic User Description     */, 0x01020001u /* rd     */, 0x001Au, {{0x0039u, (void *)&cyBle_attValuesLen[17]}} },
+    { 0x001Bu, 0x2803u /* Characteristic                      */, 0x000A0001u /* rd,wr  */, 0x001Du, {{0x0010u, (void *)&cyBle_attValuesLen[18]}} },
+    { 0x001Cu, 0xC2F6u /* StartGame                           */, 0x090A0101u /* rd,wr  */, 0x001Du, {{0x0001u, (void *)&cyBle_attValuesLen[19]}} },
+    { 0x001Du, 0x2901u /* Characteristic User Description     */, 0x01020001u /* rd     */, 0x001Du, {{0x0034u, (void *)&cyBle_attValuesLen[20]}} },
 };
 
 

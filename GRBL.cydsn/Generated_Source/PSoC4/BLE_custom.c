@@ -51,6 +51,28 @@ const CYBLE_CUSTOMS_T cyBle_customs[0x01u] = {
                     0x0017u, /* Handle of the CommandStatusDescription descriptor */ 
                 }, 
             },
+
+            /* Player characteristic */
+            {
+                0x0019u, /* Handle of the Player characteristic */ 
+                
+                /* Array of Descriptors handles */
+                {
+                    0x001Au, /* Handle of the Characteristic User Description descriptor */ 
+                    CYBLE_GATT_INVALID_ATTR_HANDLE_VALUE, 
+                }, 
+            },
+
+            /* StartGame characteristic */
+            {
+                0x001Cu, /* Handle of the StartGame characteristic */ 
+                
+                /* Array of Descriptors handles */
+                {
+                    0x001Du, /* Handle of the Characteristic User Description descriptor */ 
+                    CYBLE_GATT_INVALID_ATTR_HANDLE_VALUE, 
+                }, 
+            },
         }, 
     },
 };

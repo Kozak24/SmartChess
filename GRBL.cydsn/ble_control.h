@@ -1,15 +1,3 @@
-/* ========================================
- *
- * Copyright YOUR COMPANY, THE YEAR
- * All Rights Reserved
- * UNPUBLISHED, LICENSED SOFTWARE.
- *
- * CONFIDENTIAL AND PROPRIETARY INFORMATION
- * WHICH IS THE PROPERTY OF your company.
- *
- * ========================================
-*/
-
 #ifndef ble_control_h
     #define ble_control_h
 
@@ -27,8 +15,7 @@ void BleCallBack(uint32 event, void* eventParam);
 // Function that converts BLE command to GCODE
 void convert_command_to_gcode();
 
-//Function for validation array
-int validate_array();
+void send_command_to_grbl(char * buffer);
 
 #endif
 

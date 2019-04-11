@@ -135,6 +135,7 @@ void mc_line_with_servomotors(float *target, uint16 *servo, plan_line_data_t *pl
 void mc_arc(float *target, plan_line_data_t *pl_data, float *position, float *offset, float radius,
   uint8_t axis_0, uint8_t axis_1, uint8_t axis_linear, uint8_t is_clockwise_arc)
 {
+  return;
   float center_axis0 = position[axis_0] + offset[axis_0];
   float center_axis1 = position[axis_1] + offset[axis_1];
   float r_axis0 = -offset[axis_0];  // Radius vector from center to current location

@@ -26,7 +26,7 @@
 /* Maximum supported Custom Services */
 #define CYBLE_CUSTOMS_SERVICE_COUNT                  (0x01u)
 #define CYBLE_CUSTOMC_SERVICE_COUNT                  (0x00u)
-#define CYBLE_CUSTOM_SERVICE_CHAR_COUNT              (0x02u)
+#define CYBLE_CUSTOM_SERVICE_CHAR_COUNT              (0x04u)
 #define CYBLE_CUSTOM_SERVICE_CHAR_DESCRIPTORS_COUNT  (0x02u)
 
 /* Below are the indexes and handles of the defined Custom Services and their characteristics */
@@ -36,6 +36,10 @@
 #define CYBLE_SMARTCHESS_COMMANDSTATUS_CHAR_INDEX   (0x01u) /* Index of CommandStatus characteristic */
 #define CYBLE_SMARTCHESS_COMMANDSTATUS_COMMANDSTATUSNOTIFICATION_DESC_INDEX   (0x00u) /* Index of CommandStatusNotification descriptor */
 #define CYBLE_SMARTCHESS_COMMANDSTATUS_COMMANDSTATUSDESCRIPTION_DESC_INDEX   (0x01u) /* Index of CommandStatusDescription descriptor */
+#define CYBLE_SMARTCHESS_PLAYER_CHAR_INDEX   (0x02u) /* Index of Player characteristic */
+#define CYBLE_SMARTCHESS_PLAYER_CHARACTERISTIC_USER_DESCRIPTION_DESC_INDEX   (0x00u) /* Index of Characteristic User Description descriptor */
+#define CYBLE_SMARTCHESS_STARTGAME_CHAR_INDEX   (0x03u) /* Index of StartGame characteristic */
+#define CYBLE_SMARTCHESS_STARTGAME_CHARACTERISTIC_USER_DESCRIPTION_DESC_INDEX   (0x00u) /* Index of Characteristic User Description descriptor */
 
 
 #define CYBLE_SMARTCHESS_SERVICE_HANDLE   (0x0010u) /* Handle of SmartChess service */
@@ -46,6 +50,12 @@
 #define CYBLE_SMARTCHESS_COMMANDSTATUS_CHAR_HANDLE   (0x0015u) /* Handle of CommandStatus characteristic */
 #define CYBLE_SMARTCHESS_COMMANDSTATUS_COMMANDSTATUSNOTIFICATION_DESC_HANDLE   (0x0016u) /* Handle of CommandStatusNotification descriptor */
 #define CYBLE_SMARTCHESS_COMMANDSTATUS_COMMANDSTATUSDESCRIPTION_DESC_HANDLE   (0x0017u) /* Handle of CommandStatusDescription descriptor */
+#define CYBLE_SMARTCHESS_PLAYER_DECL_HANDLE   (0x0018u) /* Handle of Player characteristic declaration */
+#define CYBLE_SMARTCHESS_PLAYER_CHAR_HANDLE   (0x0019u) /* Handle of Player characteristic */
+#define CYBLE_SMARTCHESS_PLAYER_CHARACTERISTIC_USER_DESCRIPTION_DESC_HANDLE   (0x001Au) /* Handle of Characteristic User Description descriptor */
+#define CYBLE_SMARTCHESS_STARTGAME_DECL_HANDLE   (0x001Bu) /* Handle of StartGame characteristic declaration */
+#define CYBLE_SMARTCHESS_STARTGAME_CHAR_HANDLE   (0x001Cu) /* Handle of StartGame characteristic */
+#define CYBLE_SMARTCHESS_STARTGAME_CHARACTERISTIC_USER_DESCRIPTION_DESC_HANDLE   (0x001Du) /* Handle of Characteristic User Description descriptor */
 
 
 

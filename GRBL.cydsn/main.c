@@ -22,15 +22,6 @@
 #include "project.h"
 #include "grbl.h"
 
-int counter = 0;
-CY_ISR(Servo_PWM_Int_Handler) {
-    counter++;
-    if(counter == 15000) {
-        Servo_PWM_Stop();
-        counter = 0;
-    } 
-}
-
 // Declare system global variable structure
 system_t sys;
 int32_t sys_position[N_AXIS];      // Real-time machine (aka home) position vector in steps.
@@ -72,9 +63,9 @@ int main(void)
   Em_EEPROM_Init((uint32_t)Em_EEPROM_em_EepromStorage);
   #ifdef SERVOMOTORS
     Servo_PWM_Start();
-    //Servo_PWM_Int_StartEx(Servo_PWM_Int_Handler);
   #endif
   CyBle_Start(BleCallBack);
+  //start_game();  
   /***************************************************/
     
   // Initialize system upon power-up.
