@@ -22,6 +22,7 @@
 #include "grbl.h"
 #include "project.h"
 #include "planner.h"
+#include "chess_algorithm.h"
 
 // Some useful constants.
 #define DT_SEGMENT ( (1.0 /(ACCELERATION_TICKS_PER_SECOND*60.0) ) ) // min/segment
@@ -245,7 +246,7 @@ void st_wake_up()
 
   // Enable Stepper Driver Interrupt
   //TIMSK1 |= (1<<OCIE1A);
-  Timer1_Ovf_Int_Enable(); //                                             <--NEW_LINE
+  Timer1_Ovf_Int_Enable(); //                                              <--NEW_LINE
   Timer1_Start(); //                                                       <--NEW_LINE
   Timer1_WriteCounter(0); //                                               <--NEW_LINE
 }
@@ -282,6 +283,10 @@ void st_go_idle()
     //STEPPERS_DISABLE_PORT &= ~(1<<STEPPERS_DISABLE_BIT); 
     Limit_Pins_Write( Limit_Pins_Read() & ~(1<<STEPPERS_DISABLE_BIT) );//         <--NEW_LINE
   }
+  
+  /* Chess block, just set command status to processed, because all gcode blocks 
+  are processed and we are ready to get new commands */
+  mark_chess_command_processed();
 }
 
 

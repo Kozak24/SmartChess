@@ -11,11 +11,13 @@
     #define PLAYER_INDEX (0)
     #define PIECE_INDEX  (1)
 
-enum ErrorCodes{
+enum CommandStatuses{
   RIGHT_COMMAND = 0x01, ERROR_IS_ALLY = 0x02, ERROR_PIECE_NOT_FOUND = 0x03,
   ERROR_NON_PLAYER_S_PIECE = 0x04, ERROR_PATH_BLOCKED_BY_ENEMY = 0x05,
   ERROR_PATH_BLOCKED_BY_ALLY = 0x06, ERROR_PIECE_TYPE_DON_T_MATCH = 0x07,
-  ERROR_DESTINATION_PIECE_IS_KING = 0x08, ERROR_COORDINATES_OUT_OF_RANGE = 0x09
+  ERROR_DESTINATION_PIECE_IS_KING = 0x08, ERROR_COORDINATES_OUT_OF_RANGE = 0x09,
+  // RESERVED addresses for errors
+  COMMAND_IS_PROCESSING = 0x10, COMMAND_IS_PROCESSED = 0x11
 };
 
 typedef struct {
@@ -35,7 +37,7 @@ typedef struct {
   const char * pieceType;
 
   // Store info about command
-  enum ErrorCodes commandStatus;
+  enum CommandStatuses commandStatus;
 } game_info_t;
 
 // Link global variables
@@ -59,6 +61,9 @@ void pawn_become_queen(void);
 
 // Generate GCODE commands
 void generate_gcode(void);
+
+// Function that marks current command to processed status, calls from GRBL go_idle_function
+void mark_chess_command_processed(void);
 
 // Upd
 void update_chess_array(void);

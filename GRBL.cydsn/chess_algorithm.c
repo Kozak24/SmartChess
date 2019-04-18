@@ -144,11 +144,14 @@ void validate_command(char * command) {
     }
   }
 
+  // Set command status to COMMAND_IS_PROCESSING
+  game_info.commandStatus = COMMAND_IS_PROCESSING;
+
   // Print updated array
   print_chess_position_array();
 
   // Change player if command is right or leave the same player if command isn't right
-  if(game_info.commandStatus == RIGHT_COMMAND) {
+  if(game_info.commandStatus == COMMAND_IS_PROCESSING) {
     if(game_info.player == WHITE_PLAYER) {
       game_info.player = BLACK_PLAYER;
     } else {
@@ -243,7 +246,14 @@ void generate_gcode(void) {
   send_command_to_grbl(gcodeCommandBuffer);
   UART_UartPutString(gcodeCommandBuffer);
   
+  send_command_to_grbl("G01 X50 Y50 F500\n\r");
   /*send_command_to_grbl("G01 X1 Y1 F500\n\r");
   send_command_to_grbl("G01 X19 Y19 F500\n\r");
   send_command_to_grbl("G01 X15 Y15 F200\n\r");*/
+}
+
+// Function that marks current command to processed status, calls from GRBL go_idle_function
+void mark_chess_command_processed(void) {
+    game_info.commandStatus = COMMAND_IS_PROCESSED;
+    updateCommandStatus();
 }
