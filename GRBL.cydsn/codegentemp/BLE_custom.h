@@ -37,9 +37,10 @@
 #define CYBLE_SMARTCHESS_COMMANDSTATUS_COMMANDSTATUSNOTIFICATION_DESC_INDEX   (0x00u) /* Index of CommandStatusNotification descriptor */
 #define CYBLE_SMARTCHESS_COMMANDSTATUS_COMMANDSTATUSDESCRIPTION_DESC_INDEX   (0x01u) /* Index of CommandStatusDescription descriptor */
 #define CYBLE_SMARTCHESS_PLAYER_CHAR_INDEX   (0x02u) /* Index of Player characteristic */
-#define CYBLE_SMARTCHESS_PLAYER_CHARACTERISTIC_USER_DESCRIPTION_DESC_INDEX   (0x00u) /* Index of Characteristic User Description descriptor */
+#define CYBLE_SMARTCHESS_PLAYER_PLAYERDESCRIPTION_DESC_INDEX   (0x00u) /* Index of PlayerDescription descriptor */
+#define CYBLE_SMARTCHESS_PLAYER_PLAYERNOTIFICATION_DESC_INDEX   (0x01u) /* Index of PlayerNotification descriptor */
 #define CYBLE_SMARTCHESS_STARTGAME_CHAR_INDEX   (0x03u) /* Index of StartGame characteristic */
-#define CYBLE_SMARTCHESS_STARTGAME_CHARACTERISTIC_USER_DESCRIPTION_DESC_INDEX   (0x00u) /* Index of Characteristic User Description descriptor */
+#define CYBLE_SMARTCHESS_STARTGAME_STARTGAMEDESCRIPTION_DESC_INDEX   (0x00u) /* Index of StartGameDescription descriptor */
 
 
 #define CYBLE_SMARTCHESS_SERVICE_HANDLE   (0x0010u) /* Handle of SmartChess service */
@@ -52,10 +53,11 @@
 #define CYBLE_SMARTCHESS_COMMANDSTATUS_COMMANDSTATUSDESCRIPTION_DESC_HANDLE   (0x0017u) /* Handle of CommandStatusDescription descriptor */
 #define CYBLE_SMARTCHESS_PLAYER_DECL_HANDLE   (0x0018u) /* Handle of Player characteristic declaration */
 #define CYBLE_SMARTCHESS_PLAYER_CHAR_HANDLE   (0x0019u) /* Handle of Player characteristic */
-#define CYBLE_SMARTCHESS_PLAYER_CHARACTERISTIC_USER_DESCRIPTION_DESC_HANDLE   (0x001Au) /* Handle of Characteristic User Description descriptor */
-#define CYBLE_SMARTCHESS_STARTGAME_DECL_HANDLE   (0x001Bu) /* Handle of StartGame characteristic declaration */
-#define CYBLE_SMARTCHESS_STARTGAME_CHAR_HANDLE   (0x001Cu) /* Handle of StartGame characteristic */
-#define CYBLE_SMARTCHESS_STARTGAME_CHARACTERISTIC_USER_DESCRIPTION_DESC_HANDLE   (0x001Du) /* Handle of Characteristic User Description descriptor */
+#define CYBLE_SMARTCHESS_PLAYER_PLAYERDESCRIPTION_DESC_HANDLE   (0x001Au) /* Handle of PlayerDescription descriptor */
+#define CYBLE_SMARTCHESS_PLAYER_PLAYERNOTIFICATION_DESC_HANDLE   (0x001Bu) /* Handle of PlayerNotification descriptor */
+#define CYBLE_SMARTCHESS_STARTGAME_DECL_HANDLE   (0x001Cu) /* Handle of StartGame characteristic declaration */
+#define CYBLE_SMARTCHESS_STARTGAME_CHAR_HANDLE   (0x001Du) /* Handle of StartGame characteristic */
+#define CYBLE_SMARTCHESS_STARTGAME_STARTGAMEDESCRIPTION_DESC_HANDLE   (0x001Eu) /* Handle of StartGameDescription descriptor */
 
 
 

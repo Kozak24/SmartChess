@@ -2,6 +2,9 @@
 
 uint8 inputCommand[5];
 
+uint8 commandStatusNotification = 0;
+uint8 playerNotification = 0;
+
 void readCommand()
 {
     if(CyBle_GetState() != CYBLE_STATE_CONNECTED)
@@ -29,9 +32,13 @@ void updateCommandStatus(void) {
     tempHandle.value.val = (uint8 *) &game_info.commandStatus;
     tempHandle.value.len = 1;
     CyBle_GattsWriteAttributeValue(&tempHandle, 0, &cyBle_connHandle, CYBLE_GATT_DB_LOCALLY_INITIATED);
+    
+    if(commandStatusNotification) {
+        CyBle_GattsNotification(cyBle_connHandle, &tempHandle);
+    }
 }
 
-void updataPlayer(void) {
+void updatePlayer(void) {
     if(CyBle_GetState() != CYBLE_STATE_CONNECTED)
     {
         return;
@@ -43,11 +50,15 @@ void updataPlayer(void) {
     tempHandle.value.val = (uint8 *) &game_info.player;
     tempHandle.value.len = 1;
     CyBle_GattsWriteAttributeValue(&tempHandle, 0, &cyBle_connHandle, CYBLE_GATT_DB_LOCALLY_INITIATED);
+    
+    if(playerNotification) {
+        CyBle_GattsNotification(cyBle_connHandle, &tempHandle);
+    }
 }
 
 void updateGameInformation(void) {
     updateCommandStatus();
-    updataPlayer();
+    updatePlayer();
 }
 
 void send_command_to_grbl(char * buffer) {
@@ -57,12 +68,10 @@ void send_command_to_grbl(char * buffer) {
     }
 }
 
-void BleCallBack(uint32 event, void* eventParam)
-{
+void BleCallBack(uint32 event, void* eventParam) {
     CYBLE_GATTS_WRITE_REQ_PARAM_T *wrReqParam;
     
-    switch(event)
-    {
+    switch(event) {
         /* if there is a disconnect or the stack just turned on
         from a reset then*/
         case CYBLE_EVT_STACK_ON:
@@ -81,12 +90,11 @@ void BleCallBack(uint32 event, void* eventParam)
         /*handle a write request */
         case CYBLE_EVT_GATTS_WRITE_REQ:     
             wrReqParam = (CYBLE_GATTS_WRITE_CMD_REQ_PARAM_T *) eventParam;
-            /* if request write the Chess Letter value */
-            if(wrReqParam->handleValPair.attrHandle == CYBLE_SMARTCHESS_COMMAND_CHAR_HANDLE)
-            {
+            
+            /* Get chess command from Client */
+            if(wrReqParam->handleValPair.attrHandle == CYBLE_SMARTCHESS_COMMAND_CHAR_HANDLE) {
                 /*only update the value and write the response if the requested write is allowed*/
-                if(CYBLE_GATT_ERR_NONE == CyBle_GattsWriteAttributeValue(&wrReqParam->handleValPair, 0, &cyBle_connHandle, CYBLE_GATT_DB_PEER_INITIATED))
-                {
+                if(CYBLE_GATT_ERR_NONE == CyBle_GattsWriteAttributeValue(&wrReqParam->handleValPair, 0, &cyBle_connHandle, CYBLE_GATT_DB_PEER_INITIATED)) {
                     uint8 length = wrReqParam->handleValPair.value.len;
                     for(uint8 i = 0; i < length; i++) {
                         inputCommand[i] = wrReqParam->handleValPair.value.val[i];
@@ -99,11 +107,10 @@ void BleCallBack(uint32 event, void* eventParam)
                 }
             }
             
-            if(wrReqParam->handleValPair.attrHandle == CYBLE_SMARTCHESS_STARTGAME_CHAR_HANDLE)
-            {
+            /* request to Start Game or Restart */
+            if(wrReqParam->handleValPair.attrHandle == CYBLE_SMARTCHESS_STARTGAME_CHAR_HANDLE) {
                 /*only update the value and write the response if the requested write is allowed*/
-                if(CYBLE_GATT_ERR_NONE == CyBle_GattsWriteAttributeValue(&wrReqParam->handleValPair, 0, &cyBle_connHandle, CYBLE_GATT_DB_PEER_INITIATED))
-                {
+                if(CYBLE_GATT_ERR_NONE == CyBle_GattsWriteAttributeValue(&wrReqParam->handleValPair, 0, &cyBle_connHandle, CYBLE_GATT_DB_PEER_INITIATED)) {
                     if(wrReqParam->handleValPair.value.val[0] == START_GAME) {
                         start_game();
                     }
@@ -111,6 +118,20 @@ void BleCallBack(uint32 event, void* eventParam)
                     CyBle_GattsWriteRsp(cyBle_connHandle);
                     updateGameInformation();
                 }
+            }
+            
+            /*request to update the CommandStatus notification */
+            if(wrReqParam->handleValPair.attrHandle == CYBLE_SMARTCHESS_COMMANDSTATUS_COMMANDSTATUSNOTIFICATION_DESC_HANDLE) {
+                CyBle_GattsWriteAttributeValue(&wrReqParam->handleValPair, 0, &cyBle_connHandle, CYBLE_GATT_DB_PEER_INITIATED);
+                commandStatusNotification = wrReqParam->handleValPair.value.val[0] & 0x01;
+                CyBle_GattsWriteRsp(cyBle_connHandle);
+            }
+            
+            /*request to update the Player notification */
+            if(wrReqParam->handleValPair.attrHandle == CYBLE_SMARTCHESS_PLAYER_PLAYERNOTIFICATION_DESC_HANDLE) {
+                CyBle_GattsWriteAttributeValue(&wrReqParam->handleValPair, 0, &cyBle_connHandle, CYBLE_GATT_DB_PEER_INITIATED);
+                playerNotification = wrReqParam->handleValPair.value.val[0] & 0x01;
+                CyBle_GattsWriteRsp(cyBle_connHandle);
             }
             break;
         

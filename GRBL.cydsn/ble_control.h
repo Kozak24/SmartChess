@@ -5,15 +5,16 @@
     
 CY_ISR( BLE_Call_Int_Handler );
 
-void readCommand();
+void readCommand(void);
 
-void updateCommandStatus();
+void updateCommandStatus(void);
+
+void updatePlayer(void);
+
+void updateGameInformation(void);
 
 // Function to process BLE events
 void BleCallBack(uint32 event, void* eventParam);
-    
-// Function that converts BLE command to GCODE
-void convert_command_to_gcode();
 
 void send_command_to_grbl(char * buffer);
 
