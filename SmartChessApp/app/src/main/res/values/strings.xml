@@ -13,4 +13,6 @@
     <string name="NotifyOff">"Notify Off"</string>
     <string name="Notify">Notify</string>
     <string name="send_command">Send command</string>
+    <string name="player_text_view">Player</string>
+    <string name="command_status_text_view">Command status</string>
 </resources>

@@ -75,6 +75,8 @@ public class MainActivity extends AppCompatActivity {
     private Button send_command_button;
     private Button disconnect_button;
     private TextView command_text_view;
+    private TextView player_text_view;
+    private TextView command_status_text_view;
 
     // Variables to manage BLE connection
     private static boolean mConnectState;
@@ -86,7 +88,6 @@ public class MainActivity extends AppCompatActivity {
 
     //This is required for Android 6.0 (Marshmallow)
     private static final int PERMISSION_REQUEST_COARSE_LOCATION = 1;
-    private int tempCounter = 0;
     private byte[] bytes;
 
 
@@ -139,10 +140,10 @@ public class MainActivity extends AppCompatActivity {
         send_command_button = findViewById(R.id.send_command);
         disconnect_button = findViewById(R.id.disconnect_button);
         command_text_view = findViewById(R.id.command_text_view);
+        player_text_view = findViewById(R.id.player_text_view);
+        command_status_text_view = findViewById(R.id.command_status_text_view);
 
-        send_command_button.setVisibility(View.INVISIBLE);
-        speech_button.setVisibility(View.INVISIBLE);
-        command_text_view.setVisibility(View.INVISIBLE);
+        hideUI();
 
         // Initialize service and connection state variable
         mServiceConnected = false;
@@ -208,8 +209,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-
-
     @Override
     protected void onResume() {
         super.onResume();
@@ -226,8 +225,6 @@ public class MainActivity extends AppCompatActivity {
 /*    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
-
     }*/
 
     @Override
@@ -264,22 +261,6 @@ public class MainActivity extends AppCompatActivity {
         return bytes;
     }
 
-    @Override
-    protected void onPause() {
-        super.onPause();
-        unregisterReceiver(mBleUpdateReceiver);
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        // Close and unbind the service when the activity goes away
-        mPSoCSmartChessService.close();
-        unbindService(mServiceConnection);
-        mPSoCSmartChessService = null;
-        mServiceConnected = false;
-    }
-
     /**
      * This method handles the start bluetooth button
      *
@@ -306,7 +287,6 @@ public class MainActivity extends AppCompatActivity {
 
         // Disable the start button and turn on the search  button
         start_button.setEnabled(false);
-        //search_button.setEnabled(true);
         Log.d(TAG, "Bluetooth is Enabled");
 
         searchBluetooth(view);
@@ -360,6 +340,27 @@ public class MainActivity extends AppCompatActivity {
         /* That event broadcasts a message which is picked up by the mGattUpdateReceiver */
     }
 
+    private void updateUI() {
+        player_text_view.setText(mPSoCSmartChessService.getPlayerValue());
+        command_status_text_view.setText(mPSoCSmartChessService.getCommandStatusValue());
+    }
+
+    private void hideUI() {
+        send_command_button.setVisibility(View.INVISIBLE);
+        speech_button.setVisibility(View.INVISIBLE);
+        command_text_view.setVisibility(View.INVISIBLE);
+        player_text_view.setVisibility(View.INVISIBLE);
+        command_status_text_view.setVisibility(View.INVISIBLE);
+    }
+
+    private void showUI() {
+        send_command_button.setVisibility(View.VISIBLE);
+        speech_button.setVisibility(View.VISIBLE);
+        command_text_view.setVisibility(View.VISIBLE);
+        player_text_view.setVisibility(View.VISIBLE);
+        command_status_text_view.setVisibility(View.VISIBLE);
+    }
+
     /**
      * This method handles the Discover Services and Characteristics button
      *
@@ -405,29 +406,45 @@ public class MainActivity extends AppCompatActivity {
                 case PSoCSmartChessService.ACTION_CONNECTED:
                     if (!mConnectState) {
                         disconnect_button.setEnabled(true);
-                        send_command_button.setVisibility(View.VISIBLE);
-                        speech_button.setVisibility(View.VISIBLE);
-                        command_text_view.setVisibility(View.VISIBLE);
+                        showUI();
                         mConnectState = true;
                         Log.d(TAG, "Connected to Device");
                     }
                     break;
+                //case PSoCSmartChessService.ACTION_CLOSE:
                 case PSoCSmartChessService.ACTION_DISCONNECTED:
                     // Disable the disconnect, discover svc, discover char button, and enable the search button
                     disconnect_button.setEnabled(false);
-                    send_command_button.setVisibility(View.INVISIBLE);
-                    speech_button.setVisibility(View.INVISIBLE);
-                    command_text_view.setVisibility(View.INVISIBLE);
+                    hideUI();
                     mConnectState = false;
+                    mPSoCSmartChessService.close();
                     Log.d(TAG, "Disconnected");
                     break;
                 case PSoCSmartChessService.ACTION_SERVICES_DISCOVERED:
                     Log.d(TAG, "Services Discovered");
                     break;
                 case PSoCSmartChessService.ACTION_DATA_RECEIVED:
+                    updateUI();
+                    break;
                 default:
                     break;
             }
         }
     };
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        unregisterReceiver(mBleUpdateReceiver);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        // Close and unbind the service when the activity goes away
+        mPSoCSmartChessService.close();
+        unbindService(mServiceConnection);
+        mPSoCSmartChessService = null;
+        mServiceConnected = false;
+    }
 }
