@@ -86,7 +86,7 @@ public class PSoCSmartChessService extends Service {
     private final static String smartChessServiceUUID =             baseUUID + "0";
     public  final static String commandCharacteristicUUID =         baseUUID + "1";
     public  final static String commandStatusCharacteristicUUID =   baseUUID + "2";
-    private final static String playerCharacteristicUUID =          baseUUID + "3";
+    public  final static String playerCharacteristicUUID =          baseUUID + "3";
     private final static String baseCccdUUID =                "00002902-0000-1000-8000-00805F9B34F";
     private final static String commandStatusCccdUUID =             baseCccdUUID + "2";
     private final static String playerCccdUUID =                    baseCccdUUID + "3";
@@ -423,7 +423,7 @@ public class PSoCSmartChessService extends Service {
 
             // Read the current command of the Command service from the device
             //readCommandCharacteristic();
-            //readPlayerCharacteristic();
+            readPlayerCharacteristic();
             readCommandStatusCharacteristic();
 
             // Broadcast that service/characteristic/descriptor discovery is done
@@ -453,7 +453,7 @@ public class PSoCSmartChessService extends Service {
                     // Set the command switch state variable based on the characteristic value that was read
                     mSwitchState = ((data[0] & 0xff) != 0x00);
                 } else if(uuid.equalsIgnoreCase( playerCharacteristicUUID )) {
-                    mPlayerValue = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT8, 1);
+                    mPlayerValue = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT8, 0);
                 } else if(uuid.equalsIgnoreCase( commandStatusCharacteristicUUID )) {
                     mCommandStatusValue = characteristic.getIntValue( BluetoothGattCharacteristic.FORMAT_UINT8, 0);
                 }
