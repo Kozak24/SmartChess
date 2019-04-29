@@ -77,6 +77,9 @@ public class PSoCSmartChessService extends Service {
     private static BluetoothGattCharacteristic mCommandCharacterisitc;
     private static BluetoothGattCharacteristic mPlayerCharacteristic;
     private static BluetoothGattCharacteristic mCommandStatusCharacteristic;
+
+    List<BluetoothGattCharacteristic> characteristicsList = new ArrayList<>();
+
     // Descriptors
     private static BluetoothGattDescriptor mCommandStatusCccd;
     private static BluetoothGattDescriptor mPlayerCccd;
@@ -108,8 +111,6 @@ public class PSoCSmartChessService extends Service {
             "com.cypress.smartchessapp.ACTION_SERVICES_DISCOVERED";
     public final static String ACTION_DATA_RECEIVED =
             "com.cypress.smartchessapp.ACTION_DATA_RECEIVED";
-    public final static String ACTION_CLOSE =
-            "com.cypress.smartchessapp.ACTION_CLOSE";
 
     public PSoCSmartChessService() { }
 
@@ -256,34 +257,14 @@ public class PSoCSmartChessService extends Service {
         }
         mBluetoothGatt.close();
         mBluetoothGatt = null;
-        //broadcastUpdate(ACTION_CLOSE);
     }
 
-    /**
-     * This method is used to read the state of the command from the device
-     */
-     public void readCommandCharacteristic() {
+    private void readCharacteristics() {
         if (mBluetoothAdapter == null || mBluetoothGatt == null) {
             Log.w(TAG, "BluetoothAdapter not initialized");
             return;
         }
-        mBluetoothGatt.readCharacteristic( mCommandCharacterisitc );
-     }
-
-     public void readPlayerCharacteristic() {
-         if (mBluetoothAdapter == null || mBluetoothGatt == null) {
-             Log.w(TAG, "BluetoothAdapter not initialized");
-             return;
-         }
-         mBluetoothGatt.readCharacteristic( mPlayerCharacteristic );
-     }
-
-    public void readCommandStatusCharacteristic() {
-        if (mBluetoothAdapter == null || mBluetoothGatt == null) {
-            Log.w(TAG, "BluetoothAdapter not initialized");
-            return;
-        }
-        mBluetoothGatt.readCharacteristic( mCommandStatusCharacteristic );
+        mBluetoothGatt.readCharacteristic(characteristicsList.get(characteristicsList.size()-1));
     }
 
     /**
@@ -332,6 +313,8 @@ public class PSoCSmartChessService extends Service {
      */
     public String getCommandStatusValue() {
         switch (mCommandStatusValue) {
+            case 0x10:
+                return "Processing";
             case 0x11:
                 return "Ready for command";
             default:
@@ -422,9 +405,9 @@ public class PSoCSmartChessService extends Service {
             mPlayerCccd = mPlayerCharacteristic.getDescriptor( UUID.fromString( playerCccdUUID ));
 
             // Read the current command of the Command service from the device
-            //readCommandCharacteristic();
-            readPlayerCharacteristic();
-            readCommandStatusCharacteristic();
+            characteristicsList.add(mCommandStatusCharacteristic);
+            characteristicsList.add(mPlayerCharacteristic);
+            readCharacteristics();
 
             // Broadcast that service/characteristic/descriptor discovery is done
             broadcastUpdate(ACTION_SERVICES_DISCOVERED);
@@ -460,7 +443,11 @@ public class PSoCSmartChessService extends Service {
                 // Notify the main activity that new data is available
                 broadcastUpdate(ACTION_DATA_RECEIVED);
 
-                readPlayerCharacteristic();
+                characteristicsList.remove(characteristicsList.get(characteristicsList.size() - 1));
+
+                if(characteristicsList.size() > 0) {
+                    readCharacteristics();
+                }
             }
         }
 
@@ -473,7 +460,7 @@ public class PSoCSmartChessService extends Service {
          */
         @Override
         public void onCharacteristicChanged(BluetoothGatt gatt,
-                                            BluetoothGattCharacteristic characteristic) {
+                                        BluetoothGattCharacteristic characteristic) {
 
             String uuid = characteristic.getUuid().toString();
 

@@ -222,11 +222,6 @@ public class MainActivity extends AppCompatActivity {
         registerReceiver(mBleUpdateReceiver, filter);
     }
 
-/*    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-    }*/
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         // User chose not to enable Bluetooth.
@@ -411,7 +406,6 @@ public class MainActivity extends AppCompatActivity {
                         Log.d(TAG, "Connected to Device");
                     }
                     break;
-                //case PSoCSmartChessService.ACTION_CLOSE:
                 case PSoCSmartChessService.ACTION_DISCONNECTED:
                     // Disable the disconnect, discover svc, discover char button, and enable the search button
                     disconnect_button.setEnabled(false);
