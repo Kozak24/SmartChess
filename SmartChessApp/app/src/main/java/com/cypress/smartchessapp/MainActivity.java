@@ -326,7 +326,7 @@ public class MainActivity extends AppCompatActivity {
                 }
                 connectBluetooth(view);
             }
-        }, 2500 );
+        }, 500 );
 
 
         /* After this we wait for the scan callback to detect that a device has been found */
@@ -348,8 +348,11 @@ public class MainActivity extends AppCompatActivity {
         mHandler.postDelayed( new Runnable() {
             @Override
             public void run() {
-                mPSoCSmartChessService.connect();
-                discoverServices(view);
+                if(mPSoCSmartChessService.connect()) {
+                    discoverServices( view );
+                } else {
+                    start_button.setEnabled(true);
+                }
             }
         }, 500 );
 
