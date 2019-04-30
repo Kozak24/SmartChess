@@ -5,13 +5,7 @@ uint8 inputCommand[5];
 uint8 commandStatusNotification = 0;
 uint8 playerNotification = 0;
 
-void readCommand()
-{
-    if(CyBle_GetState() != CYBLE_STATE_CONNECTED)
-    {
-        return;
-    }
-
+void readCommand() {
     CYBLE_GATTS_HANDLE_VALUE_NTF_T tempHandle;
     
     tempHandle.attrHandle = CYBLE_SMARTCHESS_COMMAND_CHAR_HANDLE;
@@ -21,11 +15,6 @@ void readCommand()
 }
 
 void updateCommandStatus(void) {
-    if(CyBle_GetState() != CYBLE_STATE_CONNECTED)
-    {
-        return;
-    }
-
     CYBLE_GATTS_HANDLE_VALUE_NTF_T tempHandle;
     
     tempHandle.attrHandle = CYBLE_SMARTCHESS_COMMANDSTATUS_CHAR_HANDLE;
@@ -39,11 +28,6 @@ void updateCommandStatus(void) {
 }
 
 void updatePlayer(void) {
-    if(CyBle_GetState() != CYBLE_STATE_CONNECTED)
-    {
-        return;
-    }
-
     CYBLE_GATTS_HANDLE_VALUE_NTF_T tempHandle;
     
     tempHandle.attrHandle = CYBLE_SMARTCHESS_PLAYER_CHAR_HANDLE;

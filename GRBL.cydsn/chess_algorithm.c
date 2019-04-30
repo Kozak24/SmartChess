@@ -254,6 +254,7 @@ void generate_gcode(void) {
 
 // Function that marks current command to processed status, calls from GRBL go_idle_function
 void mark_chess_command_processed(void) {
+    UART_UartPutString("Command is processed\n\r");
     game_info.commandStatus = COMMAND_IS_PROCESSED;
     updateCommandStatus();
 }
