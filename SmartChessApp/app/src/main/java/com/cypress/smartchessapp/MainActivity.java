@@ -74,6 +74,7 @@ public class MainActivity extends AppCompatActivity {
     private ImageButton speech_button;
     private Button send_command_button;
     private Button disconnect_button;
+    private Button start_game_button;
     private TextView command_text_view;
     private TextView player_text_view;
     private TextView command_status_text_view;
@@ -142,6 +143,7 @@ public class MainActivity extends AppCompatActivity {
         command_text_view = findViewById(R.id.command_text_view);
         player_text_view = findViewById(R.id.player_text_view);
         command_status_text_view = findViewById(R.id.command_status_text_view);
+        start_game_button = findViewById(R.id.start_game_button);
 
         hideUI();
 
@@ -314,6 +316,10 @@ public class MainActivity extends AppCompatActivity {
         mPSoCSmartChessService.writeCommandCharacteristic(byteValues);
     }
 
+    public void startGame(View view) {
+        mPSoCSmartChessService.writeStartGameCharacteristic();
+    }
+
     /**
      * This method handles the Connect to Device button
      *
@@ -346,6 +352,7 @@ public class MainActivity extends AppCompatActivity {
         command_text_view.setVisibility(View.INVISIBLE);
         player_text_view.setVisibility(View.INVISIBLE);
         command_status_text_view.setVisibility(View.INVISIBLE);
+        start_game_button.setVisibility(View.INVISIBLE);
     }
 
     private void showUI() {
@@ -354,6 +361,7 @@ public class MainActivity extends AppCompatActivity {
         command_text_view.setVisibility(View.VISIBLE);
         player_text_view.setVisibility(View.VISIBLE);
         command_status_text_view.setVisibility(View.VISIBLE);
+        start_game_button.setVisibility(View.VISIBLE);
     }
 
     /**

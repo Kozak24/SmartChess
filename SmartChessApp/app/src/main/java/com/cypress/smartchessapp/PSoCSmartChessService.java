@@ -77,26 +77,28 @@ public class PSoCSmartChessService extends Service {
     private static BluetoothGattCharacteristic mCommandCharacterisitc;
     private static BluetoothGattCharacteristic mPlayerCharacteristic;
     private static BluetoothGattCharacteristic mCommandStatusCharacteristic;
+    private static BluetoothGattCharacteristic mStartGameCharacteristic;
 
-    List<BluetoothGattCharacteristic> characteristicsList = new ArrayList<>();
+    // Array of characteristics for read
+    List<BluetoothGattCharacteristic> characteristicsForReadList = new ArrayList<>();
+    // Array of characteristics for enabling notifications
+    List<BluetoothGattCharacteristic> charactersticsForNotificationList = new ArrayList<>();
 
-    // Descriptors
-    private static BluetoothGattDescriptor mCommandStatusCccd;
-    private static BluetoothGattDescriptor mPlayerCccd;
-
+    // UUIDs
     // UUIDs for the service and characteristics that the custom SmartChess service uses
     private final static String baseUUID =                    "7EF3C2F6-63B8-4A61-839D-96851C3BCFC";
     private final static String smartChessServiceUUID =             baseUUID + "0";
     public  final static String commandCharacteristicUUID =         baseUUID + "1";
     public  final static String commandStatusCharacteristicUUID =   baseUUID + "2";
     public  final static String playerCharacteristicUUID =          baseUUID + "3";
-    private final static String baseCccdUUID =                "00002902-0000-1000-8000-00805F9B34F";
-    private final static String commandStatusCccdUUID =             baseCccdUUID + "2";
-    private final static String playerCccdUUID =                    baseCccdUUID + "3";
+    public  final static String startGameCharacteristicUUID =       baseUUID + "4";
+    // CCCD
+    private final static String baseCccdUUID =               "00002902-0000-1000-8000-00805f9b34fb";
 
-     // Variables to keep track of the Command switch state and Command Status Value
-    private static boolean mSwitchState = false;
-    //private static String mCommandStatusValue = "-1"; // This is the No Touch value (0xFFFF)
+     // Variable for notification status
+    private static boolean isNotificationEnabled = false;
+
+    // Variables that have information about game
     private static int mPlayerValue = 0;
     private static int mCommandStatusValue = 0;
 
@@ -259,12 +261,36 @@ public class PSoCSmartChessService extends Service {
         mBluetoothGatt = null;
     }
 
+    private void setNotificationEnabledStatus(boolean isEnabled) {
+        isNotificationEnabled = isEnabled;
+    }
+
     private void readCharacteristics() {
         if (mBluetoothAdapter == null || mBluetoothGatt == null) {
             Log.w(TAG, "BluetoothAdapter not initialized");
             return;
         }
-        mBluetoothGatt.readCharacteristic(characteristicsList.get(characteristicsList.size()-1));
+        mBluetoothGatt.readCharacteristic(characteristicsForReadList.get(characteristicsForReadList.size()-1));
+    }
+
+    public void enableNotifications() {
+        if (mBluetoothAdapter == null || mBluetoothGatt == null) {
+            Log.w(TAG, "BluetoothAdapter not initialized");
+            return;
+        }
+        BluetoothGattCharacteristic characteristic = charactersticsForNotificationList.get(
+                charactersticsForNotificationList.size()-1);
+        mBluetoothGatt.setCharacteristicNotification(characteristic, true);
+        byte[] value = new byte[1];
+        value[0] = 1;
+        BluetoothGattDescriptor cccd = characteristic.getDescriptor(UUID.fromString(baseCccdUUID));
+        cccd.setValue(value);
+        mBluetoothGatt.writeDescriptor(cccd);
+    }
+
+    public void writeStartGameCharacteristic() {
+        mStartGameCharacteristic.setValue(1, BluetoothGattCharacteristic.FORMAT_UINT8, 0);
+        mBluetoothGatt.writeCharacteristic( mStartGameCharacteristic );
     }
 
     /**
@@ -275,35 +301,6 @@ public class PSoCSmartChessService extends Service {
         //mSwitchState = value;
         mCommandCharacterisitc.setValue(data);
         mBluetoothGatt.writeCharacteristic( mCommandCharacterisitc );
-    }
-
-    /**
-     * This method enables or disables notifications for the Command Status
-     *
-     * @param value Turns notifications on (1) or off (0)
-     */
-    public void writeCommandStatusNotification(boolean value) {
-        // Set notifications locally in the CCCD
-        mBluetoothGatt.setCharacteristicNotification( mCommandStatusCharacteristic, value);
-        byte[] byteVal = new byte[1];
-        if (value) {
-            byteVal[0] = 1;
-        } else {
-            byteVal[0] = 0;
-        }
-        // Write Notification value to the device
-        Log.i(TAG, "Command Status Notification " + value);
-        mCommandStatusCccd.setValue(byteVal);
-        mBluetoothGatt.writeDescriptor( mCommandStatusCccd );
-    }
-
-    /**
-     * This method returns the state of the command switch
-     *
-     * @return the value of the command swtich state
-     */
-    public boolean getCommandSwitchState() {
-        return mSwitchState;
     }
 
     /**
@@ -332,7 +329,6 @@ public class PSoCSmartChessService extends Service {
             return "Unknown";
         }
     }
-
 
     /**
      * Implements the callback for when scanning for devices has found a device with
@@ -380,6 +376,7 @@ public class PSoCSmartChessService extends Service {
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                 Log.i(TAG, "Disconnected from GATT server.");
                 broadcastUpdate(ACTION_DISCONNECTED);
+                setNotificationEnabledStatus(false);
             }
         }
 
@@ -400,14 +397,15 @@ public class PSoCSmartChessService extends Service {
             mCommandCharacterisitc = mService.getCharacteristic( UUID.fromString( commandCharacteristicUUID ));
             mCommandStatusCharacteristic = mService.getCharacteristic( UUID.fromString( commandStatusCharacteristicUUID ));
             mPlayerCharacteristic = mService.getCharacteristic( UUID.fromString( playerCharacteristicUUID ));
-            /* Get the Command Status CCCD */
-            mCommandStatusCccd = mCommandStatusCharacteristic.getDescriptor( UUID.fromString(commandStatusCccdUUID));
-            mPlayerCccd = mPlayerCharacteristic.getDescriptor( UUID.fromString( playerCccdUUID ));
+            mStartGameCharacteristic = mService.getCharacteristic( UUID.fromString( startGameCharacteristicUUID ));
 
             // Read the current command of the Command service from the device
-            characteristicsList.add(mCommandStatusCharacteristic);
-            characteristicsList.add(mPlayerCharacteristic);
+            characteristicsForReadList.add(mCommandStatusCharacteristic);
+            characteristicsForReadList.add(mPlayerCharacteristic);
             readCharacteristics();
+
+            charactersticsForNotificationList.add(mCommandStatusCharacteristic);
+            charactersticsForNotificationList.add(mPlayerCharacteristic);
 
             // Broadcast that service/characteristic/descriptor discovery is done
             broadcastUpdate(ACTION_SERVICES_DISCOVERED);
@@ -432,9 +430,7 @@ public class PSoCSmartChessService extends Service {
                 // If the application had additional characteristics to read we could
                 // use a switch statement here to operate on each one separately.
                 if(uuid.equalsIgnoreCase( commandCharacteristicUUID )) {
-                    final byte[] data = characteristic.getValue();
-                    // Set the command switch state variable based on the characteristic value that was read
-                    mSwitchState = ((data[0] & 0xff) != 0x00);
+                    // Add reading from command characteristic
                 } else if(uuid.equalsIgnoreCase( playerCharacteristicUUID )) {
                     mPlayerValue = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT8, 0);
                 } else if(uuid.equalsIgnoreCase( commandStatusCharacteristicUUID )) {
@@ -443,10 +439,26 @@ public class PSoCSmartChessService extends Service {
                 // Notify the main activity that new data is available
                 broadcastUpdate(ACTION_DATA_RECEIVED);
 
-                characteristicsList.remove(characteristicsList.get(characteristicsList.size() - 1));
+                characteristicsForReadList.remove(characteristicsForReadList.get(characteristicsForReadList.size() - 1));
 
-                if(characteristicsList.size() > 0) {
+                if(characteristicsForReadList.size() > 0) {
                     readCharacteristics();
+                } else {
+                    if(!isNotificationEnabled) {
+                        enableNotifications();
+                    }
+                }
+            }
+        }
+
+        @Override
+        public void onCharacteristicWrite(BluetoothGatt gatt,
+                                          BluetoothGattCharacteristic characteristic, int status) {
+            if(!isNotificationEnabled) {
+                if(charactersticsForNotificationList.size()-1 > 0) {
+                    enableNotifications();
+                } else {
+                    setNotificationEnabledStatus(true);
                 }
             }
         }
@@ -469,6 +481,8 @@ public class PSoCSmartChessService extends Service {
             // use a switch statement here to operate on each one separately.
             if(uuid.equalsIgnoreCase( commandStatusCharacteristicUUID )) {
                 mCommandStatusValue = characteristic.getIntValue( BluetoothGattCharacteristic.FORMAT_UINT8,0);
+            } else if(uuid.equalsIgnoreCase( playerCharacteristicUUID )) {
+                mPlayerValue = characteristic.getIntValue( BluetoothGattCharacteristic.FORMAT_UINT8, 0 );
             }
 
             // Notify the main activity that new data is available

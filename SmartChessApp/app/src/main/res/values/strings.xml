@@ -1,18 +1,10 @@
 <resources>
     <string name="app_name">Smart Chess</string>
 
-    <string name="Start">Connect to SmartChess</string>
-    <string name="Search">Search for Device</string>
-    <string name="Connect">Connect to Device</string>
-    <string name="DiscoverServices">Discover Services and Characteristics</string>
-    <string name="GetChars">Get Characteristics</string>
-    <string name="Disconnect">Disconnect</string>
-    <string name="RedLED">Red LED</string>
-    <string name="Capsense">CapSense Value =</string>
-    <string name="NoTouch">"No Touch"</string>
-    <string name="NotifyOff">"Notify Off"</string>
-    <string name="Notify">Notify</string>
+    <string name="start">Connect to SmartChess</string>
+    <string name="disconnect">Disconnect</string>
     <string name="send_command">Send command</string>
     <string name="player_text_view">Player</string>
     <string name="command_status_text_view">Command status</string>
+    <string name="start_game">Start game</string>
 </resources>
