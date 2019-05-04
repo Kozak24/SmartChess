@@ -455,6 +455,8 @@ public class PSoCSmartChessService extends Service {
         public void onCharacteristicWrite(BluetoothGatt gatt,
                                           BluetoothGattCharacteristic characteristic, int status) {
             if(!isNotificationEnabled) {
+                charactersticsForNotificationList.remove(charactersticsForNotificationList.
+                        get(charactersticsForNotificationList.size()-1));
                 if(charactersticsForNotificationList.size()-1 > 0) {
                     enableNotifications();
                 } else {
