@@ -45,6 +45,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
@@ -342,8 +343,44 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void updateUI() {
-        player_text_view.setText(mPSoCSmartChessService.getPlayerValue());
-        command_status_text_view.setText(mPSoCSmartChessService.getCommandStatusValue());
+        updatePlayerTextView();
+        updateCommandStatusTextView();
+    }
+
+    private void updatePlayerTextView() {
+        String player = mPSoCSmartChessService.getPlayerValue();
+        switch(player) {
+            case "White":
+                player_text_view.setBackgroundColor(Color.BLACK);
+                player_text_view.setTextColor(Color.WHITE);
+                break;
+            case "Black":
+                player_text_view.setBackgroundColor(Color.WHITE);
+                player_text_view.setTextColor(Color.BLACK);
+                break;
+            default:
+                player_text_view.setBackgroundColor(Color.BLUE);
+                player_text_view.setTextColor(Color.WHITE);
+                break;
+        }
+        player_text_view.setText(player);
+    }
+
+    private void updateCommandStatusTextView() {
+        String commandStatus = mPSoCSmartChessService.getCommandStatusValue();
+        command_status_text_view.setTextColor(Color.WHITE);
+        switch (commandStatus) {
+            case "Processing":
+                command_status_text_view.setBackgroundColor(Color.BLUE);
+                break;
+            case "Ready for command":
+                command_status_text_view.setBackgroundColor(Color.GREEN);
+                break;
+            default:
+                command_status_text_view.setBackgroundColor(Color.RED);
+                break;
+        }
+        command_status_text_view.setText(commandStatus);
     }
 
     private void hideUI() {

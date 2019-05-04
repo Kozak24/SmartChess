@@ -317,7 +317,7 @@ public class PSoCSmartChessService extends Service {
             default:
                 break;
         }
-        return "None";
+        return "Error";
     }
 
     public String getPlayerValue() {
@@ -326,7 +326,7 @@ public class PSoCSmartChessService extends Service {
         } else if(mPlayerValue == 0x02) {
             return "Black";
         } else {
-            return "Unknown";
+            return "None";
         }
     }
 
@@ -457,7 +457,7 @@ public class PSoCSmartChessService extends Service {
             if(!isNotificationEnabled) {
                 charactersticsForNotificationList.remove(charactersticsForNotificationList.
                         get(charactersticsForNotificationList.size()-1));
-                if(charactersticsForNotificationList.size()-1 > 0) {
+                if(charactersticsForNotificationList.size() > 0) {
                     enableNotifications();
                 } else {
                     setNotificationEnabledStatus(true);
