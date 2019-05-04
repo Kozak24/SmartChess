@@ -62,7 +62,8 @@ game_info_t game_info;
 void start_game(void) {
   // TODO ADD CODE BLOCK FOR RETURNING PIECES TO START POSITION
   UART_UartPutString("START GAME\n\n\r");
-  game_info.player = 1;
+  game_info.player = WHITE_PLAYER;
+  game_info.gameStarted = STARTED_GAME;
 }
 
 uint8 is_coordinates_range_right(char * coordinates) {
@@ -150,14 +151,8 @@ void validate_command(char * command) {
   // Print updated array
   print_chess_position_array();
 
-  // Change player if command is right or leave the same player if command isn't right
-  if(game_info.commandStatus == COMMAND_IS_PROCESSING) {
-    if(game_info.player == WHITE_PLAYER) {
-      game_info.player = BLACK_PLAYER;
-    } else {
-      game_info.player = WHITE_PLAYER;
-    }
-  }
+  // Update game info in GATT DB
+  updateGameInformation();
 }
 
 // Update chess array after validation
@@ -256,5 +251,16 @@ void generate_gcode(void) {
 void mark_chess_command_processed(void) {
     UART_UartPutString("Command is processed\n\r");
     game_info.commandStatus = COMMAND_IS_PROCESSED;
-    updateCommandStatus();
+    
+    // Change player
+    if(game_info.gameStarted == STARTED_GAME) {
+        if(game_info.player == WHITE_PLAYER) {
+          game_info.player = BLACK_PLAYER;
+        } else {
+          game_info.player = WHITE_PLAYER;
+        }
+    }
+    
+    // Update game info in GATT DB
+    updateGameInformation();
 }

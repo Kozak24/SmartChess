@@ -2,7 +2,7 @@
 #define CHESS_ALGORITHM_H
     #include "project.h"
     
-    #define START_GAME   (1)
+    #define STARTED_GAME   (1)
 
     #define EMPTY_SQUARE (0)
     #define WHITE_PLAYER (1)
@@ -38,6 +38,7 @@ typedef struct {
 
   // Store info about command
   enum CommandStatuses commandStatus;
+  uint8 gameStarted;
 } game_info_t;
 
 // Link global variables

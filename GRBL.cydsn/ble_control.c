@@ -95,7 +95,7 @@ void BleCallBack(uint32 event, void* eventParam) {
             if(wrReqParam->handleValPair.attrHandle == CYBLE_SMARTCHESS_STARTGAME_CHAR_HANDLE) {
                 /*only update the value and write the response if the requested write is allowed*/
                 if(CYBLE_GATT_ERR_NONE == CyBle_GattsWriteAttributeValue(&wrReqParam->handleValPair, 0, &cyBle_connHandle, CYBLE_GATT_DB_PEER_INITIATED)) {
-                    if(wrReqParam->handleValPair.value.val[0] == START_GAME) {
+                    if(wrReqParam->handleValPair.value.val[0] == STARTED_GAME) {
                         start_game();
                     }
                     
