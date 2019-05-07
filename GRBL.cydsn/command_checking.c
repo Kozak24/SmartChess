@@ -53,7 +53,7 @@ void is_piece_on_the_square(void) {
   memcpy(squareInfo, chessPositionArray[game_info.piecePosY][game_info.piecePosX], 2);
   // Check if piece is on the square
   if(EMPTY_SQUARE != squareInfo[PLAYER_INDEX]) {
-    if(chessPiecesLettersArray[squareInfo[PIECE_INDEX]] != game_info.pieceType[0]) {
+    if(chessPiecesLettersArray[squareInfo[PIECE_INDEX]] != game_info.pieceType[FIRST_LETTER]) {
       sprintf(bufferForSpritnf, "Piece on the square is %d\n\r", squareInfo[PIECE_INDEX]);
       UART_UartPutString(bufferForSpritnf);   
       game_info.commandStatus = ERROR_PIECE_TYPE_DON_T_MATCH;
@@ -100,7 +100,7 @@ uint8 is_piece_found(uint8 * squareInfo) {
   if(EMPTY_SQUARE != squareInfo[PLAYER_INDEX]) {
     // If it's piece that we looking for, then return 1
     if(game_info.player == squareInfo[PLAYER_INDEX]
-    && game_info.pieceType[0] == chessPiecesLettersArray[squareInfo[PIECE_INDEX]]) {
+    && game_info.pieceType[FIRST_LETTER] == chessPiecesLettersArray[squareInfo[PIECE_INDEX]]) {
       game_info.commandStatus = RIGHT_COMMAND;
       return 1;
     // In this case it's not piece that we looking for and path blocked by ally, then return 0

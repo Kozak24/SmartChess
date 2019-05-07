@@ -114,7 +114,7 @@ void find_by_diagonal(void) {
   int destinationX = game_info.endPosX;
   int destinationY = game_info.endPosY;
   // Left upper diagonal path and Left downer diagonal path
-  if(destinationX != 7) {
+  if(destinationX != X_COORDINATE_MAX) {
     int y = destinationY;
     // Left upper diagonal path
     for(int x = destinationX + 1; x < 8; x++) {
@@ -133,7 +133,7 @@ void find_by_diagonal(void) {
         break;
       }
 
-      if(x == 7 || y == 7) {
+      if(x == X_COORDINATE_MAX || y == Y_COORDINATE_MAX) {
         break;
       }
     }
@@ -143,7 +143,7 @@ void find_by_diagonal(void) {
     for(int x = destinationX + 1; x < 8; x++) {
       y -= 1;
         
-      uint8 squareInfo[2]; 
+      uint8 squareInfo[2];
       memcpy(squareInfo, chessPositionArray[y][x], 2);
 
       // If is_piece_found return 1, then piece found - exit function
@@ -156,14 +156,14 @@ void find_by_diagonal(void) {
         break;
       }
 
-      if(x == 7 || y == 0) {
+      if(x == X_COORDINATE_MAX || y == Y_COORDINATE_MIN) {
         break;
       }
     }
   }
 
   // Right downer diagonal path and Right upper diagonal path
-  if(destinationX != 0) {
+  if(destinationX != X_COORDINATE_MIN) {
     int y = destinationY;
     // Right downer diagonal path
     for(int x = destinationX - 1; x >= 0; x--) {
@@ -182,7 +182,7 @@ void find_by_diagonal(void) {
         break;
       }
 
-      if(x == 0 || y == 0) {
+      if(x == X_COORDINATE_MIN || y == Y_COORDINATE_MIN) {
         break;
       }
     }
@@ -205,7 +205,7 @@ void find_by_diagonal(void) {
         break;
       }
 
-      if(x == 0 || y == 7) {
+      if(x == X_COORDINATE_MIN || y == Y_COORDINATE_MAX) {
         break;
       }
     }
@@ -226,13 +226,13 @@ void find_by_horizontal(void) {
     memcpy(squareInfo, chessPositionArray[y][x], 2);
     
     // If piece is already found, then return
-    if(chessPiecesLettersArray[squareInfo[PIECE_INDEX]] == game_info.pieceType[0]) {
+    if(chessPiecesLettersArray[squareInfo[PIECE_INDEX]] == game_info.pieceType[FIRST_LETTER]) {
       return;
     }
   }
 
   // Path to right from destination position
-  if(destinationX != 7) {
+  if(destinationX != X_COORDINATE_MAX) {
     int y = destinationY;
 
     for(int x = destinationX + 1; x < 8; x++) {
@@ -253,7 +253,7 @@ void find_by_horizontal(void) {
   }
 
   // Path to left from destination position
-  if(destinationX != 0) {
+  if(destinationX != X_COORDINATE_MIN) {
     int y = destinationY;
     
     for(int x = destinationX - 1; x >= 0; x--) {
@@ -289,12 +289,12 @@ void find_by_vertical(void) {
     memcpy(squareInfo, chessPositionArray[y][x], 2);
     
     // If piece is already found, then return
-    if(chessPiecesLettersArray[squareInfo[PIECE_INDEX]] == game_info.pieceType[0]) {
+    if(chessPiecesLettersArray[squareInfo[PIECE_INDEX]] == game_info.pieceType[FIRST_LETTER]) {
       return;
     }
   }
 
-  if(destinationY != 7) {
+  if(destinationY != Y_COORDINATE_MAX) {
     int x = destinationX;
     
     // Path from destination position to upper side
@@ -315,7 +315,7 @@ void find_by_vertical(void) {
     }
   }
 
-  if(destinationY != 0) {
+  if(destinationY != Y_COORDINATE_MIN) {
     int x = destinationX;
 
     // Path from destination position to downer side
@@ -353,6 +353,7 @@ void find_pawn(void) {
       // Y positions of bottom and top squares
       int bottomPosY = 0;
       int topPosY = 0;
+      // Set bottom and top square
       if(WHITE_PLAYER == player) {
         bottomPosY = 1;
         topPosY = 2;
@@ -379,7 +380,7 @@ void find_pawn(void) {
         } else if(topSquare[PLAYER_INDEX] == player
         && bottomSquare[PLAYER_INDEX] == player) {
           // If top square piece isn't Pawn then error
-          if(chessPiecesLettersArray[topSquare[PIECE_INDEX]] != game_info.pieceType[0]) {
+          if(chessPiecesLettersArray[topSquare[PIECE_INDEX]] != game_info.pieceType[FIRST_LETTER]) {
             game_info.commandStatus = ERROR_PATH_BLOCKED_BY_ALLY;
           } else {
             game_info.piecePosY = topPosY;
@@ -394,7 +395,7 @@ void find_pawn(void) {
       } else if((EMPTY_SQUARE != bottomSquare[PLAYER_INDEX]) 
       && (EMPTY_SQUARE == topSquare[PLAYER_INDEX])) {
         if(bottomSquare[PLAYER_INDEX] == player
-        && chessPiecesLettersArray[bottomSquare[PIECE_INDEX]] == game_info.pieceType[0]) {
+        && chessPiecesLettersArray[bottomSquare[PIECE_INDEX]] == game_info.pieceType[FIRST_LETTER]) {
           game_info.piecePosY = bottomPosY;
         } else {
           game_info.commandStatus = ERROR_PIECE_NOT_FOUND;
@@ -404,7 +405,7 @@ void find_pawn(void) {
       } else if((EMPTY_SQUARE == bottomSquare[PLAYER_INDEX]) 
       && (EMPTY_SQUARE != topSquare[PLAYER_INDEX])) {
         if(topSquare[PLAYER_INDEX] == player
-        && chessPiecesLettersArray[topSquare[PIECE_INDEX]] == game_info.pieceType[0]) {
+        && chessPiecesLettersArray[topSquare[PIECE_INDEX]] == game_info.pieceType[FIRST_LETTER]) {
           game_info.piecePosY = topPosY;
         } else {
           game_info.commandStatus = ERROR_PIECE_NOT_FOUND;
@@ -433,7 +434,7 @@ void find_pawn(void) {
 
     /* When Pawn attacks he can be only to the right of enemy piece
     or to the left of enemy piece */
-    if(destinationX > 0 && destinationX < 7) {
+    if(destinationX > X_COORDINATE_MIN && destinationX < X_COORDINATE_MAX) {
 
       /* For black player left piece will on another side
       than white player left piece, so declare here offset
@@ -463,7 +464,7 @@ void find_pawn(void) {
         then rightSquare is a possible position of piece */
         } else if (leftSquare[PLAYER_INDEX] != player) {
           if(rightSquare[PLAYER_INDEX] == player 
-          && chessPiecesLettersArray[rightSquare[PIECE_INDEX]] == game_info.pieceType[0]) {
+          && chessPiecesLettersArray[rightSquare[PIECE_INDEX]] == game_info.pieceType[FIRST_LETTER]) {
             game_info.piecePosX = destinationX + offsetX;
           } else {
             game_info.commandStatus = ERROR_PIECE_NOT_FOUND;
@@ -472,7 +473,7 @@ void find_pawn(void) {
         then leftSquare is a possible position of piece */
         } else if (rightSquare[PLAYER_INDEX] != player) {
           if(leftSquare[PLAYER_INDEX] == player 
-          && chessPiecesLettersArray[leftSquare[PIECE_INDEX]] == game_info.pieceType[0]) {
+          && chessPiecesLettersArray[leftSquare[PIECE_INDEX]] == game_info.pieceType[FIRST_LETTER]) {
             game_info.piecePosX = destinationX - offsetX;
           } else {
             game_info.commandStatus = ERROR_PIECE_NOT_FOUND;
@@ -481,10 +482,10 @@ void find_pawn(void) {
         assign coordinate of left piece by default */
         } else {
           if(leftSquare[PLAYER_INDEX] == player 
-          && chessPiecesLettersArray[leftSquare[PIECE_INDEX]] == game_info.pieceType[0]) {
+          && chessPiecesLettersArray[leftSquare[PIECE_INDEX]] == game_info.pieceType[FIRST_LETTER]) {
             game_info.piecePosX = destinationX - offsetX;
           } else if(rightSquare[PLAYER_INDEX] == player 
-          && chessPiecesLettersArray[rightSquare[PIECE_INDEX]] == game_info.pieceType[0]) {
+          && chessPiecesLettersArray[rightSquare[PIECE_INDEX]] == game_info.pieceType[FIRST_LETTER]) {
             game_info.piecePosX = destinationX + offsetX;
           } else {
             game_info.commandStatus = ERROR_PIECE_NOT_FOUND;
@@ -495,7 +496,7 @@ void find_pawn(void) {
       } else if(EMPTY_SQUARE != rightSquare[PLAYER_INDEX]) {
         // Check is it player's piece and is it Pawn
         if(rightSquare[PLAYER_INDEX] == player 
-        && chessPiecesLettersArray[rightSquare[PIECE_INDEX]] == game_info.pieceType[0]) {
+        && chessPiecesLettersArray[rightSquare[PIECE_INDEX]] == game_info.pieceType[FIRST_LETTER]) {
           game_info.piecePosX = destinationX + offsetX;
         }
       /* if leftSquare isn't empty and rightSquare is empty,
@@ -503,7 +504,7 @@ void find_pawn(void) {
       } else if(EMPTY_SQUARE != leftSquare[PLAYER_INDEX]) {
         // Check is it player's piece and is it Pawn
         if(leftSquare[PLAYER_INDEX] == player 
-        && chessPiecesLettersArray[leftSquare[PIECE_INDEX]] == game_info.pieceType[0]) {
+        && chessPiecesLettersArray[leftSquare[PIECE_INDEX]] == game_info.pieceType[FIRST_LETTER]) {
           game_info.piecePosX = destinationX - offsetX;
         }
       // if leftSquare and rightSquare is empty, then piece not found
@@ -515,9 +516,9 @@ void find_pawn(void) {
       int y = game_info.piecePosY;
       /* If enemy's piece are at the border coordinate - A or H
       then player's attacking Pawn will be at B(1) or G(6) coordinate*/
-      if(destinationX == 0) {
+      if(destinationX == X_COORDINATE_MIN) {
         x = 1;
-      } else if(destinationX == 7) {
+      } else if(destinationX == X_COORDINATE_MAX) {
         x = 6;
       }
 
@@ -525,7 +526,7 @@ void find_pawn(void) {
       uint8 squareInfo[2];
       memcpy(squareInfo, chessPositionArray[y][x], 2);
       if(squareInfo[PLAYER_INDEX] == player
-      && chessPiecesLettersArray[squareInfo[PLAYER_INDEX]] == game_info.pieceType[0]) {
+      && chessPiecesLettersArray[squareInfo[PLAYER_INDEX]] == game_info.pieceType[FIRST_LETTER]) {
         game_info.piecePosX = x;
       } else {
         game_info.commandStatus = ERROR_PIECE_NOT_FOUND;

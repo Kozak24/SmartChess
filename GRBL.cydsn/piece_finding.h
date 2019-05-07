@@ -10,8 +10,17 @@
 #define Y_COORDINATE_MIN (0)
 #define X_COORDINATE_MAX (7)
 #define Y_COORDINATE_MAX (7)
-    
+
+
+#define NONE_PIECE   (0) // Puts in array if Square = EMPTY_SQUARE
+#define PAWN_PIECE   (0)
+#define ROOK_PIECE   (1)
 #define KNIGHT_PIECE (2)
+#define BISHOP_PIECE (3)
+#define QUEEN_PIECE  (4)
+#define KING_PIECE   (5)
+    
+#define FIRST_LETTER (0)
     
 #include "project.h"
     

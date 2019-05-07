@@ -2,24 +2,31 @@
 
 char bufferForSpritnf[35];
 
-/* Data sets player - piece. For example 1, 1 is White Player, Rook
-Players: 1 - White, 2 - Black, 0 - Empty square
-Pieces: 0 - Pawn, 1 - Rook, 2 - Knight, 3 - Bishop, 4 - Queen, 5 - King*/
+/* Two dimensional array of pieces on the Square. Have information about 
+[a-h][1-8] Square, Piece standing on him and what Player own this Piece*/
 uint8 chessPositionArray[8][8][2] = {
-    { {1, 1}, {1, 2}, {1, 3}, {1, 4}, {1, 5}, {1, 3}, {1, 2}, {1, 1} },
-    { {1, 0}, {1, 0}, {1, 0}, {1, 0}, {1, 0}, {1, 0}, {1, 0}, {1, 0} }, 
-    { {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0} },
-    { {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0} },
-    { {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0} },
-    { {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0} },
-    { {2, 0}, {2, 0}, {2, 0}, {2, 0}, {2, 0}, {2, 0}, {2, 0}, {2, 0} }, 
-    { {2, 1}, {2, 2}, {2, 3}, {2, 5}, {2, 4}, {2, 3}, {2, 2}, {2, 1} },
+    { /*Row a, Cols 1-4*/ {WHITE_PLAYER, ROOK_PIECE}, {WHITE_PLAYER, KNIGHT_PIECE}, {WHITE_PLAYER, BISHOP_PIECE}, {WHITE_PLAYER, QUEEN_PIECE},
+      /*Row a, Cols 5-8*/ {WHITE_PLAYER, KING_PIECE}, {WHITE_PLAYER, BISHOP_PIECE}, {WHITE_PLAYER, KNIGHT_PIECE}, {WHITE_PLAYER, ROOK_PIECE} },
+    { /*Row b, Cols 1-4*/ {WHITE_PLAYER, PAWN_PIECE}, {WHITE_PLAYER, PAWN_PIECE}, {WHITE_PLAYER, PAWN_PIECE}, {WHITE_PLAYER, PAWN_PIECE},
+      /*Row b, Cols 5-8*/ {WHITE_PLAYER, PAWN_PIECE}, {WHITE_PLAYER, PAWN_PIECE}, {WHITE_PLAYER, PAWN_PIECE}, {WHITE_PLAYER, PAWN_PIECE} },
+    { /*Row c, Cols 1-4*/ {EMPTY_SQUARE, NONE_PIECE}, {EMPTY_SQUARE, NONE_PIECE}, {EMPTY_SQUARE, NONE_PIECE}, {EMPTY_SQUARE, NONE_PIECE},
+      /*Row c, Cols 5-8*/ {EMPTY_SQUARE, NONE_PIECE}, {EMPTY_SQUARE, NONE_PIECE}, {EMPTY_SQUARE, NONE_PIECE}, {EMPTY_SQUARE, NONE_PIECE} },
+    { /*Row d, Cols 1-4*/ {EMPTY_SQUARE, NONE_PIECE}, {EMPTY_SQUARE, NONE_PIECE}, {EMPTY_SQUARE, NONE_PIECE}, {EMPTY_SQUARE, NONE_PIECE},
+      /*Row d, Cols 5-8*/ {EMPTY_SQUARE, NONE_PIECE}, {EMPTY_SQUARE, NONE_PIECE}, {EMPTY_SQUARE, NONE_PIECE}, {EMPTY_SQUARE, NONE_PIECE} },
+    { /*Row e, Cols 1-4*/ {EMPTY_SQUARE, NONE_PIECE}, {EMPTY_SQUARE, NONE_PIECE}, {EMPTY_SQUARE, NONE_PIECE}, {EMPTY_SQUARE, NONE_PIECE},
+      /*Row e, Cols 5-8*/ {EMPTY_SQUARE, NONE_PIECE}, {EMPTY_SQUARE, NONE_PIECE}, {EMPTY_SQUARE, NONE_PIECE}, {EMPTY_SQUARE, NONE_PIECE} },
+    { /*Row f, Cols 1-4*/ {EMPTY_SQUARE, NONE_PIECE}, {EMPTY_SQUARE, NONE_PIECE}, {EMPTY_SQUARE, NONE_PIECE}, {EMPTY_SQUARE, NONE_PIECE},
+      /*Row f, Cols 5-8*/ {EMPTY_SQUARE, NONE_PIECE}, {EMPTY_SQUARE, NONE_PIECE}, {EMPTY_SQUARE, NONE_PIECE}, {EMPTY_SQUARE, NONE_PIECE} },
+    { /*Row g, Cols 1-4*/ {BLACK_PLAYER, PAWN_PIECE}, {BLACK_PLAYER, PAWN_PIECE}, {BLACK_PLAYER, PAWN_PIECE}, {BLACK_PLAYER, PAWN_PIECE},
+      /*Row g, Cols 5-8*/ {BLACK_PLAYER, PAWN_PIECE}, {BLACK_PLAYER, PAWN_PIECE}, {BLACK_PLAYER, PAWN_PIECE}, {BLACK_PLAYER, PAWN_PIECE} },
+    { /*Row h, Cols 1-4*/ {BLACK_PLAYER, ROOK_PIECE}, {BLACK_PLAYER, KNIGHT_PIECE}, {BLACK_PLAYER, BISHOP_PIECE}, {BLACK_PLAYER, KING_PIECE},
+      /*Row h, Cols 5-8*/ {BLACK_PLAYER, QUEEN_PIECE}, {BLACK_PLAYER, BISHOP_PIECE}, {BLACK_PLAYER, KNIGHT_PIECE}, {BLACK_PLAYER, ROOK_PIECE} }
 };
 
 // Array of chess pieces types
 const char * chessPiecesTypesArray[6] = {
   "Pawn", "Rook", "Night", "Bishop", "Queen", "King"
-};
+};     /*Actually "KNIGHT" simplified for easier  check: first letter of type == chess piece letter */
 
 // Array of chess pieces letters
 char chessPiecesLettersArray[6] = {
@@ -128,8 +135,10 @@ void validate_command(char * command) {
       } else if(validationStep == 2) {
         // Check if Pawn reaches end of the board, if yes then make this piece Queen
         if(0 == strcmp(game_info.pieceType, "Pawn")) {
-          if(((game_info.player == WHITE_PLAYER) && game_info.endPosY == 7)
-          || ((game_info.player == BLACK_PLAYER) && game_info.endPosY == 0)) {
+          // White PAWN reached end of enemy side
+          if(((game_info.player == WHITE_PLAYER) && game_info.endPosY == Y_COORDINATE_MAX)
+          // or Black PAWN reached end of enemy side
+          || ((game_info.player == BLACK_PLAYER) && game_info.endPosY == Y_COORDINATE_MIN)) {
             pawn_become_queen();
           }
         }
@@ -183,9 +192,8 @@ void update_chess_array(void) {
 /* When pawn got to other side of board then pawn piece become queen.
 Function that changes pawn piece to queen in the chessArray*/
 void pawn_become_queen(void) {
-  // Assign queen index to the variable and then put it in array
-  uint8 queen = 4;
-  chessPositionArray[game_info.piecePosY][game_info.piecePosX][PIECE_INDEX] = queen;
+  // Change PAWN piece index to QUEEN piece index in array
+  chessPositionArray[game_info.piecePosY][game_info.piecePosX][PIECE_INDEX] = QUEEN_PIECE;
 }
 
 // Generate GCODE commands
@@ -242,9 +250,6 @@ void generate_gcode(void) {
   UART_UartPutString(gcodeCommandBuffer);
   
   send_command_to_grbl("G01 X50 Y50 F500\n\r");
-  /*send_command_to_grbl("G01 X1 Y1 F500\n\r");
-  send_command_to_grbl("G01 X19 Y19 F500\n\r");
-  send_command_to_grbl("G01 X15 Y15 F200\n\r");*/
 }
 
 // Function that marks current command to processed status, calls from GRBL go_idle_function
