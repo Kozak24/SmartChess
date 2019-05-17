@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
 Copyright (c) 2016, Cypress Semiconductor Corporation
 All rights reserved.
 
@@ -31,11 +30,14 @@ http://www.cypress.com/products/bluetooth-low-energy-ble
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.cypress.smartchessapp">
 
-    <uses-feature android:name="android.hardware.bluetooth_le" android:required="true"/>
-    <uses-permission android:name="android.permission.BLUETOOTH"/>
-    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
-    <!--  Location permission required for android 6.0 (Marshmallow) -->
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-feature
+        android:name="android.hardware.bluetooth_le"
+        android:required="true" />
+
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+    <!-- Location permission required for android 6.0 (Marshmallow) -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
     <application
         android:allowBackup="true"
@@ -43,14 +45,22 @@ http://www.cypress.com/products/bluetooth-low-energy-ble
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity"
+        <activity
+            android:name=".MainActivity"
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <service android:name=".PSoCSmartChessService" android:enabled="true"/>
+
+        <service
+            android:name=".PSoCSmartChessService"
+            android:enabled="true" />
+
+        <activity android:name=".GameActivity" />
+        <activity android:name=".TestActivity"></activity>
     </application>
 
 </manifest>
