@@ -5,10 +5,17 @@
     android:layout_height="match_parent"
     tools:context=".Fragments.PVPFragment">
 
-    <TextView
+    <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/text_view"
-        android:text="@string/hello_blank_fragment" />
+        android:layout_height="match_parent">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/text_view"
+            android:text="@string/hello_blank_fragment" />
+
+    </android.support.constraint.ConstraintLayout>
+
 
 </FrameLayout>

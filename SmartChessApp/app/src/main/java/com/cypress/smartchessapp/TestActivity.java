@@ -43,11 +43,13 @@ public class TestActivity extends AppCompatActivity {
             mPSoCSmartChessService = ((PSoCSmartChessService.LocalBinder) service).getService();
             mServiceConnected = true;
             mPSoCSmartChessService.initialize();
+            ((ApplicationEx) getApplication()).setPSoCSmartChessService(mPSoCSmartChessService);
         }
 
         @Override
         public void onServiceDisconnected(ComponentName componentName) {
             mPSoCSmartChessService = null;
+            ((ApplicationEx) getApplication()).setPSoCSmartChessService(null);
         }
     };
 
@@ -57,7 +59,7 @@ public class TestActivity extends AppCompatActivity {
         super.onCreate( savedInstanceState );
         setContentView( R.layout.activity_test );
         fragmentNavigation = new FragmentNavigation(getSupportFragmentManager());
-        fragmentNavigation.setFragment(new PVPFragment(), false);
+        fragmentNavigation.setFragment(R.id.fragment_container, new PVPFragment(), false);
 
         mHandler = new Handler();
         startBluetooth(findViewById(android.R.id.content));
@@ -97,6 +99,16 @@ public class TestActivity extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
         unregisterReceiver(mBleUpdateReceiver);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        // Close and unbind the service when the activity goes away
+        mPSoCSmartChessService.close();
+        unbindService(mServiceConnection);
+        mPSoCSmartChessService = null;
+        mServiceConnected = false;
     }
 
     public void startBluetooth(View view) {

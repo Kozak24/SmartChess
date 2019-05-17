@@ -11,12 +11,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.cypress.smartchessapp.ApplicationEx;
 import com.cypress.smartchessapp.PSoCSmartChessService;
 import com.cypress.smartchessapp.R;
 
 public class PVPFragment extends Fragment {
     private boolean mConnectState = false;
     private TextView textView;
+
+    private PSoCSmartChessService mPSoCSmartChessService;
 
     public PVPFragment() {
         // Required empty public constructor
@@ -34,7 +37,17 @@ public class PVPFragment extends Fragment {
 
         textView = view.findViewById(R.id.text_view);
 
+        setPSoCSmartChessService();
+        if(mPSoCSmartChessService != null) {
+            // Update UI
+        }
+
         return view;
+    }
+
+    private void setPSoCSmartChessService() {
+        mPSoCSmartChessService = ((ApplicationEx) getActivity().getApplication())
+                .getPSoCSmartChessService();
     }
 
     @Override
@@ -55,14 +68,13 @@ public class PVPFragment extends Fragment {
 
     }
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-    }
-
     private final BroadcastReceiver mBleUpdateReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
+            if(mPSoCSmartChessService == null) {
+               setPSoCSmartChessService();
+            }
+
             final String action = intent.getAction();
             switch (action) {
 
@@ -70,7 +82,7 @@ public class PVPFragment extends Fragment {
                     if (!mConnectState) {
                         mConnectState = true;
                     }
-                    textView.setText("2");
+                    textView.setText("Connected");
                     break;
                 case PSoCSmartChessService.ACTION_DISCONNECTED:
                     // Disable the disconnect, discover svc, discover char button, and enable the search button
@@ -78,7 +90,7 @@ public class PVPFragment extends Fragment {
                     break;
                 case PSoCSmartChessService.ACTION_DATA_RECEIVED:
                     //updateUI();
-                    textView.setText(PSoCSmartChessService.getPlayerValue());
+                    textView.setText(mPSoCSmartChessService.getPlayerValue());
                     break;
                 default:
                     break;
