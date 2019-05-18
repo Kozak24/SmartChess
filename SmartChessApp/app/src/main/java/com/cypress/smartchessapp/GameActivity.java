@@ -29,6 +29,7 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.cypress.smartchessapp.Fragments.CommandInputFragment;
 import com.cypress.smartchessapp.Fragments.FragmentNavigation;
 import com.cypress.smartchessapp.Fragments.PVPFragment;
 
@@ -37,17 +38,24 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 public class GameActivity extends AppCompatActivity {
     // TAG is used for informational messages
     private final static String TAG = GameActivity.class.getSimpleName();
 
     // Variables to access objects from the layout such as buttons, switches, values
-    private ImageButton speech_button;
-    private Button send_command_button;
-    private Button start_game_button;
-    private TextView command_text_view;
-    private TextView player_text_view;
-    private TextView command_status_text_view;
+    @BindView(R.id.speech_button)
+    protected ImageButton speech_button;
+    @BindView(R.id.start_game_button)
+    protected Button start_game_button;
+    @BindView(R.id.command_text_view)
+    protected TextView command_text_view;
+    @BindView(R.id.player_text_view)
+    protected TextView player_text_view;
+    @BindView(R.id.command_status_text_view)
+    protected TextView command_status_text_view;
 
     // Variables to manage BLE connection
     private static boolean mConnectState;
@@ -110,18 +118,10 @@ public class GameActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView( R.layout.activity_game);
 
+        ButterKnife.bind(this);
         fragmentNavigation = new FragmentNavigation(getSupportFragmentManager());
-        fragmentNavigation.setFragment(R.id.fragment_container, new PVPFragment(), false);
-
-        // Set up variables for accessing buttons and slide switches
-        start_game_button = findViewById(R.id.start_game_button);
-
-        speech_button = findViewById(R.id.speech_button);
-        send_command_button = findViewById(R.id.send_command);
-
-        command_text_view = findViewById(R.id.command_text_view);
-        player_text_view = findViewById(R.id.player_text_view);
-        command_status_text_view = findViewById(R.id.command_status_text_view);
+        fragmentNavigation.setFragment(R.id.fragment_container, new CommandInputFragment(),
+                false);
 
         hideUI();
 
@@ -361,21 +361,16 @@ public class GameActivity extends AppCompatActivity {
     }
 
     private void hideUI() {
-        send_command_button.setVisibility(View.INVISIBLE);
-        speech_button.setVisibility(View.INVISIBLE);
-        command_text_view.setVisibility(View.INVISIBLE);
+        speech_button.setVisibility(View.GONE);
+        command_text_view.setVisibility(View.GONE);
         player_text_view.setVisibility(View.INVISIBLE);
         command_status_text_view.setVisibility(View.INVISIBLE);
-        start_game_button.setVisibility(View.INVISIBLE);
+        start_game_button.setVisibility(View.GONE);
     }
 
     private void showUI() {
-        send_command_button.setVisibility(View.VISIBLE);
-        speech_button.setVisibility(View.VISIBLE);
-        command_text_view.setVisibility(View.VISIBLE);
-        player_text_view.setVisibility(View.VISIBLE);
         command_status_text_view.setVisibility(View.VISIBLE);
-        start_game_button.setVisibility(View.VISIBLE);
+        player_text_view.setVisibility(View.VISIBLE);
     }
 
     /**

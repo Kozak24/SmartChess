@@ -8,6 +8,36 @@
     <string name="command_status_text_view">Command status</string>
     <string name="start_game">Start game</string>
 
+    <!-- CommandInputFragment -->
+    <string name="input_buttons">Buttons</string>
+    <string name="input_speech">Speech</string>
+    <string name="king">K</string>
+    <string name="queen">Q</string>
+    <string name="bishop">B</string>
+    <string name="knight">N</string>
+    <string name="rook">R</string>
+    <string name="pawn">P</string>
+
+    <string name="coordinate_a">a</string>
+    <string name="coordinate_b">b</string>
+    <string name="coordinate_c">c</string>
+    <string name="coordinate_d">d</string>
+    <string name="coordinate_e">e</string>
+    <string name="coordinate_f">f</string>
+    <string name="coordinate_g">g</string>
+    <string name="coordinate_h">h</string>
+
+    <string name="coordinate_1">1</string>
+    <string name="coordinate_2">2</string>
+    <string name="coordinate_3">3</string>
+    <string name="coordinate_4">4</string>
+    <string name="coordinate_5">5</string>
+    <string name="coordinate_6">6</string>
+    <string name="coordinate_7">7</string>
+    <string name="coordinate_8">8</string>
+
+    <string name="command">Command is:</string>
+
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
