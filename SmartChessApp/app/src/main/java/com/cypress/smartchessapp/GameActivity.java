@@ -29,6 +29,9 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.cypress.smartchessapp.Fragments.FragmentNavigation;
+import com.cypress.smartchessapp.Fragments.PVPFragment;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -39,10 +42,8 @@ public class GameActivity extends AppCompatActivity {
     private final static String TAG = GameActivity.class.getSimpleName();
 
     // Variables to access objects from the layout such as buttons, switches, values
-    private Button start_button;
     private ImageButton speech_button;
     private Button send_command_button;
-    private Button disconnect_button;
     private Button start_game_button;
     private TextView command_text_view;
     private TextView player_text_view;
@@ -53,6 +54,9 @@ public class GameActivity extends AppCompatActivity {
     private static boolean mServiceConnected;
     private static PSoCSmartChessService mPSoCSmartChessService;
     private static Handler mHandler;
+
+    // Variable to manage fragment navigation
+    private FragmentNavigation fragmentNavigation;
 
     private static final int REQUEST_ENABLE_BLE = 1;
 
@@ -79,6 +83,7 @@ public class GameActivity extends AppCompatActivity {
             mPSoCSmartChessService = ((PSoCSmartChessService.LocalBinder) service).getService();
             mServiceConnected = true;
             mPSoCSmartChessService.initialize();
+            ((ApplicationEx) getApplication()).setPSoCSmartChessService(mPSoCSmartChessService);
         }
 
         /**
@@ -90,6 +95,7 @@ public class GameActivity extends AppCompatActivity {
         public void onServiceDisconnected(ComponentName componentName) {
             Log.i(TAG, "onServiceDisconnected");
             mPSoCSmartChessService = null;
+            ((ApplicationEx) getApplication()).setPSoCSmartChessService(null);
         }
     };
 
@@ -104,15 +110,18 @@ public class GameActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView( R.layout.activity_game);
 
+        fragmentNavigation = new FragmentNavigation(getSupportFragmentManager());
+        fragmentNavigation.setFragment(R.id.fragment_container, new PVPFragment(), false);
+
         // Set up variables for accessing buttons and slide switches
-        start_button = findViewById(R.id.start_button);
+        start_game_button = findViewById(R.id.start_game_button);
+
         speech_button = findViewById(R.id.speech_button);
         send_command_button = findViewById(R.id.send_command);
-        disconnect_button = findViewById(R.id.disconnect_button);
+
         command_text_view = findViewById(R.id.command_text_view);
         player_text_view = findViewById(R.id.player_text_view);
         command_status_text_view = findViewById(R.id.command_status_text_view);
-        start_game_button = findViewById(R.id.start_game_button);
 
         hideUI();
 
@@ -123,6 +132,7 @@ public class GameActivity extends AppCompatActivity {
         speech_button.setImageResource(R.drawable.ic_mic_black_24dp);
 
         mHandler = new Handler();
+        startBluetooth(findViewById(android.R.id.content));
 
         //This section required for Android 6.0 (Marshmallow)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -252,7 +262,6 @@ public class GameActivity extends AppCompatActivity {
         bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE);
 
         // Disable the start button and turn on the search  button
-        start_button.setEnabled(false);
         Log.d(TAG, "Bluetooth is Enabled");
 
         searchBluetooth(view);
@@ -301,7 +310,7 @@ public class GameActivity extends AppCompatActivity {
                 if(mPSoCSmartChessService.connect()) {
                     discoverServices( view );
                 } else {
-                    start_button.setEnabled(true);
+                    // TODO cannot connect messages
                 }
             }
         }, 500 );
@@ -395,7 +404,6 @@ public class GameActivity extends AppCompatActivity {
      */
     public void Disconnect(View view) {
         mPSoCSmartChessService.disconnect();
-        start_button.setEnabled(true);
         /* After this we wait for the gatt callback to report the device is disconnected */
         /* That event broadcasts a message which is picked up by the mGattUpdateReceiver */
     }
@@ -413,7 +421,6 @@ public class GameActivity extends AppCompatActivity {
 
                 case PSoCSmartChessService.ACTION_CONNECTED:
                     if (!mConnectState) {
-                        disconnect_button.setEnabled(true);
                         showUI();
                         mConnectState = true;
                         Log.d(TAG, "Connected to Device");
@@ -421,7 +428,6 @@ public class GameActivity extends AppCompatActivity {
                     break;
                 case PSoCSmartChessService.ACTION_DISCONNECTED:
                     // Disable the disconnect, discover svc, discover char button, and enable the search button
-                    disconnect_button.setEnabled(false);
                     hideUI();
                     mConnectState = false;
                     mPSoCSmartChessService.close();
@@ -448,6 +454,7 @@ public class GameActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        Disconnect(findViewById(android.R.id.content));
         // Close and unbind the service when the activity goes away
         mPSoCSmartChessService.close();
         unbindService(mServiceConnection);

@@ -59,9 +59,9 @@ http://www.cypress.com/products/bluetooth-low-energy-ble
         <service
             android:name=".PSoCSmartChessService"
             android:enabled="true" />
-
-        <activity android:name=".GameActivity" />
-        <activity android:name=".TestActivity" />
+        <activity
+            android:name=".GameActivity"
+            android:screenOrientation="portrait"/>
     </application>
 
 </manifest>
