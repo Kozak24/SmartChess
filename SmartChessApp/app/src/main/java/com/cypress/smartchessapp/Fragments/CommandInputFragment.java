@@ -1,9 +1,13 @@
 package com.cypress.smartchessapp.Fragments;
 
+import android.accounts.AccountManager;
+import android.app.Activity;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.media.Image;
 import android.os.Bundle;
+import android.speech.RecognizerIntent;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,8 +15,14 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.cypress.smartchessapp.R;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Locale;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -90,6 +100,51 @@ public class CommandInputFragment extends Fragment {
         ButterKnife.bind(this, view);
         speech_button.setImageResource(R.drawable.ic_mic_black_24dp);
         return view;
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode) {
+            case 10:
+                if (resultCode == Activity.RESULT_OK && data != null) {
+                    // Getting result from speech
+                    ArrayList<String> result =
+                            data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
+                    String string = result.get(0);
+                    List<String> items = Arrays.asList(string.split("\\s* \\s*"));
+                    try {
+                        byte[] bytes = {(byte) items.get(0).toLowerCase().charAt(0),
+                                (byte) items.get( 1 ).toLowerCase().charAt(0)};
+                    } catch (Exception exception) {
+                        Toast.makeText(getContext(), "Exception", Toast.LENGTH_SHORT).show();
+                    }
+
+                    // Hardcoded value, will be changed later
+                    byteValue[0] = 'N';
+                    byteValue[1] = 'a';
+                    byteValue[2] = '4';
+                    updateCommandTextView();
+                }
+                break;
+            default:
+                break;
+        }
+    }
+
+    @OnClick(R.id.speech_button)
+    public void getSpeechInput() {
+
+        Intent intent = new Intent( RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+                RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault());
+
+        if (intent.resolveActivity(getContext().getPackageManager()) != null) {
+            startActivityForResult(intent, 10);
+        } else {
+            Toast.makeText(getContext(), "Your Device Don't Support Speech Input",
+                    Toast.LENGTH_SHORT).show();
+        }
     }
 
     @OnClick(R.id.input_buttons)

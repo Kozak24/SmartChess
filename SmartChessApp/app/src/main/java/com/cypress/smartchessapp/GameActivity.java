@@ -46,12 +46,8 @@ public class GameActivity extends AppCompatActivity {
     private final static String TAG = GameActivity.class.getSimpleName();
 
     // Variables to access objects from the layout such as buttons, switches, values
-    @BindView(R.id.speech_button)
-    protected ImageButton speech_button;
     @BindView(R.id.start_game_button)
     protected Button start_game_button;
-    @BindView(R.id.command_text_view)
-    protected TextView command_text_view;
     @BindView(R.id.player_text_view)
     protected TextView player_text_view;
     @BindView(R.id.command_status_text_view)
@@ -129,8 +125,6 @@ public class GameActivity extends AppCompatActivity {
         mServiceConnected = false;
         mConnectState = false;
 
-        speech_button.setImageResource(R.drawable.ic_mic_black_24dp);
-
         mHandler = new Handler();
         startBluetooth(findViewById(android.R.id.content));
 
@@ -175,53 +169,9 @@ public class GameActivity extends AppCompatActivity {
         }
     } //End of section for Android 6.0 (Marshmallow)
 
-    public void getSpeechInput(View view) {
-
-        Intent intent = new Intent( RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
-                RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault());
-
-        if (intent.resolveActivity(getPackageManager()) != null) {
-            startActivityForResult(intent, 10);
-        } else {
-            Toast.makeText(this, "Your Device Don't Support Speech Input",
-                    Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        // Register the broadcast receiver. This specified the messages the main activity looks for from the PSoCSmartChessService
-        final IntentFilter filter = new IntentFilter();
-        filter.addAction( PSoCSmartChessService.ACTION_BLESCAN_CALLBACK);
-        filter.addAction( PSoCSmartChessService.ACTION_CONNECTED);
-        filter.addAction( PSoCSmartChessService.ACTION_DISCONNECTED);
-        filter.addAction( PSoCSmartChessService.ACTION_SERVICES_DISCOVERED);
-        filter.addAction( PSoCSmartChessService.ACTION_DATA_RECEIVED);
-        registerReceiver(mBleUpdateReceiver, filter);
-    }
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         // User chose not to enable Bluetooth.
-        switch (requestCode) {
-            case 10:
-                if (resultCode == RESULT_OK && data != null) {
-                    ArrayList<String> result =
-                            data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
-                    String string = result.get(0);
-                    List<String> items = Arrays.asList(string.split("\\s* \\s*"));
-                    byte[] bytes = { (byte) items.get(0).toLowerCase().charAt(0),
-                            (byte) items.get(1).toLowerCase().charAt(0)};
-                    String commandString = new String(bytes);
-                    setBytes(bytes);
-                    command_text_view.setText( String.format( "Command is: %s", commandString ) );
-                }
-                break;
-        }
-
         if (requestCode == REQUEST_ENABLE_BLE && resultCode == Activity.RESULT_CANCELED) {
             finish();
             return;
@@ -229,12 +179,61 @@ public class GameActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
     }
 
-    private void setBytes(byte[] bytes) {
-        this.bytes = bytes;
+
+    public void startGame(View view) {
+        mPSoCSmartChessService.writeStartGameCharacteristic();
     }
 
-    private byte[] getBytes() {
-        return bytes;
+    private void updateUI() {
+        updatePlayerTextView();
+        updateCommandStatusTextView();
+    }
+
+    private void updatePlayerTextView() {
+        String player = mPSoCSmartChessService.getPlayerValue();
+        switch(player) {
+            case "White":
+                player_text_view.setBackgroundColor( Color.BLACK);
+                player_text_view.setTextColor(Color.WHITE);
+                break;
+            case "Black":
+                player_text_view.setBackgroundColor(Color.WHITE);
+                player_text_view.setTextColor(Color.BLACK);
+                break;
+            default:
+                player_text_view.setBackgroundColor(Color.BLUE);
+                player_text_view.setTextColor(Color.WHITE);
+                break;
+        }
+        player_text_view.setText(player);
+    }
+
+    private void updateCommandStatusTextView() {
+        String commandStatus = mPSoCSmartChessService.getCommandStatusValue();
+        command_status_text_view.setTextColor(Color.WHITE);
+        switch (commandStatus) {
+            case "Processing":
+                command_status_text_view.setBackgroundColor(Color.BLUE);
+                break;
+            case "Ready for command":
+                command_status_text_view.setBackgroundColor(Color.GREEN);
+                break;
+            default:
+                command_status_text_view.setBackgroundColor(Color.RED);
+                break;
+        }
+        command_status_text_view.setText(commandStatus);
+    }
+
+    private void hideUI() {
+        player_text_view.setVisibility(View.INVISIBLE);
+        command_status_text_view.setVisibility(View.INVISIBLE);
+        start_game_button.setVisibility(View.GONE);
+    }
+
+    private void showUI() {
+        command_status_text_view.setVisibility(View.VISIBLE);
+        player_text_view.setVisibility(View.VISIBLE);
     }
 
     /**
@@ -288,16 +287,6 @@ public class GameActivity extends AppCompatActivity {
         /* The callback broadcasts a message which is picked up by the mGattUpdateReceiver */
     }
 
-    public void sendCommand(View view) {
-        byte[] byteValues = getBytes();
-
-        mPSoCSmartChessService.writeCommandCharacteristic(byteValues);
-    }
-
-    public void startGame(View view) {
-        mPSoCSmartChessService.writeStartGameCharacteristic();
-    }
-
     /**
      * This method handles the Connect to Device button
      *
@@ -317,60 +306,6 @@ public class GameActivity extends AppCompatActivity {
 
         /* After this we wait for the gatt callback to report the device is connected */
         /* That event broadcasts a message which is picked up by the mGattUpdateReceiver */
-    }
-
-    private void updateUI() {
-        updatePlayerTextView();
-        updateCommandStatusTextView();
-    }
-
-    private void updatePlayerTextView() {
-        String player = mPSoCSmartChessService.getPlayerValue();
-        switch(player) {
-            case "White":
-                player_text_view.setBackgroundColor( Color.BLACK);
-                player_text_view.setTextColor(Color.WHITE);
-                break;
-            case "Black":
-                player_text_view.setBackgroundColor(Color.WHITE);
-                player_text_view.setTextColor(Color.BLACK);
-                break;
-            default:
-                player_text_view.setBackgroundColor(Color.BLUE);
-                player_text_view.setTextColor(Color.WHITE);
-                break;
-        }
-        player_text_view.setText(player);
-    }
-
-    private void updateCommandStatusTextView() {
-        String commandStatus = mPSoCSmartChessService.getCommandStatusValue();
-        command_status_text_view.setTextColor(Color.WHITE);
-        switch (commandStatus) {
-            case "Processing":
-                command_status_text_view.setBackgroundColor(Color.BLUE);
-                break;
-            case "Ready for command":
-                command_status_text_view.setBackgroundColor(Color.GREEN);
-                break;
-            default:
-                command_status_text_view.setBackgroundColor(Color.RED);
-                break;
-        }
-        command_status_text_view.setText(commandStatus);
-    }
-
-    private void hideUI() {
-        speech_button.setVisibility(View.GONE);
-        command_text_view.setVisibility(View.GONE);
-        player_text_view.setVisibility(View.INVISIBLE);
-        command_status_text_view.setVisibility(View.INVISIBLE);
-        start_game_button.setVisibility(View.GONE);
-    }
-
-    private void showUI() {
-        command_status_text_view.setVisibility(View.VISIBLE);
-        player_text_view.setVisibility(View.VISIBLE);
     }
 
     /**
@@ -409,36 +344,49 @@ public class GameActivity extends AppCompatActivity {
     private final BroadcastReceiver mBleUpdateReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            final String action = intent.getAction();
-            switch (action) {
-                case PSoCSmartChessService.ACTION_BLESCAN_CALLBACK:
-                    break;
+        final String action = intent.getAction();
+        switch (action) {
+            case PSoCSmartChessService.ACTION_BLESCAN_CALLBACK:
+                break;
 
-                case PSoCSmartChessService.ACTION_CONNECTED:
-                    if (!mConnectState) {
-                        showUI();
-                        mConnectState = true;
-                        Log.d(TAG, "Connected to Device");
-                    }
-                    break;
-                case PSoCSmartChessService.ACTION_DISCONNECTED:
-                    // Disable the disconnect, discover svc, discover char button, and enable the search button
-                    hideUI();
-                    mConnectState = false;
-                    mPSoCSmartChessService.close();
-                    Log.d(TAG, "Disconnected");
-                    break;
-                case PSoCSmartChessService.ACTION_SERVICES_DISCOVERED:
-                    Log.d(TAG, "Services Discovered");
-                    break;
-                case PSoCSmartChessService.ACTION_DATA_RECEIVED:
-                    updateUI();
-                    break;
-                default:
-                    break;
-            }
+           case PSoCSmartChessService.ACTION_CONNECTED:
+                if (!mConnectState) {
+                    showUI();
+                    mConnectState = true;
+                    Log.d(TAG, "Connected to Device");
+                }
+                break;
+           case PSoCSmartChessService.ACTION_DISCONNECTED:
+               // Disable the disconnect, discover svc, discover char button, and enable the search button
+               hideUI();
+               mConnectState = false;
+               mPSoCSmartChessService.close();
+               Log.d(TAG, "Disconnected");
+               break;
+           case PSoCSmartChessService.ACTION_SERVICES_DISCOVERED:
+               Log.d(TAG, "Services Discovered");
+               break;
+           case PSoCSmartChessService.ACTION_DATA_RECEIVED:
+               updateUI();
+               break;
+           default:
+                break;
+        }
         }
     };
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Register the broadcast receiver. This specified the messages the main activity looks for from the PSoCSmartChessService
+        final IntentFilter filter = new IntentFilter();
+        filter.addAction( PSoCSmartChessService.ACTION_BLESCAN_CALLBACK);
+        filter.addAction( PSoCSmartChessService.ACTION_CONNECTED);
+        filter.addAction( PSoCSmartChessService.ACTION_DISCONNECTED);
+        filter.addAction( PSoCSmartChessService.ACTION_SERVICES_DISCOVERED);
+        filter.addAction( PSoCSmartChessService.ACTION_DATA_RECEIVED);
+        registerReceiver(mBleUpdateReceiver, filter);
+    }
 
     @Override
     protected void onPause() {
