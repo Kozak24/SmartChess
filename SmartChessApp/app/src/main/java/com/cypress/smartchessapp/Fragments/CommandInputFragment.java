@@ -1,11 +1,9 @@
 package com.cypress.smartchessapp.Fragments;
 
-import android.accounts.AccountManager;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
-import android.media.Image;
 import android.os.Bundle;
 import android.speech.RecognizerIntent;
 import android.support.v4.app.Fragment;
@@ -29,10 +27,6 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 public class CommandInputFragment extends Fragment {
-    @BindView(R.id.input_buttons)
-    protected Button input_buttons;
-    @BindView(R.id.input_speech)
-    protected Button input_speech;
     // Piece choosing
     @BindView(R.id.king_button)
     protected Button king_button;
@@ -147,76 +141,6 @@ public class CommandInputFragment extends Fragment {
         }
     }
 
-    @OnClick(R.id.input_buttons)
-    protected void showInputButtonsUI() {
-        resetData();
-        hideSpeechUI();
-        // Show pieces buttons
-        king_button.setVisibility(View.VISIBLE);
-        queen_button.setVisibility(View.VISIBLE);
-        bishop_button.setVisibility(View.VISIBLE);
-        knight_button.setVisibility(View.VISIBLE);
-        rook_button.setVisibility(View.VISIBLE);
-        pawn_button.setVisibility(View.VISIBLE);
-        // Show coordinates letters
-        button_a.setVisibility(View.VISIBLE);
-        button_b.setVisibility(View.VISIBLE);
-        button_c.setVisibility(View.VISIBLE);
-        button_d.setVisibility(View.VISIBLE);
-        button_e.setVisibility(View.VISIBLE);
-        button_f.setVisibility(View.VISIBLE);
-        button_g.setVisibility(View.VISIBLE);
-        button_h.setVisibility(View.VISIBLE);
-        // Show coordinates numbers
-        button_1.setVisibility(View.VISIBLE);
-        button_2.setVisibility(View.VISIBLE);
-        button_3.setVisibility(View.VISIBLE);
-        button_4.setVisibility(View.VISIBLE);
-        button_5.setVisibility(View.VISIBLE);
-        button_6.setVisibility(View.VISIBLE);
-        button_7.setVisibility(View.VISIBLE);
-        button_8.setVisibility(View.VISIBLE);
-    }
-
-    @OnClick(R.id.input_speech)
-    protected void showSpeechUI() {
-        resetData();
-        hideInputButtonsUI();
-    }
-
-    private void hideInputButtonsUI() {
-        // Hide pieces buttons
-        king_button.setVisibility(View.GONE);
-        queen_button.setVisibility(View.GONE);
-        bishop_button.setVisibility(View.GONE);
-        knight_button.setVisibility(View.GONE);
-        rook_button.setVisibility(View.GONE);
-        pawn_button.setVisibility(View.GONE);
-        // Hide coordinates letters
-        button_a.setVisibility(View.GONE);
-        button_b.setVisibility(View.GONE);
-        button_c.setVisibility(View.GONE);
-        button_d.setVisibility(View.GONE);
-        button_e.setVisibility(View.GONE);
-        button_f.setVisibility(View.GONE);
-        button_g.setVisibility(View.GONE);
-        button_h.setVisibility(View.GONE);
-        // Hide coordinates numbers
-        button_1.setVisibility(View.GONE);
-        button_2.setVisibility(View.GONE);
-        button_3.setVisibility(View.GONE);
-        button_4.setVisibility(View.GONE);
-        button_5.setVisibility(View.GONE);
-        button_6.setVisibility(View.GONE);
-        button_7.setVisibility(View.GONE);
-        button_8.setVisibility(View.GONE);
-
-    }
-
-    private void hideSpeechUI() {
-
-    }
-
     private void updateCommandTextView() {
         command_text_view.setText(String.format("Command is: %c%c%c",
                 byteValue[0], byteValue[1], byteValue[2]));
@@ -276,7 +200,10 @@ public class CommandInputFragment extends Fragment {
     }
 
     @OnClick(R.id.send_command)
-    protected void sendCommand() { /*mPSoCSmartChessService.writeCommandCharacteristic(byteValues);*/ }
+    protected void sendCommand() {
+        /*mPSoCSmartChessService.writeCommandCharacteristic(byteValues);*/
+        resetData();
+    }
 
     @OnClick(R.id.king_button)
     protected void kingPiece() { assignButtonValue(king_button, 1); }
