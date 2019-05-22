@@ -25,6 +25,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -52,6 +53,8 @@ public class GameActivity extends AppCompatActivity {
     protected TextView player_text_view;
     @BindView(R.id.command_status_text_view)
     protected TextView command_status_text_view;
+    @BindView(R.id.fragment_container)
+    protected FrameLayout user_input_layout;
 
     // Variables to manage BLE connection
     private static boolean mConnectState;
@@ -66,8 +69,6 @@ public class GameActivity extends AppCompatActivity {
 
     //This is required for Android 6.0 (Marshmallow)
     private static final int PERMISSION_REQUEST_COARSE_LOCATION = 1;
-    private byte[] bytes;
-
 
     /**
      * This manages the lifecycle of the BLE service.
@@ -185,6 +186,7 @@ public class GameActivity extends AppCompatActivity {
     }
 
     private void updateUI() {
+        Log.e(TAG, "UI Update");
         updatePlayerTextView();
         updateCommandStatusTextView();
     }
@@ -226,14 +228,16 @@ public class GameActivity extends AppCompatActivity {
     }
 
     private void hideUI() {
-        player_text_view.setVisibility(View.INVISIBLE);
-        command_status_text_view.setVisibility(View.INVISIBLE);
+        player_text_view.setVisibility(View.GONE);
+        command_status_text_view.setVisibility(View.GONE);
         start_game_button.setVisibility(View.GONE);
+        user_input_layout.setVisibility(View.GONE);
     }
 
     private void showUI() {
         command_status_text_view.setVisibility(View.VISIBLE);
         player_text_view.setVisibility(View.VISIBLE);
+        user_input_layout.setVisibility(View.VISIBLE);
     }
 
     /**

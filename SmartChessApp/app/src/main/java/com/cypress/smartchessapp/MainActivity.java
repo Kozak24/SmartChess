@@ -32,17 +32,30 @@ package com.cypress.smartchessapp;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.widget.Button;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 public class MainActivity extends AppCompatActivity {
     private final static String TAG = MainActivity.class.getSimpleName();
+
+    @BindView(R.id.play_button)
+    protected Button play_button;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate( savedInstanceState );
         setContentView( R.layout.activity_main );
 
-        //startActivity(new Intent( MainActivity.this, GameActivity.class ));
+        ButterKnife.bind(this);
+
         startActivity(new Intent(MainActivity.this, GameActivity.class));
     }
 
+    @OnClick(R.id.play_button)
+    void playGame() {
+        startActivity(new Intent(MainActivity.this, GameActivity.class));
+    }
 }

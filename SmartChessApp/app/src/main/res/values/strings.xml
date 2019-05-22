@@ -1,6 +1,9 @@
 <resources>
     <string name="app_name">Smart Chess</string>
+    <!-- MainActivity -->
+    <string name="play">Play</string>
 
+    <!-- GameActivity -->
     <string name="start">Connect to SmartChess</string>
     <string name="disconnect">Disconnect</string>
     <string name="send_command">Send command</string>
