@@ -41,6 +41,11 @@
 
     <string name="command">Command is:</string>
 
+    <string name="pve">Player vs Enemy</string>
+    <string name="pvp">Player vs Player</string>
+    <string name="eve">Enemy vs Enemy</string>
+    <string name="demo">Demo</string>
+
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

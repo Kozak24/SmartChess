@@ -101,6 +101,7 @@ public class PSoCSmartChessService extends Service {
     // Variables that have information about game
     private static int mPlayerValue = 0;
     private static int mCommandStatusValue = 0;
+    private static int mGameType = -1;
 
     // Actions used during broadcasts to the main activity
     public final static String ACTION_BLESCAN_CALLBACK =
@@ -330,6 +331,10 @@ public class PSoCSmartChessService extends Service {
         }
     }
 
+    public int getGameType() {
+        return mGameType;
+    }
+
     /**
      * Implements the callback for when scanning for devices has found a device with
      * the service we are looking for.
@@ -402,6 +407,7 @@ public class PSoCSmartChessService extends Service {
             // Read the current command of the Command service from the device
             characteristicsForReadList.add(mCommandStatusCharacteristic);
             characteristicsForReadList.add(mPlayerCharacteristic);
+            characteristicsForReadList.add(mStartGameCharacteristic);
             readCharacteristics();
 
             charactersticsForNotificationList.add(mCommandStatusCharacteristic);
@@ -432,14 +438,20 @@ public class PSoCSmartChessService extends Service {
                 if(uuid.equalsIgnoreCase( commandCharacteristicUUID )) {
                     // Add reading from command characteristic
                 } else if(uuid.equalsIgnoreCase( playerCharacteristicUUID )) {
-                    mPlayerValue = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT8, 0);
-                } else if(uuid.equalsIgnoreCase( commandStatusCharacteristicUUID )) {
-                    mCommandStatusValue = characteristic.getIntValue( BluetoothGattCharacteristic.FORMAT_UINT8, 0);
+                    mPlayerValue = characteristic.
+                            getIntValue(BluetoothGattCharacteristic.FORMAT_UINT8, 0);
+                } else if(uuid.equalsIgnoreCase(commandStatusCharacteristicUUID)) {
+                    mCommandStatusValue = characteristic.
+                            getIntValue(BluetoothGattCharacteristic.FORMAT_UINT8, 0);
+                } else if(uuid.equalsIgnoreCase(startGameCharacteristicUUID)) {
+                    mGameType = characteristic.
+                            getIntValue(BluetoothGattCharacteristic.FORMAT_UINT8, 0);
                 }
                 // Notify the main activity that new data is available
                 broadcastUpdate(ACTION_DATA_RECEIVED);
 
-                characteristicsForReadList.remove(characteristicsForReadList.get(characteristicsForReadList.size() - 1));
+                characteristicsForReadList.remove(characteristicsForReadList.
+                        get(characteristicsForReadList.size() - 1));
 
                 if(characteristicsForReadList.size() > 0) {
                     readCharacteristics();

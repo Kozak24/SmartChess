@@ -32,6 +32,7 @@ import android.widget.Toast;
 
 import com.cypress.smartchessapp.Fragments.CommandInputFragment;
 import com.cypress.smartchessapp.Fragments.FragmentNavigation;
+import com.cypress.smartchessapp.Fragments.GameSelectionFragment;
 import com.cypress.smartchessapp.Fragments.PVPFragment;
 
 import java.util.ArrayList;
@@ -61,6 +62,10 @@ public class GameActivity extends AppCompatActivity {
     private static boolean mServiceConnected;
     private static PSoCSmartChessService mPSoCSmartChessService;
     private static Handler mHandler;
+
+    // Variable to check if game type was changed
+    private String[] gameTypes = {"None", "PVE"};
+    private int gameTypeNumber = -1;
 
     // Variable to manage fragment navigation
     private FragmentNavigation fragmentNavigation;
@@ -227,6 +232,13 @@ public class GameActivity extends AppCompatActivity {
         command_status_text_view.setText(commandStatus);
     }
 
+    private void setMainFragment() {
+        if(gameTypes[gameTypeNumber].equals("None")) {
+            fragmentNavigation.setFragment( R.id.main_fragment_container, new GameSelectionFragment(),
+                    false );
+        }
+    }
+
     private void hideUI() {
         player_text_view.setVisibility(View.GONE);
         command_status_text_view.setVisibility(View.GONE);
@@ -355,7 +367,7 @@ public class GameActivity extends AppCompatActivity {
 
            case PSoCSmartChessService.ACTION_CONNECTED:
                 if (!mConnectState) {
-                    showUI();
+                    //showUI();
                     mConnectState = true;
                     Log.d(TAG, "Connected to Device");
                 }
@@ -372,6 +384,13 @@ public class GameActivity extends AppCompatActivity {
                break;
            case PSoCSmartChessService.ACTION_DATA_RECEIVED:
                updateUI();
+               int currentGameType = mPSoCSmartChessService.getGameType();
+               // Check if game type changed and is greater than zero if BLE service was recreated
+               if(gameTypeNumber != currentGameType && currentGameType >= 0) {
+                   gameTypeNumber = currentGameType;
+                   setMainFragment();
+               }
+
                break;
            default:
                 break;
