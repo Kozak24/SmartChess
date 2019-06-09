@@ -274,6 +274,14 @@ public class PSoCSmartChessService extends Service {
         mBluetoothGatt.readCharacteristic(characteristicsForReadList.get(characteristicsForReadList.size()-1));
     }
 
+    public void readGameType() {
+        if (mBluetoothAdapter == null || mBluetoothGatt == null) {
+            Log.w(TAG, "BluetoothAdapter not initialized");
+            return;
+        }
+        mBluetoothGatt.readCharacteristic(mStartGameCharacteristic);
+    }
+
     public void enableNotifications() {
         if (mBluetoothAdapter == null || mBluetoothGatt == null) {
             Log.w(TAG, "BluetoothAdapter not initialized");
@@ -289,8 +297,8 @@ public class PSoCSmartChessService extends Service {
         mBluetoothGatt.writeDescriptor(cccd);
     }
 
-    public void writeStartGameCharacteristic() {
-        mStartGameCharacteristic.setValue(1, BluetoothGattCharacteristic.FORMAT_UINT8, 0);
+    public void writeStartGameCharacteristic(int value) {
+        mStartGameCharacteristic.setValue(value, BluetoothGattCharacteristic.FORMAT_UINT8, 0);
         mBluetoothGatt.writeCharacteristic( mStartGameCharacteristic );
     }
 
@@ -493,10 +501,10 @@ public class PSoCSmartChessService extends Service {
             // In this case, the only notification the apps gets is the Command Status value.
             // If the application had additional notifications we could
             // use a switch statement here to operate on each one separately.
-            if(uuid.equalsIgnoreCase( commandStatusCharacteristicUUID )) {
-                mCommandStatusValue = characteristic.getIntValue( BluetoothGattCharacteristic.FORMAT_UINT8,0);
-            } else if(uuid.equalsIgnoreCase( playerCharacteristicUUID )) {
-                mPlayerValue = characteristic.getIntValue( BluetoothGattCharacteristic.FORMAT_UINT8, 0 );
+            if(uuid.equalsIgnoreCase(commandStatusCharacteristicUUID)) {
+                mCommandStatusValue = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT8,0);
+            } else if(uuid.equalsIgnoreCase(playerCharacteristicUUID)) {
+                mPlayerValue = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT8, 0);
             }
 
             // Notify the main activity that new data is available

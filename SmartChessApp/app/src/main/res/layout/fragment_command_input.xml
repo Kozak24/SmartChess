@@ -14,7 +14,6 @@
             android:id="@+id/king_button"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:layout_marginTop="8dp"
             android:text="@string/king"
             app:layout_constraintTop_toTopOf="parent"
             tools:layout_editor_absoluteX="32dp" />
@@ -24,7 +23,6 @@
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_marginStart="16dp"
-            android:layout_marginTop="8dp"
             android:text="@string/queen"
             app:layout_constraintStart_toEndOf="@+id/king_button"
             app:layout_constraintTop_toTopOf="parent" />
@@ -34,7 +32,6 @@
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_marginStart="16dp"
-            android:layout_marginTop="8dp"
             android:text="@string/bishop"
             app:layout_constraintStart_toEndOf="@+id/queen_button"
             app:layout_constraintTop_toTopOf="parent" />
@@ -44,7 +41,6 @@
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_marginStart="16dp"
-            android:layout_marginTop="8dp"
             android:text="@string/knight"
             app:layout_constraintStart_toEndOf="@+id/bishop_button"
             app:layout_constraintTop_toTopOf="parent" />
@@ -54,7 +50,6 @@
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_marginStart="16dp"
-            android:layout_marginTop="8dp"
             android:text="@string/rook"
             app:layout_constraintStart_toEndOf="@+id/knight_button"
             app:layout_constraintTop_toTopOf="parent" />
@@ -64,7 +59,6 @@
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_marginStart="16dp"
-            android:layout_marginTop="8dp"
             android:text="@string/pawn"
             app:layout_constraintStart_toEndOf="@+id/rook_button"
             app:layout_constraintTop_toTopOf="parent" />

@@ -50,12 +50,12 @@ public class MainActivity extends AppCompatActivity {
         setContentView( R.layout.activity_main );
 
         ButterKnife.bind(this);
-
-        startActivity(new Intent(MainActivity.this, GameActivity.class));
     }
 
     @OnClick(R.id.play_button)
     void playGame() {
-        startActivity(new Intent(MainActivity.this, GameActivity.class));
+        Intent intent = new Intent(this, GameActivity.class);
+        //intent.setFlags(intent.getFlags() | Intent.FLAG_ACTIVITY_NO_HISTORY);
+        startActivity(intent);
     }
 }

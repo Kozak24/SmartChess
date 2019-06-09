@@ -12,7 +12,7 @@
 
 
         <Button
-            android:id="@+id/pve"
+            android:id="@+id/pve_button"
             android:layout_width="264dp"
             android:layout_height="66dp"
             android:layout_marginStart="32dp"
@@ -22,34 +22,34 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <Button
-            android:id="@+id/pvp"
+            android:id="@+id/pvp_button"
             android:layout_width="264dp"
             android:layout_height="66dp"
             android:layout_marginStart="32dp"
             android:layout_marginTop="60dp"
             android:text="@string/pvp"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/pve" />
+            app:layout_constraintTop_toBottomOf="@+id/pve_button" />
 
         <Button
-            android:id="@+id/eve"
+            android:id="@+id/eve_button"
             android:layout_width="264dp"
             android:layout_height="66dp"
             android:layout_marginStart="32dp"
             android:layout_marginTop="60dp"
             android:text="@string/eve"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/pvp" />
+            app:layout_constraintTop_toBottomOf="@+id/pvp_button" />
 
         <Button
-            android:id="@+id/demo"
+            android:id="@+id/demo_button"
             android:layout_width="264dp"
             android:layout_height="66dp"
             android:layout_marginStart="32dp"
             android:layout_marginTop="60dp"
             android:text="@string/demo"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/eve" />
+            app:layout_constraintTop_toBottomOf="@+id/eve_button" />
     </android.support.constraint.ConstraintLayout>
 
 </FrameLayout>

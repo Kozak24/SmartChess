@@ -48,8 +48,6 @@ public class GameActivity extends AppCompatActivity {
     private final static String TAG = GameActivity.class.getSimpleName();
 
     // Variables to access objects from the layout such as buttons, switches, values
-    @BindView(R.id.start_game_button)
-    protected Button start_game_button;
     @BindView(R.id.player_text_view)
     protected TextView player_text_view;
     @BindView(R.id.command_status_text_view)
@@ -64,7 +62,6 @@ public class GameActivity extends AppCompatActivity {
     private static Handler mHandler;
 
     // Variable to check if game type was changed
-    private String[] gameTypes = {"None", "PVE"};
     private int gameTypeNumber = -1;
 
     // Variable to manage fragment navigation
@@ -185,11 +182,6 @@ public class GameActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
     }
 
-
-    public void startGame(View view) {
-        mPSoCSmartChessService.writeStartGameCharacteristic();
-    }
-
     private void updateUI() {
         Log.e(TAG, "UI Update");
         updatePlayerTextView();
@@ -233,8 +225,13 @@ public class GameActivity extends AppCompatActivity {
     }
 
     private void setMainFragment() {
-        if(gameTypes[gameTypeNumber].equals("None")) {
+        if(Constants.GAME_TYPES[gameTypeNumber].equals("None")) {
             fragmentNavigation.setFragment( R.id.main_fragment_container, new GameSelectionFragment(),
+                    false );
+        } else if(Constants.GAME_TYPES[gameTypeNumber].equals("PVE")) {
+            showUI();
+            user_input_layout.setVisibility(View.VISIBLE);
+            fragmentNavigation.setFragment( R.id.main_fragment_container, new PVPFragment(),
                     false );
         }
     }
@@ -242,7 +239,6 @@ public class GameActivity extends AppCompatActivity {
     private void hideUI() {
         player_text_view.setVisibility(View.GONE);
         command_status_text_view.setVisibility(View.GONE);
-        start_game_button.setVisibility(View.GONE);
         user_input_layout.setVisibility(View.GONE);
     }
 
