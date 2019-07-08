@@ -1,16 +1,15 @@
 package com.cypress.smartchessapp.Fragments;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.cypress.smartchessapp.ApplicationEx;
 import com.cypress.smartchessapp.Constants;
-import com.cypress.smartchessapp.GameActivity;
 import com.cypress.smartchessapp.PSoCSmartChessService;
 import com.cypress.smartchessapp.R;
 
@@ -43,13 +42,18 @@ public class GameSelectionFragment extends Fragment {
     }
 
     private void startGame(int gameTypeNumber) {
-        PSoCSmartChessService psocSmartChessService = ((ApplicationEx) getActivity().
-                getApplication()).getPSoCSmartChessService();
+        try {
+            PSoCSmartChessService psocSmartChessService = ((ApplicationEx) getActivity().
+                    getApplication()).getPSoCSmartChessService();
 
-        // Write game type into Gatt DB
-        psocSmartChessService.writeStartGameCharacteristic(gameTypeNumber);
-        // Restart activity
-        getActivity().recreate();
+            // Write game type into Gatt DB
+            psocSmartChessService.writeStartGameCharacteristic( gameTypeNumber );
+            // Restart activity
+            getActivity().recreate();
+        } catch (Exception ex) {
+            Toast.makeText(getContext(), String.format("Something went wrong %s", ex),
+                    Toast.LENGTH_LONG).show();
+        }
     }
 
     @OnClick(R.id.pve_button)

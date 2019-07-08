@@ -18,27 +18,20 @@ import android.graphics.Color;
 import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
-import android.speech.RecognizerIntent;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.FrameLayout;
-import android.widget.ImageButton;
 import android.widget.TextView;
-import android.widget.Toast;
+import android.support.v4.widget.SwipeRefreshLayout;
 
 import com.cypress.smartchessapp.Fragments.CommandInputFragment;
+import com.cypress.smartchessapp.Fragments.ErrorFragment;
 import com.cypress.smartchessapp.Fragments.FragmentNavigation;
 import com.cypress.smartchessapp.Fragments.GameSelectionFragment;
 import com.cypress.smartchessapp.Fragments.PVPFragment;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -54,6 +47,8 @@ public class GameActivity extends AppCompatActivity {
     protected TextView command_status_text_view;
     @BindView(R.id.fragment_container)
     protected FrameLayout user_input_layout;
+    @BindView(R.id.pull_refresh)
+    SwipeRefreshLayout swipeRefresh;
 
     // Variables to manage BLE connection
     private static boolean mConnectState;
@@ -130,6 +125,15 @@ public class GameActivity extends AppCompatActivity {
 
         mHandler = new Handler();
         startBluetooth(findViewById(android.R.id.content));
+
+        swipeRefresh.setOnRefreshListener( new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                startBluetooth(findViewById(android.R.id.content));
+                swipeRefresh.setRefreshing(false);
+                swipeRefresh.setEnabled(false);
+            }
+        } );
 
         //This section required for Android 6.0 (Marshmallow)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -224,15 +228,21 @@ public class GameActivity extends AppCompatActivity {
         command_status_text_view.setText(commandStatus);
     }
 
+    private void setErrorFragment() {
+        fragmentNavigation.setFragment(R.id.main_fragment_container, new ErrorFragment(),
+                false);
+        swipeRefresh.setEnabled(true);
+    }
+
     private void setMainFragment() {
         if(Constants.GAME_TYPES[gameTypeNumber].equals("None")) {
-            fragmentNavigation.setFragment( R.id.main_fragment_container, new GameSelectionFragment(),
-                    false );
+            fragmentNavigation.setFragment(R.id.main_fragment_container, new GameSelectionFragment(),
+                    false);
         } else if(Constants.GAME_TYPES[gameTypeNumber].equals("PVE")) {
             showUI();
             user_input_layout.setVisibility(View.VISIBLE);
-            fragmentNavigation.setFragment( R.id.main_fragment_container, new PVPFragment(),
-                    false );
+            fragmentNavigation.setFragment(R.id.main_fragment_container, new PVPFragment(),
+                    false);
         }
     }
 
@@ -254,7 +264,6 @@ public class GameActivity extends AppCompatActivity {
      * @param view the view object
      */
     public void startBluetooth(View view) {
-
         // Find BLE service and adapter
         final BluetoothManager bluetoothManager =
                 (BluetoothManager) getSystemService( Context.BLUETOOTH_SERVICE);
@@ -272,7 +281,6 @@ public class GameActivity extends AppCompatActivity {
         Intent gattServiceIntent = new Intent(this, PSoCSmartChessService.class);
         bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE);
 
-        // Disable the start button and turn on the search  button
         Log.d(TAG, "Bluetooth is Enabled");
 
         searchBluetooth(view);
@@ -309,9 +317,9 @@ public class GameActivity extends AppCompatActivity {
             @Override
             public void run() {
                 if(mPSoCSmartChessService.connect()) {
-                    discoverServices( view );
+                    discoverServices(view);
                 } else {
-                    // TODO cannot connect messages
+                    setErrorFragment();
                 }
             }
         }, 500 );
@@ -334,7 +342,6 @@ public class GameActivity extends AppCompatActivity {
             }
         }, 500);
 
-
         /* After this we wait for the gatt callback to report the services and characteristics */
         /* That event broadcasts a message which is picked up by the mGattUpdateReceiver */
     }
@@ -356,41 +363,39 @@ public class GameActivity extends AppCompatActivity {
     private final BroadcastReceiver mBleUpdateReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-        final String action = intent.getAction();
-        switch (action) {
-            case PSoCSmartChessService.ACTION_BLESCAN_CALLBACK:
-                break;
+            final String action = intent.getAction();
+            switch (action) {
+                case PSoCSmartChessService.ACTION_BLESCAN_CALLBACK:
+                    break;
 
-           case PSoCSmartChessService.ACTION_CONNECTED:
-                if (!mConnectState) {
-                    //showUI();
-                    mConnectState = true;
-                    Log.d(TAG, "Connected to Device");
-                }
-                break;
-           case PSoCSmartChessService.ACTION_DISCONNECTED:
-               // Disable the disconnect, discover svc, discover char button, and enable the search button
-               hideUI();
-               mConnectState = false;
-               mPSoCSmartChessService.close();
-               Log.d(TAG, "Disconnected");
-               break;
-           case PSoCSmartChessService.ACTION_SERVICES_DISCOVERED:
-               Log.d(TAG, "Services Discovered");
-               break;
-           case PSoCSmartChessService.ACTION_DATA_RECEIVED:
-               updateUI();
-               int currentGameType = mPSoCSmartChessService.getGameType();
-               // Check if game type changed and is greater than zero if BLE service was recreated
-               if(gameTypeNumber != currentGameType && currentGameType >= 0) {
-                   gameTypeNumber = currentGameType;
-                   setMainFragment();
-               }
-
-               break;
-           default:
-                break;
-        }
+               case PSoCSmartChessService.ACTION_CONNECTED:
+                    if (!mConnectState) {
+                        //showUI();
+                        mConnectState = true;
+                        Log.d(TAG, "Connected to Device");
+                    }
+                    break;
+               case PSoCSmartChessService.ACTION_DISCONNECTED:
+                   hideUI();
+                   mConnectState = false;
+                   mPSoCSmartChessService.close();
+                   Log.d(TAG, "Disconnected");
+                   break;
+               case PSoCSmartChessService.ACTION_SERVICES_DISCOVERED:
+                   Log.d(TAG, "Services Discovered");
+                   break;
+               case PSoCSmartChessService.ACTION_DATA_RECEIVED:
+                   updateUI();
+                   int currentGameType = mPSoCSmartChessService.getGameType();
+                   // Check if game type changed and is greater than zero if BLE service was recreated
+                   if(gameTypeNumber != currentGameType && currentGameType >= 0) {
+                       gameTypeNumber = currentGameType;
+                       setMainFragment();
+                   }
+                   break;
+                default:
+                    break;
+            }
         }
     };
 
