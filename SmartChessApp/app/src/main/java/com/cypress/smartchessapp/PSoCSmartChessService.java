@@ -216,7 +216,7 @@ public class PSoCSmartChessService extends Service {
         // We want to directly connect to the device, so we are setting the autoConnect
         // parameter to false.
         try {
-            mBluetoothGatt = mLeDevice.connectGatt( this, true, mGattCallback );
+            mBluetoothGatt = mLeDevice.connectGatt( this, false, mGattCallback );
             Log.d( TAG, "Trying to create a new connection." );
         } catch (NullPointerException e) {
             System.out.println(e.toString());

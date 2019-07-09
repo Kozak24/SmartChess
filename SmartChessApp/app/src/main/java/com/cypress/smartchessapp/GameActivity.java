@@ -110,28 +110,13 @@ public class GameActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView( R.layout.activity_game);
 
-        ButterKnife.bind(this);
-        fragmentNavigation = new FragmentNavigation(getSupportFragmentManager());
-        fragmentNavigation.setFragment(R.id.fragment_container, new CommandInputFragment(),
-                false);
-
-        hideUI();
-
-        // Initialize service and connection state variable
-        mServiceConnected = false;
-        mConnectState = false;
-
-        mHandler = new Handler();
-        startBluetooth(findViewById(android.R.id.content));
+        initialize();
 
         swipeRefresh.setOnRefreshListener( new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
                 startBluetooth(findViewById(android.R.id.content));
-                swipeRefresh.setRefreshing(false);
-                swipeRefresh.setEnabled(false);
             }
         } );
 
@@ -186,6 +171,26 @@ public class GameActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
     }
 
+    private void initialize() {
+        setContentView(R.layout.activity_game);
+
+        ButterKnife.bind(this);
+        fragmentNavigation = new FragmentNavigation(getSupportFragmentManager());
+        fragmentNavigation.setFragment(R.id.fragment_container, new CommandInputFragment(),
+                false);
+
+        hideUI();
+
+        // Initialize service and connection state variable
+        mServiceConnected = false;
+        mConnectState = false;
+
+        mHandler = new Handler();
+        startBluetooth(findViewById(android.R.id.content));
+
+        swipeRefresh.setEnabled(false);
+    }
+
     private void updateUI() {
         Log.e(TAG, "UI Update");
         updatePlayerTextView();
@@ -226,6 +231,11 @@ public class GameActivity extends AppCompatActivity {
                 break;
         }
         command_status_text_view.setText(commandStatus);
+    }
+
+    private void disableSwipeRefresh() {
+        swipeRefresh.setRefreshing(false);
+        swipeRefresh.setEnabled(false);
     }
 
     private void setErrorFragment() {
@@ -319,6 +329,7 @@ public class GameActivity extends AppCompatActivity {
                 if(mPSoCSmartChessService.connect()) {
                     discoverServices(view);
                 } else {
+                    disableSwipeRefresh();
                     setErrorFragment();
                 }
             }
@@ -339,6 +350,7 @@ public class GameActivity extends AppCompatActivity {
             @Override
             public void run() {
                 mPSoCSmartChessService.discoverServices();
+                disableSwipeRefresh();
             }
         }, 500);
 
