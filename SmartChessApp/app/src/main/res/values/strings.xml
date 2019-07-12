@@ -46,9 +46,12 @@
     <string name="eve">Enemy vs Enemy</string>
     <string name="demo">Demo</string>
 
-    <!-- ErrorFragment -->
+    <!-- StatusFragment -->
     <string name="went_wrong">Something went wrong</string>
     <string name="error_message">Error message</string>
+
+    <!-- ConnectingFragment -->
+    <string name="connecting">Connecting&#8230;</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>

@@ -28,7 +28,7 @@ import android.widget.TextView;
 import android.support.v4.widget.SwipeRefreshLayout;
 
 import com.cypress.smartchessapp.Fragments.CommandInputFragment;
-import com.cypress.smartchessapp.Fragments.ErrorFragment;
+import com.cypress.smartchessapp.Fragments.StatusFragment;
 import com.cypress.smartchessapp.Fragments.FragmentNavigation;
 import com.cypress.smartchessapp.Fragments.GameSelectionFragment;
 import com.cypress.smartchessapp.Fragments.PVPFragment;
@@ -185,10 +185,12 @@ public class GameActivity extends AppCompatActivity {
         mServiceConnected = false;
         mConnectState = false;
 
+        // Set swipe to refresh - refreshing state
+        swipeRefresh.setRefreshing(true);
+
+        // Handler for scheduling messages (BLE connection)
         mHandler = new Handler();
         startBluetooth(findViewById(android.R.id.content));
-
-        swipeRefresh.setEnabled(false);
     }
 
     private void updateUI() {
@@ -238,10 +240,18 @@ public class GameActivity extends AppCompatActivity {
         swipeRefresh.setEnabled(false);
     }
 
-    private void setErrorFragment() {
-        fragmentNavigation.setFragment(R.id.main_fragment_container, new ErrorFragment(),
+    private void setStatusFragment(int statusCode) {
+        StatusFragment statusFragment = new StatusFragment();
+
+        Bundle bundle = new Bundle();
+        bundle.putInt(Constants.KEY, statusCode);
+
+        statusFragment.setArguments(bundle);
+        fragmentNavigation.setFragment(R.id.main_fragment_container, statusFragment,
                 false);
-        swipeRefresh.setEnabled(true);
+
+        if(statusCode == Constants.STATUS_ERROR)
+            swipeRefresh.setEnabled(true);
     }
 
     private void setMainFragment() {
@@ -274,6 +284,8 @@ public class GameActivity extends AppCompatActivity {
      * @param view the view object
      */
     public void startBluetooth(View view) {
+        setStatusFragment(Constants.STATUS_CONNECTING);
+
         // Find BLE service and adapter
         final BluetoothManager bluetoothManager =
                 (BluetoothManager) getSystemService( Context.BLUETOOTH_SERVICE);
@@ -330,7 +342,7 @@ public class GameActivity extends AppCompatActivity {
                     discoverServices(view);
                 } else {
                     disableSwipeRefresh();
-                    setErrorFragment();
+                    setStatusFragment(Constants.STATUS_ERROR);
                 }
             }
         }, 500 );
