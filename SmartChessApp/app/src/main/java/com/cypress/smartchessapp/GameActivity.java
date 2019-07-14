@@ -24,6 +24,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.support.v4.widget.SwipeRefreshLayout;
 
@@ -49,6 +50,8 @@ public class GameActivity extends AppCompatActivity {
     protected FrameLayout user_input_layout;
     @BindView(R.id.pull_refresh)
     SwipeRefreshLayout swipeRefresh;
+    @BindView(R.id.progress_bar)
+    ProgressBar progress_bar;
 
     // Variables to manage BLE connection
     private static boolean mConnectState;
@@ -181,6 +184,9 @@ public class GameActivity extends AppCompatActivity {
 
         hideUI();
 
+        progress_bar.getProgressDrawable().setColorFilter(
+                Color.parseColor("#0000FF"), android.graphics.PorterDuff.Mode.SRC_IN);
+
         // Initialize service and connection state variable
         mServiceConnected = false;
         mConnectState = false;
@@ -270,12 +276,14 @@ public class GameActivity extends AppCompatActivity {
         player_text_view.setVisibility(View.GONE);
         command_status_text_view.setVisibility(View.GONE);
         user_input_layout.setVisibility(View.GONE);
+        progress_bar.setVisibility(View.GONE);
     }
 
     private void showUI() {
         command_status_text_view.setVisibility(View.VISIBLE);
         player_text_view.setVisibility(View.VISIBLE);
         user_input_layout.setVisibility(View.VISIBLE);
+        progress_bar.setVisibility(View.VISIBLE);
     }
 
     /**

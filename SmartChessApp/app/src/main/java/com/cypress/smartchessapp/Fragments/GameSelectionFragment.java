@@ -47,9 +47,11 @@ public class GameSelectionFragment extends Fragment {
                     getApplication()).getPSoCSmartChessService();
 
             // Write game type into Gatt DB
-            psocSmartChessService.writeStartGameCharacteristic( gameTypeNumber );
-            // Restart activity
-            getActivity().recreate();
+            psocSmartChessService.writeStartGameCharacteristic(gameTypeNumber);
+            // Sleep for waiting when write will be done
+            Thread.sleep(200);
+            // Read game type to change fragment (Logic implemented inside GameActivity)
+            psocSmartChessService.readGameType();
         } catch (Exception ex) {
             Toast.makeText(getContext(), String.format("Something went wrong %s", ex),
                     Toast.LENGTH_LONG).show();

@@ -299,7 +299,7 @@ public class PSoCSmartChessService extends Service {
 
     public void writeStartGameCharacteristic(int value) {
         mStartGameCharacteristic.setValue(value, BluetoothGattCharacteristic.FORMAT_UINT8, 0);
-        mBluetoothGatt.writeCharacteristic( mStartGameCharacteristic );
+        mBluetoothGatt.writeCharacteristic(mStartGameCharacteristic);
     }
 
     /**
@@ -458,8 +458,13 @@ public class PSoCSmartChessService extends Service {
                 // Notify the main activity that new data is available
                 broadcastUpdate(ACTION_DATA_RECEIVED);
 
-                characteristicsForReadList.remove(characteristicsForReadList.
-                        get(characteristicsForReadList.size() - 1));
+                try {
+                    characteristicsForReadList.remove(characteristicsForReadList.
+                            get(characteristicsForReadList.size() - 1));
+                } catch (Exception ex) {
+                    // If list is empty
+                }
+
 
                 if(characteristicsForReadList.size() > 0) {
                     readCharacteristics();
