@@ -1,6 +1,6 @@
 -- ======================================================================
 -- GRBL.ctl generated from GRBL
--- 05/01/2019 at 22:32
+-- 07/18/2019 at 19:36
 -- This file is auto generated. ANY EDITS YOU MAKE MAY BE LOST WHEN THIS FILE IS REGENERATED!!!
 -- ======================================================================
 

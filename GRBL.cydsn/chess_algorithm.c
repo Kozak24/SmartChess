@@ -2,25 +2,16 @@
 
 char bufferForSpritnf[35];
 
-/* Two dimensional array of pieces on the Square. Have information about 
-[a-h][1-8] Square, Piece standing on him and what Player own this Piece*/
-uint8 chessPositionArray[8][8][2] = {
-    { /*Row a, Cols 1-4*/ {WHITE_PLAYER, ROOK_PIECE}, {WHITE_PLAYER, KNIGHT_PIECE}, {WHITE_PLAYER, BISHOP_PIECE}, {WHITE_PLAYER, QUEEN_PIECE},
-      /*Row a, Cols 5-8*/ {WHITE_PLAYER, KING_PIECE}, {WHITE_PLAYER, BISHOP_PIECE}, {WHITE_PLAYER, KNIGHT_PIECE}, {WHITE_PLAYER, ROOK_PIECE} },
-    { /*Row b, Cols 1-4*/ {WHITE_PLAYER, PAWN_PIECE}, {WHITE_PLAYER, PAWN_PIECE}, {WHITE_PLAYER, PAWN_PIECE}, {WHITE_PLAYER, PAWN_PIECE},
-      /*Row b, Cols 5-8*/ {WHITE_PLAYER, PAWN_PIECE}, {WHITE_PLAYER, PAWN_PIECE}, {WHITE_PLAYER, PAWN_PIECE}, {WHITE_PLAYER, PAWN_PIECE} },
-    { /*Row c, Cols 1-4*/ {EMPTY_SQUARE, NONE_PIECE}, {EMPTY_SQUARE, NONE_PIECE}, {EMPTY_SQUARE, NONE_PIECE}, {EMPTY_SQUARE, NONE_PIECE},
-      /*Row c, Cols 5-8*/ {EMPTY_SQUARE, NONE_PIECE}, {EMPTY_SQUARE, NONE_PIECE}, {EMPTY_SQUARE, NONE_PIECE}, {EMPTY_SQUARE, NONE_PIECE} },
-    { /*Row d, Cols 1-4*/ {EMPTY_SQUARE, NONE_PIECE}, {EMPTY_SQUARE, NONE_PIECE}, {EMPTY_SQUARE, NONE_PIECE}, {EMPTY_SQUARE, NONE_PIECE},
-      /*Row d, Cols 5-8*/ {EMPTY_SQUARE, NONE_PIECE}, {EMPTY_SQUARE, NONE_PIECE}, {EMPTY_SQUARE, NONE_PIECE}, {EMPTY_SQUARE, NONE_PIECE} },
-    { /*Row e, Cols 1-4*/ {EMPTY_SQUARE, NONE_PIECE}, {EMPTY_SQUARE, NONE_PIECE}, {EMPTY_SQUARE, NONE_PIECE}, {EMPTY_SQUARE, NONE_PIECE},
-      /*Row e, Cols 5-8*/ {EMPTY_SQUARE, NONE_PIECE}, {EMPTY_SQUARE, NONE_PIECE}, {EMPTY_SQUARE, NONE_PIECE}, {EMPTY_SQUARE, NONE_PIECE} },
-    { /*Row f, Cols 1-4*/ {EMPTY_SQUARE, NONE_PIECE}, {EMPTY_SQUARE, NONE_PIECE}, {EMPTY_SQUARE, NONE_PIECE}, {EMPTY_SQUARE, NONE_PIECE},
-      /*Row f, Cols 5-8*/ {EMPTY_SQUARE, NONE_PIECE}, {EMPTY_SQUARE, NONE_PIECE}, {EMPTY_SQUARE, NONE_PIECE}, {EMPTY_SQUARE, NONE_PIECE} },
-    { /*Row g, Cols 1-4*/ {BLACK_PLAYER, PAWN_PIECE}, {BLACK_PLAYER, PAWN_PIECE}, {BLACK_PLAYER, PAWN_PIECE}, {BLACK_PLAYER, PAWN_PIECE},
-      /*Row g, Cols 5-8*/ {BLACK_PLAYER, PAWN_PIECE}, {BLACK_PLAYER, PAWN_PIECE}, {BLACK_PLAYER, PAWN_PIECE}, {BLACK_PLAYER, PAWN_PIECE} },
-    { /*Row h, Cols 1-4*/ {BLACK_PLAYER, ROOK_PIECE}, {BLACK_PLAYER, KNIGHT_PIECE}, {BLACK_PLAYER, BISHOP_PIECE}, {BLACK_PLAYER, KING_PIECE},
-      /*Row h, Cols 5-8*/ {BLACK_PLAYER, QUEEN_PIECE}, {BLACK_PLAYER, BISHOP_PIECE}, {BLACK_PLAYER, KNIGHT_PIECE}, {BLACK_PLAYER, ROOK_PIECE} }
+// Array of pieces
+uint8 chessPositionArray[8][8] = {
+    { WHITE_ROOK,   WHITE_KNIGHT, WHITE_BISHOP, WHITE_QUEEN,  WHITE_KING,   WHITE_BISHOP, WHITE_KNIGHT, WHITE_ROOK },
+    { WHITE_PAWN,   WHITE_PAWN,   WHITE_PAWN,   WHITE_PAWN,   WHITE_PAWN,   WHITE_PAWN,   WHITE_PAWN,   WHITE_PAWN },
+    { EMPTY_SQUARE, EMPTY_SQUARE, EMPTY_SQUARE, EMPTY_SQUARE, EMPTY_SQUARE, EMPTY_SQUARE, EMPTY_SQUARE, EMPTY_SQUARE },
+    { EMPTY_SQUARE, EMPTY_SQUARE, EMPTY_SQUARE, EMPTY_SQUARE, EMPTY_SQUARE, EMPTY_SQUARE, EMPTY_SQUARE, EMPTY_SQUARE },
+    { EMPTY_SQUARE, EMPTY_SQUARE, EMPTY_SQUARE, EMPTY_SQUARE, EMPTY_SQUARE, EMPTY_SQUARE, EMPTY_SQUARE, EMPTY_SQUARE },
+    { EMPTY_SQUARE, EMPTY_SQUARE, EMPTY_SQUARE, EMPTY_SQUARE, EMPTY_SQUARE, EMPTY_SQUARE, EMPTY_SQUARE, EMPTY_SQUARE },
+    { BLACK_PAWN,   BLACK_PAWN,   BLACK_PAWN,   BLACK_PAWN,   BLACK_PAWN,   BLACK_PAWN,   BLACK_PAWN,   BLACK_PAWN },
+    { BLACK_ROOK,   BLACK_KNIGHT, BLACK_BISHOP, BLACK_KING,   BLACK_QUEEN,  BLACK_BISHOP, BLACK_KNIGHT, BLACK_ROOK}
 };
 
 // Array of chess pieces types
@@ -95,20 +86,20 @@ void validate_command(char * command) {
   UART_UartPutString(bufferForSpritnf);
   sprintf(bufferForSpritnf, "Command %s\n\n\r", command);
   UART_UartPutString(bufferForSpritnf);
-  // Get piece type
-  game_info.pieceType = get_chess_piece_type(command[0]);
+  
+  /*// Get piece type
+  game_info.pieceType = get_chess_piece_type(command[0]);*/
 
-  // Check if square is empty. Need for next validation of some chess pieces
-  if(0 == strcmp(game_info.pieceType, "Pawn")) {
-    if(is_coordinates_range_right(command)) {
-        game_info.isSquareEmpty = is_square_empty(command);
-    }
-  } else {
-    char coordinates[2];
-    sprintf(coordinates, "%c%c", command[1], command[2]);
-    if(is_coordinates_range_right(coordinates)) {
-        game_info.isSquareEmpty = is_square_empty(coordinates);
-    }
+  // Get piece index
+  uint8 pieceIndex = get_piece_index_from_letter(command[0]);
+
+  // Copy piece type into game_info.pieceType
+  strcpy(game_info.pieceType, chessPiecesTypesArray[pieceIndex]);
+
+  char coordinates[3];
+  sprintf(coordinates, "%c%c", command[1], command[2]);
+  if(is_coordinates_range_right(coordinates)) {
+      game_info.isSquareEmpty = is_square_empty(coordinates);
   }
 
   // Check if destination position piece isn't King
@@ -175,25 +166,25 @@ void update_chess_array(void) {
   // Update position in array
   if(game_info.isSquareEmpty) {
     // Destination square is empty, then we just copy from piece square to destination square
-    memcpy(chessPositionArray[endPosY][endPosX], chessPositionArray[piecePosY][piecePosX], 2);
-    // And now set 0 values in former piece's square, because square will empty after piece movement
-    memset(chessPositionArray[piecePosY][piecePosX], 0, 2);
+    chessPositionArray[endPosY][endPosX] = chessPositionArray[piecePosY][piecePosX];
+    // And now set EMPTY_SQUARE value in former piece's square, because square will be empty after piece movement
+    chessPositionArray[piecePosY][piecePosX] = EMPTY_SQUARE;
   } else {
     // There will block to save piece at defeated pieces array
     // TODO Make block to save defeated piece
     
     // Copy data from piece square to destination square
-    memcpy(chessPositionArray[endPosY][endPosX], chessPositionArray[piecePosY][piecePosX], 2);
-    // And now set 0 values in former piece's square, because square will empty after piece movement
-    memset(chessPositionArray[piecePosY][piecePosX], 0, 2);
+    chessPositionArray[endPosY][endPosX] = chessPositionArray[piecePosY][piecePosX];
+    // And now set EMPTY_SQUARE value in former piece's square, because square will be empty after piece movement
+    chessPositionArray[piecePosY][piecePosX] = EMPTY_SQUARE;
   }
 }
 
 /* When pawn got to other side of board then pawn piece become queen.
 Function that changes pawn piece to queen in the chessArray*/
 void pawn_become_queen(void) {
-  // Change PAWN piece index to QUEEN piece index in array
-  chessPositionArray[game_info.piecePosY][game_info.piecePosX][PIECE_INDEX] = QUEEN_PIECE;
+  // Change PAWN piece to QUEEN piece in array
+  chessPositionArray[game_info.piecePosY][game_info.piecePosX] = game_info.player + QUEEN;
 }
 
 // Generate GCODE commands

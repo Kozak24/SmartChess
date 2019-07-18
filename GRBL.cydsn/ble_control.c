@@ -5,7 +5,7 @@ uint8 inputCommand[5];
 uint8 commandStatusNotification = 0;
 uint8 playerNotification = 0;
 
-void readCommand() {
+void readCommand(void) {
     CYBLE_GATTS_HANDLE_VALUE_NTF_T tempHandle;
     
     tempHandle.attrHandle = CYBLE_SMARTCHESS_COMMAND_CHAR_HANDLE;
@@ -40,6 +40,21 @@ void updatePlayer(void) {
     }
 }
 
+void updateCommandProgress(void) {
+    CYBLE_GATTS_HANDLE_VALUE_NTF_T tempHandle;
+    // Temporary array for test
+    uint8 tempArray[2] = { 3, 13 };
+    
+    tempHandle.attrHandle = CYBLE_SMARTCHESS_COMMANDPROGRESS_CHAR_HANDLE;
+    tempHandle.value.val = (uint8 *) tempArray;
+    tempHandle.value.len = 2;
+    CyBle_GattsWriteAttributeValue(&tempHandle, 0, &cyBle_connHandle, CYBLE_GATT_DB_LOCALLY_INITIATED);
+    
+    /*if(commandProgressNotification) {
+        CyBle_GattsNotification(cyBle_connHandle, &tempHandle);
+    }*/
+}
+
 void updateGameInformation(void) {
     updateCommandStatus();
     updatePlayer();
@@ -69,6 +84,8 @@ void BleCallBack(uint32 event, void* eventParam) {
         case CYBLE_EVT_GATT_CONNECT_IND:
             BLE_Status_Pin_Write(1);
             updateGameInformation();
+            // WILL BE DELETED
+            updateCommandProgress();
         break;
         
         /*handle a write request */

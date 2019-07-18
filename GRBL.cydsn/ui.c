@@ -29,8 +29,6 @@ void print_error_message(void) {
     uint8 error_index = game_info.commandStatus - 1;
     const char * error_message = error_messages[error_index];
     UART_UartPutString(error_message);
-    //sprintf(bufferForSpritnf, "__________________\n\r");
-    //UART_UartPutString(bufferForSpritnf);
 }
 
 // Print chess board and all chess pieces position
@@ -40,20 +38,20 @@ void print_chess_position_array(void) {
     UART_UartPutChar(' ');
     
     for(int x = 0; x < 8; x++) {
-      if(EMPTY_SQUARE == chessPositionArray[y][x][PLAYER_INDEX]) {
+      if(EMPTY_SQUARE == chessPositionArray[y][x]) {
         UART_UartPutString("[  ]");
       } else {
         UART_UartPutString("[");
         
         // Print player initial w - for White, b - for Black
-        if(WHITE_PLAYER == chessPositionArray[y][x][PLAYER_INDEX]) {
+        if(WHITE_PLAYER == get_player(chessPositionArray[y][x])) {
             UART_UartPutChar('w');
-        } else if(BLACK_PLAYER == chessPositionArray[y][x][PLAYER_INDEX]) {
+        } else if(BLACK_PLAYER == get_player(chessPositionArray[y][x])) {
             UART_UartPutChar('b');
         }
         
         // Print piece initial (first letter)
-        UART_UartPutChar(chessPiecesLettersArray[chessPositionArray[y][x][PIECE_INDEX]]);
+        UART_UartPutChar(chessPiecesLettersArray[get_piece_index(chessPositionArray[y][x])]);
         
         UART_UartPutString("]");
       }

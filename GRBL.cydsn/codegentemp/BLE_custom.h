@@ -26,7 +26,7 @@
 /* Maximum supported Custom Services */
 #define CYBLE_CUSTOMS_SERVICE_COUNT                  (0x01u)
 #define CYBLE_CUSTOMC_SERVICE_COUNT                  (0x00u)
-#define CYBLE_CUSTOM_SERVICE_CHAR_COUNT              (0x04u)
+#define CYBLE_CUSTOM_SERVICE_CHAR_COUNT              (0x05u)
 #define CYBLE_CUSTOM_SERVICE_CHAR_DESCRIPTORS_COUNT  (0x02u)
 
 /* Below are the indexes and handles of the defined Custom Services and their characteristics */
@@ -41,6 +41,9 @@
 #define CYBLE_SMARTCHESS_PLAYER_PLAYERNOTIFICATION_DESC_INDEX   (0x01u) /* Index of PlayerNotification descriptor */
 #define CYBLE_SMARTCHESS_STARTGAME_CHAR_INDEX   (0x03u) /* Index of StartGame characteristic */
 #define CYBLE_SMARTCHESS_STARTGAME_STARTGAMEDESCRIPTION_DESC_INDEX   (0x00u) /* Index of StartGameDescription descriptor */
+#define CYBLE_SMARTCHESS_COMMANDPROGRESS_CHAR_INDEX   (0x04u) /* Index of CommandProgress characteristic */
+#define CYBLE_SMARTCHESS_COMMANDPROGRESS_COMMANDPROGRESSDESCRIPTION_DESC_INDEX   (0x00u) /* Index of CommandProgressDescription descriptor */
+#define CYBLE_SMARTCHESS_COMMANDPROGRESS_COMMANDPROGRESSNOTIFICATION_DESC_INDEX   (0x01u) /* Index of CommandProgressNotification descriptor */
 
 
 #define CYBLE_SMARTCHESS_SERVICE_HANDLE   (0x0010u) /* Handle of SmartChess service */
@@ -58,6 +61,10 @@
 #define CYBLE_SMARTCHESS_STARTGAME_DECL_HANDLE   (0x001Cu) /* Handle of StartGame characteristic declaration */
 #define CYBLE_SMARTCHESS_STARTGAME_CHAR_HANDLE   (0x001Du) /* Handle of StartGame characteristic */
 #define CYBLE_SMARTCHESS_STARTGAME_STARTGAMEDESCRIPTION_DESC_HANDLE   (0x001Eu) /* Handle of StartGameDescription descriptor */
+#define CYBLE_SMARTCHESS_COMMANDPROGRESS_DECL_HANDLE   (0x001Fu) /* Handle of CommandProgress characteristic declaration */
+#define CYBLE_SMARTCHESS_COMMANDPROGRESS_CHAR_HANDLE   (0x0020u) /* Handle of CommandProgress characteristic */
+#define CYBLE_SMARTCHESS_COMMANDPROGRESS_COMMANDPROGRESSDESCRIPTION_DESC_HANDLE   (0x0021u) /* Handle of CommandProgressDescription descriptor */
+#define CYBLE_SMARTCHESS_COMMANDPROGRESS_COMMANDPROGRESSNOTIFICATION_DESC_HANDLE   (0x0022u) /* Handle of CommandProgressNotification descriptor */
 
 
 

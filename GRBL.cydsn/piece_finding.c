@@ -29,8 +29,8 @@ void find_knight(void) {
     //  In this condition we check is lower points within chess board 
     if(endPosY - KNIGHT_OFFSET_Y >= Y_COORDINATE_MIN) {
         if(endPosX - KNIGHT_HALF_OFFSET_X >= X_COORDINATE_MIN) {
-            if(chessPositionArray[endPosY - KNIGHT_OFFSET_Y][endPosX - KNIGHT_HALF_OFFSET_X][PIECE_INDEX] == KNIGHT_PIECE
-            && chessPositionArray[endPosY - KNIGHT_OFFSET_Y][endPosX - KNIGHT_HALF_OFFSET_X][PLAYER_INDEX] == player) {
+            if(get_piece_type(chessPositionArray[endPosY - KNIGHT_OFFSET_Y][endPosX - KNIGHT_HALF_OFFSET_X]) == KNIGHT
+            && get_player(chessPositionArray[endPosY - KNIGHT_OFFSET_Y][endPosX - KNIGHT_HALF_OFFSET_X]) == player) {
                 game_info.piecePosX = endPosX - KNIGHT_HALF_OFFSET_X;
                 game_info.piecePosY = endPosY - KNIGHT_OFFSET_Y;
                 return;
@@ -38,8 +38,8 @@ void find_knight(void) {
         }
         
         if(endPosX + KNIGHT_HALF_OFFSET_X <= X_COORDINATE_MAX) {
-            if(chessPositionArray[endPosY - KNIGHT_OFFSET_Y][endPosX + KNIGHT_HALF_OFFSET_X][PIECE_INDEX] == KNIGHT_PIECE
-            && chessPositionArray[endPosY - KNIGHT_OFFSET_Y][endPosX + KNIGHT_HALF_OFFSET_X][PLAYER_INDEX] == player) {
+            if(get_piece_type(chessPositionArray[endPosY - KNIGHT_OFFSET_Y][endPosX + KNIGHT_HALF_OFFSET_X]) == KNIGHT
+            && get_player(chessPositionArray[endPosY - KNIGHT_OFFSET_Y][endPosX + KNIGHT_HALF_OFFSET_X]) == player) {
                 game_info.piecePosX = endPosX + KNIGHT_HALF_OFFSET_X;
                 game_info.piecePosY = endPosY - KNIGHT_OFFSET_Y;
                 return;
@@ -49,8 +49,8 @@ void find_knight(void) {
     //  In this condition we check is upper points within chess board 
     if(endPosY + KNIGHT_OFFSET_Y <= Y_COORDINATE_MAX) {
         if(endPosX - KNIGHT_HALF_OFFSET_X >= X_COORDINATE_MIN) {
-            if(chessPositionArray[endPosY + KNIGHT_OFFSET_Y][endPosX - KNIGHT_HALF_OFFSET_X][PIECE_INDEX] == KNIGHT_PIECE
-            && chessPositionArray[endPosY + KNIGHT_OFFSET_Y][endPosX - KNIGHT_HALF_OFFSET_X][PLAYER_INDEX] == player) {
+            if(get_piece_type(chessPositionArray[endPosY + KNIGHT_OFFSET_Y][endPosX - KNIGHT_HALF_OFFSET_X]) == KNIGHT
+            && get_player(chessPositionArray[endPosY + KNIGHT_OFFSET_Y][endPosX - KNIGHT_HALF_OFFSET_X]) == player) {
                 game_info.piecePosX = endPosX - KNIGHT_HALF_OFFSET_X;
                 game_info.piecePosY = endPosY + KNIGHT_OFFSET_Y;
                 return;
@@ -58,8 +58,8 @@ void find_knight(void) {
         }
         
         if(endPosX + KNIGHT_HALF_OFFSET_X <= X_COORDINATE_MAX) {
-            if(chessPositionArray[endPosY + KNIGHT_OFFSET_Y][endPosX + KNIGHT_HALF_OFFSET_X][PIECE_INDEX] == KNIGHT_PIECE
-            && chessPositionArray[endPosY + KNIGHT_OFFSET_Y][endPosX + KNIGHT_HALF_OFFSET_X][PLAYER_INDEX] == player) {
+            if(get_piece_type(chessPositionArray[endPosY + KNIGHT_OFFSET_Y][endPosX + KNIGHT_HALF_OFFSET_X]) == KNIGHT
+            && get_player(chessPositionArray[endPosY + KNIGHT_OFFSET_Y][endPosX + KNIGHT_HALF_OFFSET_X]) == player) {
                 game_info.piecePosX = endPosX + KNIGHT_HALF_OFFSET_X;
                 game_info.piecePosY = endPosY + KNIGHT_OFFSET_Y;
                 return;
@@ -69,8 +69,8 @@ void find_knight(void) {
     //  In this condition we check is left points within chess board
     if(endPosX - KNIGHT_OFFSET_X >= X_COORDINATE_MIN) {
         if(endPosY - KNIGHT_HALF_OFFSET_Y >= Y_COORDINATE_MIN) {
-            if(chessPositionArray[endPosY - KNIGHT_HALF_OFFSET_Y][endPosX - KNIGHT_OFFSET_X][PIECE_INDEX] == KNIGHT_PIECE
-            && chessPositionArray[endPosY - KNIGHT_HALF_OFFSET_Y][endPosX - KNIGHT_OFFSET_X][PLAYER_INDEX] == player) {
+            if(get_piece_type(chessPositionArray[endPosY - KNIGHT_HALF_OFFSET_Y][endPosX - KNIGHT_OFFSET_X]) == KNIGHT
+            && get_player(chessPositionArray[endPosY - KNIGHT_HALF_OFFSET_Y][endPosX - KNIGHT_OFFSET_X]) == player) {
                 game_info.piecePosX = endPosX - KNIGHT_OFFSET_X;
                 game_info.piecePosY = endPosY - KNIGHT_HALF_OFFSET_Y;
                 return;
@@ -78,8 +78,8 @@ void find_knight(void) {
         }
         
         if(endPosY + KNIGHT_HALF_OFFSET_Y <= Y_COORDINATE_MAX) {
-            if(chessPositionArray[endPosY + KNIGHT_HALF_OFFSET_Y][endPosX - KNIGHT_OFFSET_X][PIECE_INDEX] == KNIGHT_PIECE
-            && chessPositionArray[endPosY + KNIGHT_HALF_OFFSET_Y][endPosX - KNIGHT_OFFSET_X][PLAYER_INDEX] == player) {
+            if(get_piece_type(chessPositionArray[endPosY + KNIGHT_HALF_OFFSET_Y][endPosX - KNIGHT_OFFSET_X]) == KNIGHT
+            && get_player(chessPositionArray[endPosY + KNIGHT_HALF_OFFSET_Y][endPosX - KNIGHT_OFFSET_X]) == player) {
                 game_info.piecePosX = endPosX - KNIGHT_OFFSET_X;
                 game_info.piecePosY = endPosY + KNIGHT_HALF_OFFSET_Y;
                 return;
@@ -89,8 +89,8 @@ void find_knight(void) {
     //  In this condition we check is right points within chess board
     if(endPosX + KNIGHT_OFFSET_X <= X_COORDINATE_MAX) {
         if(endPosY - KNIGHT_HALF_OFFSET_Y >= Y_COORDINATE_MIN) {
-            if(chessPositionArray[endPosY - KNIGHT_HALF_OFFSET_Y][endPosX + KNIGHT_OFFSET_X][PIECE_INDEX] == KNIGHT_PIECE
-            && chessPositionArray[endPosY - KNIGHT_HALF_OFFSET_Y][endPosX + KNIGHT_OFFSET_X][PLAYER_INDEX] == player) {
+            if(get_piece_type(chessPositionArray[endPosY - KNIGHT_HALF_OFFSET_Y][endPosX + KNIGHT_OFFSET_X]) == KNIGHT
+            && get_player(chessPositionArray[endPosY - KNIGHT_HALF_OFFSET_Y][endPosX + KNIGHT_OFFSET_X]) == player) {
                 game_info.piecePosX = endPosX + KNIGHT_OFFSET_X;
                 game_info.piecePosY = endPosY - KNIGHT_HALF_OFFSET_Y;
                 return;
@@ -98,8 +98,8 @@ void find_knight(void) {
         }
         
         if(endPosY + KNIGHT_HALF_OFFSET_Y <= Y_COORDINATE_MAX) {
-            if(chessPositionArray[endPosY + KNIGHT_HALF_OFFSET_Y][endPosX + KNIGHT_OFFSET_X][PIECE_INDEX] == KNIGHT_PIECE
-            && chessPositionArray[endPosY + KNIGHT_HALF_OFFSET_Y][endPosX + KNIGHT_OFFSET_X][PLAYER_INDEX] == player) {
+            if(get_piece_type(chessPositionArray[endPosY + KNIGHT_HALF_OFFSET_Y][endPosX + KNIGHT_OFFSET_X]) == KNIGHT
+            && get_player(chessPositionArray[endPosY + KNIGHT_HALF_OFFSET_Y][endPosX + KNIGHT_OFFSET_X]) == player) {
                 game_info.piecePosX = endPosX + KNIGHT_OFFSET_X;
                 game_info.piecePosY = endPosY + KNIGHT_HALF_OFFSET_Y;
                 return;
@@ -111,17 +111,18 @@ void find_knight(void) {
 
 // Function that find by diagonal path
 void find_by_diagonal(void) {
-  int destinationX = game_info.endPosX;
-  int destinationY = game_info.endPosY;
+  uint8 destinationX = game_info.endPosX;
+  uint8 destinationY = game_info.endPosY;
+    
+  uint8 squareInfo = 0;
   // Left upper diagonal path and Left downer diagonal path
   if(destinationX != X_COORDINATE_MAX) {
-    int y = destinationY;
+    uint8 y = destinationY;
     // Left upper diagonal path
-    for(int x = destinationX + 1; x < 8; x++) {
+    for(uint8 x = destinationX + 1; x < 8; x++) {
       y += 1;
         
-      uint8 squareInfo[2]; 
-      memcpy(squareInfo, chessPositionArray[y][x], 2);
+      squareInfo = chessPositionArray[y][x];
 
       // If is_piece_found return 1, then piece found - exit function
       if(is_piece_found(squareInfo) == 1) {
@@ -140,11 +141,10 @@ void find_by_diagonal(void) {
 
     y = destinationY;
     // Left downer diagonal path
-    for(int x = destinationX + 1; x < 8; x++) {
+    for(uint8 x = destinationX + 1; x < 8; x++) {
       y -= 1;
         
-      uint8 squareInfo[2];
-      memcpy(squareInfo, chessPositionArray[y][x], 2);
+      squareInfo = chessPositionArray[y][x];
 
       // If is_piece_found return 1, then piece found - exit function
       if(is_piece_found(squareInfo) == 1) {
@@ -164,13 +164,12 @@ void find_by_diagonal(void) {
 
   // Right downer diagonal path and Right upper diagonal path
   if(destinationX != X_COORDINATE_MIN) {
-    int y = destinationY;
+    uint8 y = destinationY;
     // Right downer diagonal path
-    for(int x = destinationX - 1; x >= 0; x--) {
+    for(uint8 x = destinationX - 1; x >= 0; x--) {
       y -= 1;
         
-      uint8 squareInfo[2]; 
-      memcpy(squareInfo, chessPositionArray[y][x], 2);
+      squareInfo = chessPositionArray[y][x];
 
       // If is_piece_found return 1, then piece found - exit function
       if(is_piece_found(squareInfo) == 1) {
@@ -189,11 +188,10 @@ void find_by_diagonal(void) {
 
     y = destinationY;
     // Right upper diagonal path
-    for(int x = destinationX - 1; x >= 0; x--) {
+    for(uint8 x = destinationX - 1; x >= 0; x--) {
       y += 1;
       
-      uint8 squareInfo[2]; 
-      memcpy(squareInfo, chessPositionArray[y][x], 2);
+      squareInfo = chessPositionArray[y][x];
 
       // If is_piece_found return 1, then piece found - exit function
       if(is_piece_found(squareInfo) == 1) {
@@ -214,31 +212,31 @@ void find_by_diagonal(void) {
 
 // Function that find piece by horizontal path
 void find_by_horizontal(void) {
-  int destinationX = game_info.endPosX;
-  int destinationY = game_info.endPosY;
+  uint8 destinationX = game_info.endPosX;
+  uint8 destinationY = game_info.endPosY;
+    
+  uint8 squareInfo = 0;
 
   // Check if piece is already found
   if(0 == strcmp(game_info.pieceType, "Queen")) {
-    int x = game_info.piecePosX;
-    int y = game_info.piecePosY;
+    uint8 x = game_info.piecePosX;
+    uint8 y = game_info.piecePosY;
     
-    uint8 squareInfo[2]; 
-    memcpy(squareInfo, chessPositionArray[y][x], 2);
+    squareInfo = chessPositionArray[y][x];
     
     // If piece is already found, then return
-    if(chessPiecesLettersArray[squareInfo[PIECE_INDEX]] == game_info.pieceType[FIRST_LETTER]) {
+    if(chessPiecesLettersArray[get_piece_index(squareInfo)] == game_info.pieceType[FIRST_LETTER]) {
       return;
     }
   }
 
   // Path to right from destination position
   if(destinationX != X_COORDINATE_MAX) {
-    int y = destinationY;
+    uint8 y = destinationY;
 
-    for(int x = destinationX + 1; x < 8; x++) {
+    for(uint8 x = destinationX + 1; x < 8; x++) {
         
-      uint8 squareInfo[2]; 
-      memcpy(squareInfo, chessPositionArray[y][x], 2);
+      squareInfo = chessPositionArray[y][x];
 
       // If is_piece_found return 1, then piece found - exit function
       if(is_piece_found(squareInfo) == 1) {
@@ -254,12 +252,11 @@ void find_by_horizontal(void) {
 
   // Path to left from destination position
   if(destinationX != X_COORDINATE_MIN) {
-    int y = destinationY;
+    uint8 y = destinationY;
     
-    for(int x = destinationX - 1; x >= 0; x--) {
+    for(uint8 x = destinationX - 1; x >= 0; x--) {
       
-      uint8 squareInfo[2]; 
-      memcpy(squareInfo, chessPositionArray[y][x], 2);
+      squareInfo = chessPositionArray[y][x];
 
       // If is_piece_found return 1, then piece found - exit function
       if(is_piece_found(squareInfo) == 1) {
@@ -276,39 +273,39 @@ void find_by_horizontal(void) {
 
 // Function that find piece by vertical path
 void find_by_vertical(void) {
-  int destinationX = game_info.endPosX;
-  int destinationY = game_info.endPosY;
+  uint8 destinationX = game_info.endPosX;
+  uint8 destinationY = game_info.endPosY;
+    
+  uint8 squareInfo = 0;
 
   // Check if piece is already found
   if(0 == strcmp(game_info.pieceType, "Queen")
   || 0 == strcmp(game_info.pieceType, "Rook")) {
-    int x = game_info.piecePosX;
-    int y = game_info.piecePosY;
+    uint8 x = game_info.piecePosX;
+    uint8 y = game_info.piecePosY;
     
-    uint8 squareInfo[2]; 
-    memcpy(squareInfo, chessPositionArray[y][x], 2);
+    squareInfo = chessPositionArray[y][x];
     
     // If piece is already found, then return
-    if(chessPiecesLettersArray[squareInfo[PIECE_INDEX]] == game_info.pieceType[FIRST_LETTER]) {
+    if(chessPiecesLettersArray[get_piece_index(squareInfo)] == game_info.pieceType[FIRST_LETTER]) {
       return;
     }
   }
 
   if(destinationY != Y_COORDINATE_MAX) {
-    int x = destinationX;
+    uint8 x = destinationX;
     
     // Path from destination position to upper side
-    for(int y = destinationY + 1; y < 8; y++) {
+    for(uint8 y = destinationY + 1; y < 8; y++) {
         
-      uint8 squareInfo[2]; 
-      memcpy(squareInfo, chessPositionArray[y][x], 2);
+      squareInfo = chessPositionArray[y][x];
 
-      // If is_piece_found return 1, then piece found - exit function
+      // If is_piece_found() returns 1, then piece found - exit function
       if(is_piece_found(squareInfo) == 1) {
         game_info.piecePosX = x;
         game_info.piecePosY = y;
         return;
-      // If is_piece_found return 0, then path blocked - brake cycle
+      // If is_piece_found() returns 0, then path blocked - brake cycle
       } else if(is_piece_found(squareInfo) == 0) {
         break;
       }
@@ -316,20 +313,19 @@ void find_by_vertical(void) {
   }
 
   if(destinationY != Y_COORDINATE_MIN) {
-    int x = destinationX;
+    uint8 x = destinationX;
 
     // Path from destination position to downer side
-    for(int y = destinationY - 1; y >= 0; y--) {
+    for(uint8 y = destinationY - 1; y >= 0; y--) {
         
-      uint8 squareInfo[2]; 
-      memcpy(squareInfo, chessPositionArray[y][x], 2);
+      squareInfo = chessPositionArray[y][x];
 
-      // If is_piece_found return 1, then piece found - exit function
+      // If is_piece_found() returns, then piece found - exit function
       if(is_piece_found(squareInfo) == 1) {
         game_info.piecePosX = x;
         game_info.piecePosY = y;
         return;
-      // If is_piece_found return 0, then path blocked - brake cycle
+      // If is_piece_found() returns, then path blocked - brake cycle
       } else if(is_piece_found(squareInfo) == 0) {
         break;
       }
@@ -363,49 +359,47 @@ void find_pawn(void) {
       }
 
       // Bottom piece coordinates is [a-h]2 for white or [a-h]7 for black
-      uint8 bottomSquare[2];
-      memcpy(bottomSquare, chessPositionArray[bottomPosY][destinationX], 2);
+      uint8 bottomSquare = chessPositionArray[bottomPosY][destinationX];
       // Top piece coordinates is [a-h]3 for white or [a-h]6 for black
-      uint8 topSquare[2];
-      memcpy(topSquare, chessPositionArray[topPosY][destinationX], 2);  
+      uint8 topSquare = chessPositionArray[topPosY][destinationX];
 
-      if((EMPTY_SQUARE != bottomSquare[PLAYER_INDEX]) 
-      && (EMPTY_SQUARE != topSquare[PLAYER_INDEX])) {
+      if((EMPTY_SQUARE != bottomSquare) 
+      && (EMPTY_SQUARE != topSquare)) {
         // If at top square is enemy then path is blocked
-        if(topSquare[PLAYER_INDEX] != player 
-        && bottomSquare[PLAYER_INDEX] == player) {
+        if(get_player(topSquare) != player 
+        && get_player(bottomSquare) == player) {
           game_info.commandStatus = ERROR_PATH_BLOCKED_BY_ENEMY;
         /* If at top square is player's, then it's possible Pawn
         this'll be checked in second step of validation */
-        } else if(topSquare[PLAYER_INDEX] == player
-        && bottomSquare[PLAYER_INDEX] == player) {
+        } else if(get_player(topSquare) == player
+        && get_player(bottomSquare) == player) {
           // If top square piece isn't Pawn then error
-          if(chessPiecesLettersArray[topSquare[PIECE_INDEX]] != game_info.pieceType[FIRST_LETTER]) {
+          if(chessPiecesLettersArray[get_piece_index(topSquare)] != game_info.pieceType[FIRST_LETTER]) {
             game_info.commandStatus = ERROR_PATH_BLOCKED_BY_ALLY;
           } else {
             game_info.piecePosY = topPosY;
           }
         }
       // If both bottom and top squares is empty then no piece found
-      } else if((EMPTY_SQUARE == bottomSquare[PLAYER_INDEX]) 
-      && (EMPTY_SQUARE == topSquare[PLAYER_INDEX])) {
+      } else if((EMPTY_SQUARE == bottomSquare) 
+      && (EMPTY_SQUARE == topSquare)) {
         game_info.commandStatus = ERROR_PIECE_NOT_FOUND;
       /* If bottom square isn't empty and top square is empty
       then bottom square is possible position of Pawn */
-      } else if((EMPTY_SQUARE != bottomSquare[PLAYER_INDEX]) 
-      && (EMPTY_SQUARE == topSquare[PLAYER_INDEX])) {
-        if(bottomSquare[PLAYER_INDEX] == player
-        && chessPiecesLettersArray[bottomSquare[PIECE_INDEX]] == game_info.pieceType[FIRST_LETTER]) {
+      } else if((EMPTY_SQUARE != bottomSquare) 
+      && (EMPTY_SQUARE == topSquare)) {
+        if(get_player(bottomSquare) == player
+        && chessPiecesLettersArray[get_piece_index(bottomSquare)] == game_info.pieceType[FIRST_LETTER]) {
           game_info.piecePosY = bottomPosY;
         } else {
           game_info.commandStatus = ERROR_PIECE_NOT_FOUND;
         }
       /* If bottom square is empty and top square isn't empty
       then top square is possible position of Pawn */
-      } else if((EMPTY_SQUARE == bottomSquare[PLAYER_INDEX]) 
-      && (EMPTY_SQUARE != topSquare[PLAYER_INDEX])) {
-        if(topSquare[PLAYER_INDEX] == player
-        && chessPiecesLettersArray[topSquare[PIECE_INDEX]] == game_info.pieceType[FIRST_LETTER]) {
+      } else if((EMPTY_SQUARE == bottomSquare) 
+      && (EMPTY_SQUARE != topSquare)) {
+        if(get_player(topSquare) == player
+        && chessPiecesLettersArray[get_piece_index(topSquare)] == game_info.pieceType[FIRST_LETTER]) {
           game_info.piecePosY = topPosY;
         } else {
           game_info.commandStatus = ERROR_PIECE_NOT_FOUND;
@@ -446,34 +440,32 @@ void find_pawn(void) {
         offsetX = 1;
       }
 
-      uint8 leftSquare[2];
-      memcpy(leftSquare, chessPositionArray[game_info.piecePosY][destinationX - offsetX], 2);
-      uint8 rightSquare[2];
-      memcpy(rightSquare, chessPositionArray[game_info.piecePosY][destinationX + offsetX], 2);
+      uint8 leftSquare = chessPositionArray[game_info.piecePosY][destinationX - offsetX];
+      uint8 rightSquare = chessPositionArray[game_info.piecePosY][destinationX + offsetX];
 
       /* Check if both left and right square isn't empty if not
       then check if left isn't empty if not
       then check if right isn't empty */
-      if((EMPTY_SQUARE != rightSquare[PLAYER_INDEX]) 
-      && (EMPTY_SQUARE != leftSquare[PLAYER_INDEX])) {
+      if((EMPTY_SQUARE != rightSquare) 
+      && (EMPTY_SQUARE != leftSquare)) {
         // If it's not player piece 
-        if(leftSquare[PLAYER_INDEX] != player 
-        && rightSquare[PLAYER_INDEX] != player) {
+        if(get_player(leftSquare) != player 
+        && get_player(rightSquare) != player) {
           game_info.commandStatus = ERROR_NON_PLAYER_S_PIECE;
         /* If leftSquare isn't player piece, 
         then rightSquare is a possible position of piece */
-        } else if (leftSquare[PLAYER_INDEX] != player) {
-          if(rightSquare[PLAYER_INDEX] == player 
-          && chessPiecesLettersArray[rightSquare[PIECE_INDEX]] == game_info.pieceType[FIRST_LETTER]) {
+        } else if (get_player(leftSquare) != player) {
+          if(get_player(rightSquare) == player 
+          && chessPiecesLettersArray[get_piece_index(rightSquare)] == game_info.pieceType[FIRST_LETTER]) {
             game_info.piecePosX = destinationX + offsetX;
           } else {
             game_info.commandStatus = ERROR_PIECE_NOT_FOUND;
           }
         /* If rightSquare isn't player piece, 
         then leftSquare is a possible position of piece */
-        } else if (rightSquare[PLAYER_INDEX] != player) {
-          if(leftSquare[PLAYER_INDEX] == player 
-          && chessPiecesLettersArray[leftSquare[PIECE_INDEX]] == game_info.pieceType[FIRST_LETTER]) {
+        } else if (get_player(rightSquare) != player) {
+          if(get_player(leftSquare) == player 
+          && chessPiecesLettersArray[get_piece_index(leftSquare)] == game_info.pieceType[FIRST_LETTER]) {
             game_info.piecePosX = destinationX - offsetX;
           } else {
             game_info.commandStatus = ERROR_PIECE_NOT_FOUND;
@@ -481,11 +473,11 @@ void find_pawn(void) {
         /* Last case all pieces are player's, then 
         assign coordinate of left piece by default */
         } else {
-          if(leftSquare[PLAYER_INDEX] == player 
-          && chessPiecesLettersArray[leftSquare[PIECE_INDEX]] == game_info.pieceType[FIRST_LETTER]) {
+          if(get_player(leftSquare) == player 
+          && chessPiecesLettersArray[get_piece_index(leftSquare)] == game_info.pieceType[FIRST_LETTER]) {
             game_info.piecePosX = destinationX - offsetX;
-          } else if(rightSquare[PLAYER_INDEX] == player 
-          && chessPiecesLettersArray[rightSquare[PIECE_INDEX]] == game_info.pieceType[FIRST_LETTER]) {
+          } else if(get_player(rightSquare) == player 
+          && chessPiecesLettersArray[get_piece_index(rightSquare)] == game_info.pieceType[FIRST_LETTER]) {
             game_info.piecePosX = destinationX + offsetX;
           } else {
             game_info.commandStatus = ERROR_PIECE_NOT_FOUND;
@@ -493,18 +485,18 @@ void find_pawn(void) {
         }
       /* if rightSquare isn't empty and leftSquare is empty,
       then it's possible position of piece */
-      } else if(EMPTY_SQUARE != rightSquare[PLAYER_INDEX]) {
+      } else if(EMPTY_SQUARE != rightSquare) {
         // Check is it player's piece and is it Pawn
-        if(rightSquare[PLAYER_INDEX] == player 
-        && chessPiecesLettersArray[rightSquare[PIECE_INDEX]] == game_info.pieceType[FIRST_LETTER]) {
+        if(get_player(rightSquare) == player 
+        && chessPiecesLettersArray[get_piece_index(rightSquare)] == game_info.pieceType[FIRST_LETTER]) {
           game_info.piecePosX = destinationX + offsetX;
         }
       /* if leftSquare isn't empty and rightSquare is empty,
       then it's possible position of piece*/
-      } else if(EMPTY_SQUARE != leftSquare[PLAYER_INDEX]) {
+      } else if(EMPTY_SQUARE != leftSquare) {
         // Check is it player's piece and is it Pawn
-        if(leftSquare[PLAYER_INDEX] == player 
-        && chessPiecesLettersArray[leftSquare[PIECE_INDEX]] == game_info.pieceType[FIRST_LETTER]) {
+        if(get_player(leftSquare) == player 
+        && chessPiecesLettersArray[get_piece_index(leftSquare)] == game_info.pieceType[FIRST_LETTER]) {
           game_info.piecePosX = destinationX - offsetX;
         }
       // if leftSquare and rightSquare is empty, then piece not found
@@ -523,10 +515,10 @@ void find_pawn(void) {
       }
 
       // Check if it's pawn on this square
-      uint8 squareInfo[2];
-      memcpy(squareInfo, chessPositionArray[y][x], 2);
-      if(squareInfo[PLAYER_INDEX] == player
-      && chessPiecesLettersArray[squareInfo[PLAYER_INDEX]] == game_info.pieceType[FIRST_LETTER]) {
+      uint8 squareInfo = chessPositionArray[y][x];
+    
+      if(get_player(squareInfo) == player
+      && chessPiecesLettersArray[get_piece_index(squareInfo)] == game_info.pieceType[FIRST_LETTER]) {
         game_info.piecePosX = x;
       } else {
         game_info.commandStatus = ERROR_PIECE_NOT_FOUND;

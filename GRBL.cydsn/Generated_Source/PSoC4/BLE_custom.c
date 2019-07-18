@@ -73,6 +73,17 @@ const CYBLE_CUSTOMS_T cyBle_customs[0x01u] = {
                     CYBLE_GATT_INVALID_ATTR_HANDLE_VALUE, 
                 }, 
             },
+
+            /* CommandProgress characteristic */
+            {
+                0x0020u, /* Handle of the CommandProgress characteristic */ 
+                
+                /* Array of Descriptors handles */
+                {
+                    0x0021u, /* Handle of the CommandProgressDescription descriptor */ 
+                    0x0022u, /* Handle of the CommandProgressNotification descriptor */ 
+                }, 
+            },
         }, 
     },
 };

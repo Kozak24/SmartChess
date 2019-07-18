@@ -3,13 +3,10 @@
     #include "project.h"
     
     #define STARTED_GAME   (1)
-
-    #define EMPTY_SQUARE (0)
-    #define WHITE_PLAYER (1)
-    #define BLACK_PLAYER (2)   
     
-    #define PLAYER_INDEX (0)
-    #define PIECE_INDEX  (1)
+    // High bit of uint8 variable keeps information about player
+    #define WHITE_PLAYER (0b00000000)
+    #define BLACK_PLAYER (0b10000000)
 
 enum CommandStatuses{
   RIGHT_COMMAND = 0x01, ERROR_IS_ALLY = 0x02, ERROR_PIECE_NOT_FOUND = 0x03,
@@ -34,7 +31,7 @@ typedef struct {
   uint8 endPosY; 
 
   // Piece type for validation and checks
-  const char * pieceType;
+  char pieceType[7];
 
   // Store info about command
   enum CommandStatuses commandStatus;
@@ -43,7 +40,7 @@ typedef struct {
 
 // Link global variables
 extern game_info_t game_info;
-extern uint8 chessPositionArray[8][8][2];
+extern uint8 chessPositionArray[8][8];
 extern const char * chessPiecesTypesArray[6];
 extern char chessPiecesLettersArray[6];
 extern char bufferForSpritnf[35];
