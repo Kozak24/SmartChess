@@ -15,6 +15,8 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.cypress.smartchessapp.ApplicationEx;
+import com.cypress.smartchessapp.PSoCSmartChessService;
 import com.cypress.smartchessapp.R;
 
 import java.util.ArrayList;
@@ -80,8 +82,11 @@ public class CommandInputFragment extends Fragment {
     // Speech button
     @BindView(R.id.speech_button)
     protected ImageButton speech_button;
+
     // Array for keeping command value
     byte[] byteValue = new byte[3];
+    // BLE Service
+    PSoCSmartChessService mPSoCSmartChessService;
 
     public CommandInputFragment() {
         // Required empty public constructor
@@ -93,6 +98,10 @@ public class CommandInputFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_command_input, container, false);
         ButterKnife.bind(this, view);
         speech_button.setImageResource(R.drawable.ic_mic_black_24dp);
+
+        mPSoCSmartChessService = ((ApplicationEx) getActivity().getApplication())
+                .getPSoCSmartChessService();
+
         return view;
     }
 
@@ -201,7 +210,11 @@ public class CommandInputFragment extends Fragment {
 
     @OnClick(R.id.send_command)
     protected void sendCommand() {
-        /*mPSoCSmartChessService.writeCommandCharacteristic(byteValues);*/
+        if(mPSoCSmartChessService == null) {
+            mPSoCSmartChessService = ((ApplicationEx) getActivity().getApplication())
+                    .getPSoCSmartChessService();
+        }
+        mPSoCSmartChessService.writeCommandCharacteristic(byteValue);
         resetData();
     }
 

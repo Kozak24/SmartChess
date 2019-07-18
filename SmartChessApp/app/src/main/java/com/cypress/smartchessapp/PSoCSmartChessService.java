@@ -78,6 +78,7 @@ public class PSoCSmartChessService extends Service {
     private static BluetoothGattCharacteristic mPlayerCharacteristic;
     private static BluetoothGattCharacteristic mCommandStatusCharacteristic;
     private static BluetoothGattCharacteristic mStartGameCharacteristic;
+    private static BluetoothGattCharacteristic mCommandProgressCharacteristic;
 
     // Array of characteristics for read
     List<BluetoothGattCharacteristic> characteristicsForReadList = new ArrayList<>();
@@ -92,16 +93,18 @@ public class PSoCSmartChessService extends Service {
     public  final static String commandStatusCharacteristicUUID =   baseUUID + "2";
     public  final static String playerCharacteristicUUID =          baseUUID + "3";
     public  final static String startGameCharacteristicUUID =       baseUUID + "4";
+    public  final static String commandProgressCharacteristicUUID = baseUUID + "5";
     // CCCD
     private final static String baseCccdUUID =               "00002902-0000-1000-8000-00805f9b34fb";
 
      // Variable for notification status
     private static boolean isNotificationEnabled = false;
 
-    // Variables that have information about game
+    // Variables that have information about game from characteristics
     private static int mPlayerValue = 0;
     private static int mCommandStatusValue = 0;
     private static int mGameType = -1;
+    private static int[] commandProgressArray = new int[] {0, 0};
 
     // Actions used during broadcasts to the main activity
     public final static String ACTION_BLESCAN_CALLBACK =
@@ -115,7 +118,7 @@ public class PSoCSmartChessService extends Service {
     public final static String ACTION_DATA_RECEIVED =
             "com.cypress.smartchessapp.ACTION_DATA_RECEIVED";
 
-    public PSoCSmartChessService() { }
+    public PSoCSmartChessService() { /* Required empty public constructor */ }
 
     /**
      * This is a binder for the PSoCSmartChessService
@@ -330,9 +333,9 @@ public class PSoCSmartChessService extends Service {
     }
 
     public String getPlayerValue() {
-        if(mPlayerValue == 0x01) {
+        if(mPlayerValue == 0) {
             return "White";
-        } else if(mPlayerValue == 0x02) {
+        } else if(mPlayerValue == 128) {
             return "Black";
         } else {
             return "None";
@@ -341,6 +344,10 @@ public class PSoCSmartChessService extends Service {
 
     public int getGameType() {
         return mGameType;
+    }
+
+    public int[] getCommandProgressArray() {
+        return commandProgressArray;
     }
 
     /**
@@ -405,17 +412,25 @@ public class PSoCSmartChessService extends Service {
         @Override
         public void onServicesDiscovered(BluetoothGatt gatt, int status) {
             // Get just the service that we are looking for
-            BluetoothGattService mService = gatt.getService( UUID.fromString( smartChessServiceUUID ));
+            BluetoothGattService mService = gatt.getService(UUID.fromString(smartChessServiceUUID));
+
             /* Get characteristics from our desired service */
-            mCommandCharacterisitc = mService.getCharacteristic( UUID.fromString( commandCharacteristicUUID ));
-            mCommandStatusCharacteristic = mService.getCharacteristic( UUID.fromString( commandStatusCharacteristicUUID ));
-            mPlayerCharacteristic = mService.getCharacteristic( UUID.fromString( playerCharacteristicUUID ));
-            mStartGameCharacteristic = mService.getCharacteristic( UUID.fromString( startGameCharacteristicUUID ));
+            mCommandCharacterisitc = mService.
+                    getCharacteristic(UUID.fromString(commandCharacteristicUUID));
+            mCommandStatusCharacteristic = mService.
+                    getCharacteristic(UUID.fromString(commandStatusCharacteristicUUID));
+            mPlayerCharacteristic = mService.
+                    getCharacteristic(UUID.fromString(playerCharacteristicUUID));
+            mStartGameCharacteristic = mService.
+                    getCharacteristic(UUID.fromString(startGameCharacteristicUUID));
+            mCommandProgressCharacteristic = mService.
+                    getCharacteristic(UUID.fromString(commandProgressCharacteristicUUID));
 
             // Read the current command of the Command service from the device
             characteristicsForReadList.add(mCommandStatusCharacteristic);
             characteristicsForReadList.add(mPlayerCharacteristic);
             characteristicsForReadList.add(mStartGameCharacteristic);
+            characteristicsForReadList.add(mCommandProgressCharacteristic);
             readCharacteristics();
 
             charactersticsForNotificationList.add(mCommandStatusCharacteristic);
@@ -444,7 +459,7 @@ public class PSoCSmartChessService extends Service {
                 // If the application had additional characteristics to read we could
                 // use a switch statement here to operate on each one separately.
                 if(uuid.equalsIgnoreCase( commandCharacteristicUUID )) {
-                    // Add reading from command characteristic
+                    // Add reading for command characteristic
                 } else if(uuid.equalsIgnoreCase( playerCharacteristicUUID )) {
                     mPlayerValue = characteristic.
                             getIntValue(BluetoothGattCharacteristic.FORMAT_UINT8, 0);
@@ -454,6 +469,11 @@ public class PSoCSmartChessService extends Service {
                 } else if(uuid.equalsIgnoreCase(startGameCharacteristicUUID)) {
                     mGameType = characteristic.
                             getIntValue(BluetoothGattCharacteristic.FORMAT_UINT8, 0);
+                } else if(uuid.equalsIgnoreCase(commandProgressCharacteristicUUID)) {
+                    for(int index = 0; index < commandProgressArray.length; index++) {
+                        commandProgressArray[index] = characteristic.
+                                getIntValue(BluetoothGattCharacteristic.FORMAT_UINT8, index);
+                    }
                 }
                 // Notify the main activity that new data is available
                 broadcastUpdate(ACTION_DATA_RECEIVED);

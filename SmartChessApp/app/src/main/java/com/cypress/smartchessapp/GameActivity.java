@@ -203,6 +203,7 @@ public class GameActivity extends AppCompatActivity {
         Log.e(TAG, "UI Update");
         updatePlayerTextView();
         updateCommandStatusTextView();
+        updateProgressBar();
     }
 
     private void updatePlayerTextView() {
@@ -239,6 +240,18 @@ public class GameActivity extends AppCompatActivity {
                 break;
         }
         command_status_text_view.setText(commandStatus);
+    }
+
+    private void updateProgressBar() {
+        int[] commandProgressArray = mPSoCSmartChessService.getCommandProgressArray();
+        int progressPercents = 0;
+
+        try {
+            progressPercents = (int) (((double) commandProgressArray[0] /
+                    (double) commandProgressArray[1]) * 100);
+        } finally {
+            progress_bar.setProgress(progressPercents);
+        }
     }
 
     private void disableSwipeRefresh() {

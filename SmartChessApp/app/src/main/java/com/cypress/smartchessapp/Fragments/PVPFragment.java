@@ -34,7 +34,6 @@ public class PVPFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate( R.layout.fragment_pvp, container, false);
-
         textView = view.findViewById(R.id.text_view);
 
         setPSoCSmartChessService();
@@ -77,7 +76,6 @@ public class PVPFragment extends Fragment {
 
             final String action = intent.getAction();
             switch (action) {
-
                 case PSoCSmartChessService.ACTION_CONNECTED:
                     if (!mConnectState) {
                         mConnectState = true;
