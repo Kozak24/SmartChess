@@ -5,8 +5,10 @@
     
 // Function that return index of piece
 uint8 get_piece_index_from_letter(char chessPieceLetter);
+// Set destination position
+void set_dest_position(const char * coordinates);
 // Check if square is empty
-uint8 is_square_empty(const char * coordinates);
+uint8 is_square_empty(void);
 // Check if piece is ally
 void is_piece_ally(uint8 square);
 // Check if destination piece is king

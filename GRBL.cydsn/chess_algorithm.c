@@ -99,7 +99,8 @@ void validate_command(char * command) {
   char coordinates[3];
   sprintf(coordinates, "%c%c", command[1], command[2]);
   if(is_coordinates_range_right(coordinates)) {
-      game_info.isSquareEmpty = is_square_empty(coordinates);
+    set_dest_position(coordinates);
+    game_info.isSquareEmpty = is_square_empty();
   }
 
   // Check if destination position piece isn't King

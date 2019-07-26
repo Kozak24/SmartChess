@@ -28,7 +28,7 @@ uint8 get_piece_index_from_letter(char chessPieceLetter) {
 killing of him*/
 uint8 is_destination_piece_king(void) {
   uint8 piece = chessPositionArray[game_info.endPosY][game_info.endPosX];
-  if(chessPiecesLettersArray[get_piece_index(piece)] == 'K') {
+  if(get_piece_type(piece) == KING) {
     return 1;
   } else {
     return 0;
@@ -61,8 +61,8 @@ void is_piece_on_the_square(void) {
   }
 }
 
-// Function that checks by x y coordinates if square is empty
-uint8 is_square_empty(const char * coordinates) { 
+// Set destination position
+void set_dest_position(const char * coordinates) {
   // Assign end position X coordinate
   for(int i = 0; i < 8; i++) {
     if(coordinates[0] == chessCoordinates[i][0]) {
@@ -77,7 +77,10 @@ uint8 is_square_empty(const char * coordinates) {
       break;
     }
   }
-  
+}
+
+// Function that checks by x y coordinates if square is empty
+uint8 is_square_empty(void) { 
   //Check if square is empty
   if(EMPTY_SQUARE != chessPositionArray[game_info.endPosY][game_info.endPosX]) {
     is_piece_ally(chessPositionArray[game_info.endPosY][game_info.endPosX]);
