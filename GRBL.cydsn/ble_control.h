@@ -1,18 +1,13 @@
-#ifndef ble_control_h
-    #define ble_control_h
+#ifndef BLE_CONTROL_H
+    #define BLE_CONTROL_H
 
 #include "project.h"
     
-#define COMMAND_STATUS_NOTIFICATION (0)
-#define PLAYER_NOTIFICATION         (1)
-    
+enum notificationIndices {
+  COMMAND_STATUS_NOTIFICATION, PLAYER_NOTIFICATION, COMMAND_PROGRESS_NOTIFICATION
+};
+
 CY_ISR( BLE_Call_Int_Handler );
-
-void readCommand(void);
-
-void updateCommandStatus(void);
-
-void updatePlayer(void);
 
 void updateGameInformation(void);
 

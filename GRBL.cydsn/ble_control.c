@@ -1,11 +1,11 @@
 #include "smart_chess.h"
 
-uint8 inputCommand[5];
+static uint8 inputCommand[5];
 
-uint8 commandStatusNotification = 0;
-uint8 playerNotification = 0;
+// Array keeps notification value of characteristic. 0 - DISABLED, 1 - ENABLED;
+static uint8 notificationsArray[3];
 
-void readCommand(void) {
+static void readCommand(void) {
     CYBLE_GATTS_HANDLE_VALUE_NTF_T tempHandle;
     
     tempHandle.attrHandle = CYBLE_SMARTCHESS_COMMAND_CHAR_HANDLE;
@@ -14,7 +14,7 @@ void readCommand(void) {
     CyBle_GattsReadAttributeValue(&tempHandle, &cyBle_connHandle, CYBLE_GATT_DB_LOCALLY_INITIATED);
 }
 
-void updateCommandStatus(void) {
+static void updateCommandStatus(void) {
     CYBLE_GATTS_HANDLE_VALUE_NTF_T tempHandle;
     
     tempHandle.attrHandle = CYBLE_SMARTCHESS_COMMANDSTATUS_CHAR_HANDLE;
@@ -22,20 +22,20 @@ void updateCommandStatus(void) {
     tempHandle.value.len = 1;
     CyBle_GattsWriteAttributeValue(&tempHandle, 0, &cyBle_connHandle, CYBLE_GATT_DB_LOCALLY_INITIATED);
     
-    if(commandStatusNotification) {
+    if(notificationsArray[COMMAND_STATUS_NOTIFICATION]) {
         CyBle_GattsNotification(cyBle_connHandle, &tempHandle);
     }
 }
 
-void updatePlayer(void) {
+static void updatePlayer(void) {
     CYBLE_GATTS_HANDLE_VALUE_NTF_T tempHandle;
     
     tempHandle.attrHandle = CYBLE_SMARTCHESS_PLAYER_CHAR_HANDLE;
     tempHandle.value.val = (uint8 *) &game_info.player;
     tempHandle.value.len = 1;
     CyBle_GattsWriteAttributeValue(&tempHandle, 0, &cyBle_connHandle, CYBLE_GATT_DB_LOCALLY_INITIATED);
-    
-    if(playerNotification) {
+
+    if(notificationsArray[PLAYER_NOTIFICATION]) {
         CyBle_GattsNotification(cyBle_connHandle, &tempHandle);
     }
 }
@@ -50,14 +50,15 @@ void updateCommandProgress(void) {
     tempHandle.value.len = 2;
     CyBle_GattsWriteAttributeValue(&tempHandle, 0, &cyBle_connHandle, CYBLE_GATT_DB_LOCALLY_INITIATED);
     
-    /*if(commandProgressNotification) {
+    if(notificationsArray[COMMAND_PROGRESS_NOTIFICATION]) {
         CyBle_GattsNotification(cyBle_connHandle, &tempHandle);
-    }*/
+    }
 }
 
 void updateGameInformation(void) {
     updateCommandStatus();
     updatePlayer();
+    updateCommandProgress();
 }
 
 void send_command_to_grbl(char * buffer) {
@@ -79,13 +80,10 @@ void BleCallBack(uint32 event, void* eventParam) {
             BLE_Status_Pin_Write(0);
         break;
             
-        /* when a connection is made, update the LED and Capsense
-        states in the GATT database*/
+        /* when a connection is made, update Game information in the GATT database*/
         case CYBLE_EVT_GATT_CONNECT_IND:
             BLE_Status_Pin_Write(1);
             updateGameInformation();
-            // WILL BE DELETED
-            updateCommandProgress();
         break;
         
         /*handle a write request */
@@ -124,14 +122,22 @@ void BleCallBack(uint32 event, void* eventParam) {
             /*request to update the CommandStatus notification */
             if(wrReqParam->handleValPair.attrHandle == CYBLE_SMARTCHESS_COMMANDSTATUS_COMMANDSTATUSNOTIFICATION_DESC_HANDLE) {
                 CyBle_GattsWriteAttributeValue(&wrReqParam->handleValPair, 0, &cyBle_connHandle, CYBLE_GATT_DB_PEER_INITIATED);
-                commandStatusNotification = wrReqParam->handleValPair.value.val[0] & 0x01;
+                notificationsArray[COMMAND_STATUS_NOTIFICATION] = wrReqParam->handleValPair.value.val[0] & 0x01;
                 CyBle_GattsWriteRsp(cyBle_connHandle);
             }
             
             /*request to update the Player notification */
             if(wrReqParam->handleValPair.attrHandle == CYBLE_SMARTCHESS_PLAYER_PLAYERNOTIFICATION_DESC_HANDLE) {
                 CyBle_GattsWriteAttributeValue(&wrReqParam->handleValPair, 0, &cyBle_connHandle, CYBLE_GATT_DB_PEER_INITIATED);
-                playerNotification = wrReqParam->handleValPair.value.val[0] & 0x01;
+                notificationsArray[PLAYER_NOTIFICATION] = wrReqParam->handleValPair.value.val[0] & 0x01;
+                CyBle_GattsWriteRsp(cyBle_connHandle);
+            }
+            break;
+            
+            /*request to update the CommandProgress notification */
+            if(wrReqParam->handleValPair.attrHandle == CYBLE_SMARTCHESS_COMMANDPROGRESS_COMMANDPROGRESSNOTIFICATION_DESC_HANDLE) {
+                CyBle_GattsWriteAttributeValue(&wrReqParam->handleValPair, 0, &cyBle_connHandle, CYBLE_GATT_DB_PEER_INITIATED);
+                notificationsArray[COMMAND_PROGRESS_NOTIFICATION] = wrReqParam->handleValPair.value.val[0] & 0x01;
                 CyBle_GattsWriteRsp(cyBle_connHandle);
             }
             break;
