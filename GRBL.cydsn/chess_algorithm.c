@@ -81,6 +81,8 @@ uint8 is_coordinates_range_right(char * coordinates) {
 
 // Validation of input command 
 void validate_command(char * command) {
+  isNewCommand = OLD;  
+    
   game_info.commandStatus = RIGHT_COMMAND;
   sprintf(bufferForSpritnf, "\nPlayer is %d\n\r", game_info.player);
   UART_UartPutString(bufferForSpritnf);

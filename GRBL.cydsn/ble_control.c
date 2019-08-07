@@ -1,6 +1,7 @@
 #include "smart_chess.h"
 
-static uint8 inputCommand[5];
+uint8 isNewCommand;
+char inputCommand[5];
 
 // Array keeps notification value of characteristic. 0 - DISABLED, 1 - ENABLED;
 static uint8 notificationsArray[3];
@@ -99,10 +100,8 @@ void BleCallBack(uint32 event, void* eventParam) {
                         inputCommand[i] = wrReqParam->handleValPair.value.val[i];
                     }
                     CyBle_GattsWriteRsp(cyBle_connHandle);
-                    char command[4];
-                    sprintf(command, "%c%c%c", inputCommand[0], inputCommand[1], inputCommand[2]);
-                    validate_command(command);
-                    updateGameInformation();
+                    
+                    isNewCommand = NEW;
                 }
             }
             

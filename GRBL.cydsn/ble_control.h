@@ -3,7 +3,14 @@
 
 #include "project.h"
     
-enum notificationIndices {
+extern uint8 isNewCommand;
+extern char inputCommand[5];
+
+enum CommandCondition {
+    OLD, NEW
+};
+    
+enum NotificationIndices {
   COMMAND_STATUS_NOTIFICATION, PLAYER_NOTIFICATION, COMMAND_PROGRESS_NOTIFICATION
 };
 
