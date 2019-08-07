@@ -12,7 +12,7 @@ codegentemp/
 Generated_Source/
 
 # Ignore .log files
-.log
+*.log
 
 *_datasheet.pdf
 *_timing.html
